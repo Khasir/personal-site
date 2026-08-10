@@ -1,5 +1,5 @@
 # Site settings
-title: Khasir's Blog
+title: khasir's blog
 tagline: Welcome to my blog
 description: >-
   This is Khasir's Blog
@@ -49,7 +49,6 @@ defaults:
 
 plugins:
   - jekyll-feed
-  - jekyll-sitemap
   - jekyll-seo-tag
 
 # API base for comments/guestbook (Cloudflare Pages Function).

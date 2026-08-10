@@ -1,0 +1,7 @@
+# khasir's blog
+
+This site does not grant permission for crawling, scraping, indexing,
+or use of its content (including posts, notes, comments, and the
+guestbook) for AI training, retrieval, or any other automated
+purpose. Please do not access this site programmatically. See
+/robots.txt.
