@@ -24,7 +24,7 @@
     if (!entries.length) {
       var empty = document.createElement("li");
       empty.className = "loading";
-      empty.textContent = "No entries yet — be the first to sign!";
+      empty.textContent = "No entries yet. You can be the difference. Yes, you. Sign your name now.";
       list.appendChild(empty);
       return;
     }
@@ -54,7 +54,7 @@
         list.innerHTML = "";
         var err = document.createElement("li");
         err.className = "loading";
-        err.textContent = "Couldn't load entries right now.";
+        err.textContent = "Couldn't load entries just now.";
         list.appendChild(err);
       });
   }

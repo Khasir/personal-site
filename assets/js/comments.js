@@ -392,7 +392,7 @@
         return res.json();
       })
       .then(function (created) {
-        formStatus.textContent = "Comment posted.";
+        formStatus.textContent = "Thank you for commenting!";
         formStatus.dataset.state = "success";
         allComments.push(created);
         renderAll();
@@ -400,7 +400,7 @@
         setTimeout(hideForm, 900);
       })
       .catch(function () {
-        formStatus.textContent = "Something went wrong. Please try again.";
+        formStatus.textContent = "Something went wrong. Please try again :(";
         formStatus.dataset.state = "error";
       });
   });
