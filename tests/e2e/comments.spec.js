@@ -74,6 +74,32 @@ test.describe("posting a comment", () => {
     await expect(markAfterReload).toHaveText("no account required");
   });
 
+  test("anchors to the selected word, not an earlier occurrence containing it as a substring", async ({ page }) => {
+    // Regression: the server was trimming prefix/suffix, which strips the
+    // whitespace right next to the selection. That broke the exact
+    // prefix+quote+suffix match (missing the space it needs), falling back
+    // to a bare search for "image" -- which matched inside "images" in the
+    // first paragraph ("...make sure images, footnotes...") instead of the
+    // actual selected word in "Here's a centered image with a caption:".
+    // "image" alone is ambiguous for a substring-based test helper too --
+    // it would just as happily match inside "images" in paragraph one. Use
+    // a two-word phrase that's unique in the document so the test reliably
+    // targets the same paragraph the original bug report did, while still
+    // exercising the same prefix/suffix mechanism (a single word would
+    // exercise it identically; this just removes the ambiguity from the
+    // test itself).
+    await page.goto(POST_URL);
+    const tag = uniqueTag();
+    await selectText(page, "centered image");
+    const created = await submitComment(page, { name: `Word-${tag}`, body: `word ${tag}` });
+
+    const mark = page.locator(`mark.comment-highlight[data-comment-ids*="${created.id}"]`);
+    await expect(mark).toHaveText("centered image");
+    const paragraphText = await mark.locator("xpath=ancestor::p[1]").textContent();
+    expect(paragraphText).toContain("Here");
+    expect(paragraphText).not.toContain("make sure images");
+  });
+
   test("shows the honeypot rejection as an error, not a success", async ({ page }) => {
     await page.goto(POST_URL);
     await selectText(page, "no account required");

@@ -9,8 +9,6 @@ import {
 
 describe("parseSubmission", () => {
   test("accepts a valid comment submission", () => {
-    // prefix/suffix get trimmed like every other field, so leading/trailing
-    // whitespace in the input shouldn't survive into the stored value.
     const result = parseSubmission(
       { name: "Ada", body: "Nice post!", quote: "some text", prefix: "before ", suffix: " after" },
       { requireQuote: true }
@@ -20,9 +18,23 @@ describe("parseSubmission", () => {
       name: "Ada",
       body: "Nice post!",
       quote: "some text",
-      prefix: "before",
-      suffix: "after",
+      prefix: "before ",
+      suffix: " after",
     });
+  });
+
+  test("does not trim prefix/suffix -- their exact surrounding whitespace is what re-anchors a comment", () => {
+    // Regression: trimming these broke anchoring for any selection next to
+    // whitespace (i.e. almost always), since prefix+quote+suffix no longer
+    // matched the real text and silently fell back to matching the same
+    // word anywhere else on the page.
+    const result = parseSubmission(
+      { name: "Ada", body: "hi", quote: "image", prefix: "a centered ", suffix: " with a caption" },
+      { requireQuote: true }
+    );
+    assert.equal(result.ok, true);
+    assert.equal(result.value.prefix, "a centered ");
+    assert.equal(result.value.suffix, " with a caption");
   });
 
   test("accepts a valid guestbook submission with no quote", () => {

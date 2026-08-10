@@ -34,6 +34,17 @@ function cleanString(value, maxLen) {
   return trimmed.length ? trimmed : null;
 }
 
+// Length-caps without trimming. Unlike name/body/quote, prefix/suffix are
+// exact surrounding-text context captured for re-anchoring a comment on
+// the page -- trimming them corrupts that whenever the boundary sits next
+// to whitespace (i.e. almost always, since words are separated by spaces),
+// making prefix+quote+suffix no longer match the real text and silently
+// falling back to a same-word match anywhere else in the post.
+function cleanContext(value, maxLen) {
+  if (typeof value !== "string") return "";
+  return value.slice(0, maxLen);
+}
+
 /**
  * Parses and validates a comment/guestbook submission payload.
  * Returns { ok: true, value } or { ok: false, error }.
@@ -59,8 +70,8 @@ export function parseSubmission(body, { requireQuote }) {
     return { ok: false, error: "Missing highlighted text to attach the comment to." };
   }
 
-  const prefix = cleanString(body.prefix, 64) || "";
-  const suffix = cleanString(body.suffix, 64) || "";
+  const prefix = cleanContext(body.prefix, 64);
+  const suffix = cleanContext(body.suffix, 64);
 
   return {
     ok: true,
