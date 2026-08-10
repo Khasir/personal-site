@@ -4,7 +4,7 @@ layout: default
 <section class="home">
   {{ content }}
 
-  <h2>Recent posts</h2>
+  <h2>recent posts</h2>
   <ul class="entry-list">
     {% for post in site.posts limit: 5 %}
     {% assign post_date = post.post_date | default: post.date %}
@@ -14,9 +14,9 @@ layout: default
     </li>
     {% endfor %}
   </ul>
-  <a class="see-all" href="{{ '/posts/' | relative_url }}">All posts &rarr;</a>
+  <a class="see-all" href="{{ '/posts/' | relative_url }}">all posts &rarr;</a>
 
-  <h2>Recent notes</h2>
+  <h2>recent notes</h2>
   <ul class="entry-list">
     {% assign notes = site.notes | sort: "post_date" | reverse %}
     {% for note in notes limit: 5 %}
@@ -26,5 +26,5 @@ layout: default
     </li>
     {% endfor %}
   </ul>
-  <a class="see-all" href="{{ '/notes/' | relative_url }}">All notes &rarr;</a>
+  <a class="see-all" href="{{ '/notes/' | relative_url }}">all notes &rarr;</a>
 </section>

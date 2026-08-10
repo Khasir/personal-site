@@ -1,6 +1,6 @@
 ---
 layout: guestbook
-title: Guestbook
+title: guestbook
 permalink: /guestbook/
 ---
 

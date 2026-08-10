@@ -30,6 +30,8 @@
   --color-border: #cbb99e;
   --color-accent: #1155cc;
 
+  --color-button-preferred: #292929;
+
   --color-blockquote-bg: #fff2cc;
   --color-blockquote-border: #b0aea9;
   --color-blockquote-text: #1b1b1a;
@@ -273,7 +275,7 @@ mark.comment-highlight.is-active {
 }
 .comment-popover[hidden] { display: none; }
 .comment-popover-trigger {
-  background: var(--color-accent);
+  background: var(--color-button-preferred);
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -333,7 +335,8 @@ button[data-comment-thread-close] {
   padding: 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: #fff;
+  /* background: #fff; */
+  background: var(--color-card-bg);
   color: var(--color-text);
 }
 .field--hidden { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
@@ -342,8 +345,8 @@ button {
   font: inherit;
   padding: 0.5rem 1rem;
   border-radius: 4px;
-  border: 1px solid var(--color-accent);
-  background: var(--color-accent);
+  border: 1px solid var(--color-button-preferred);
+  background: var(--color-button-preferred);
   color: #fff;
   cursor: pointer;
 }
