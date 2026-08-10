@@ -10,9 +10,9 @@ layout: default
       {% if page.subtitle %}<p class="entry-subtitle">{{ page.subtitle }}</p>{% endif %}
     </div>
     <p class="entry-meta">
-      <time datetime="{{ post_date | date_to_xmlschema }}">posted {{ post_date | date: "%b %-d, %Y" }}</time>
+      <time datetime="{{ post_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ post_date | date: "%b %-d, %Y" }}</time>
       {% if page.modified_date %}
-      <time class="entry-modified" datetime="{{ page.modified_date | date_to_xmlschema }}">updated {{ page.modified_date | date: "%b %-d, %Y" }}</time>
+      <time class="entry-modified" datetime="{{ page.modified_date | date_to_xmlschema }}"><abbr title="last modified">l.m.</abbr> {{ page.modified_date | date: "%b %-d, %Y" }}</time>
       {% endif %}
       {% if page.tags and page.tags.size > 0 %}
       <span class="entry-tags">
