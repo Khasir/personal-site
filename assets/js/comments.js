@@ -77,15 +77,31 @@
     return range;
   }
 
+  // Walks up from a node to its nearest block-level (or list-item/table-cell)
+  // ancestor, e.g. the specific <p> or <li> it lives in -- not just the
+  // nearest direct child of the article. Falls back to the article itself if
+  // nothing block-level is found before reaching it.
+  function closestBlockAncestor(node) {
+    var el = node.nodeType === 1 ? node : node.parentElement;
+    while (el && el !== article) {
+      var display = getComputedStyle(el).display;
+      if (display === "block" || display === "list-item" || display === "table-cell" || display === "table-row") {
+        return el;
+      }
+      el = el.parentElement;
+    }
+    return article;
+  }
+
   // A <mark> is inline (phrasing) content and can't validly contain block
-  // elements like <p> or <figure>. If a range's two ends land in different
-  // direct children of the article, wrapping it in one <mark> would nest a
-  // block inside an inline element, which browsers can't lay out cleanly --
-  // it shows up as a stray paragraph break where the mark starts.
+  // elements like <p>, <li>, or <figure>. If a range's two ends live in
+  // different blocks -- even nested ones, like two separate footnote <li>s,
+  // not just two direct children of the article -- wrapping it in one
+  // <mark> would nest a block inside an inline element, which browsers
+  // can't lay out cleanly; it shows up as a stray paragraph break where the
+  // mark starts.
   function rangeSpansMultipleBlocks(range) {
-    var node = range.commonAncestorContainer;
-    var el = node.nodeType === 1 ? node : node.parentNode;
-    return el === article;
+    return closestBlockAncestor(range.startContainer) !== closestBlockAncestor(range.endContainer);
   }
 
   // Locates a comment's anchor text in the current article text, preferring
