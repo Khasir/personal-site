@@ -6,10 +6,11 @@ layout: default
   {{ content }}
   <ul class="entry-list">
     {% for entry in site.posts %}
+    {% assign entry_date = entry.post_date | default: entry.date %}
     <li>
       <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
-      <time datetime="{{ entry.date | date_to_xmlschema }}">{{ entry.date | date: "%b %-d, %Y" }}</time>
-      {% if entry.summary %}<p class="entry-summary">{{ entry.summary }}</p>{% endif %}
+      <time datetime="{{ entry_date | date_to_xmlschema }}">{{ entry_date | date: "%b %-d, %Y" }}</time>
+      {% if entry.subtitle %}<p class="entry-summary">{{ entry.subtitle }}</p>{% endif %}
     </li>
     {% endfor %}
   </ul>

@@ -1,12 +1,19 @@
 ---
 layout: default
 ---
+{% assign post_date = page.post_date | default: page.date %}
 <article class="entry" data-post-slug="{{ page.slug | default: page.url }}">
   <header class="entry-header">
-    <p class="entry-kind">{% if page.collection == 'notes' %}Note{% else %}Post{% endif %}</p>
-    <h1>{{ page.title }}</h1>
+    <div class="entry-heading">
+      <p class="entry-kind">{% if page.collection == 'notes' %}note{% else %}post{% endif %}</p>
+      <h1>{{ page.title }}</h1>
+      {% if page.subtitle %}<p class="entry-subtitle">{{ page.subtitle }}</p>{% endif %}
+    </div>
     <p class="entry-meta">
-      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+      <time datetime="{{ post_date | date_to_xmlschema }}">posted {{ post_date | date: "%b %-d, %Y" }}</time>
+      {% if page.modified_date %}
+      <time class="entry-modified" datetime="{{ page.modified_date | date_to_xmlschema }}">updated {{ page.modified_date | date: "%b %-d, %Y" }}</time>
+      {% endif %}
       {% if page.tags and page.tags.size > 0 %}
       <span class="entry-tags">
         {% for tag in page.tags %}<span class="tag">{{ tag }}</span>{% endfor %}

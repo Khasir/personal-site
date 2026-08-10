@@ -1,8 +1,9 @@
 ---
 title: "Hello, world"
-date: 2026-08-09
+subtitle: "Mostly here to exercise images, footnotes, and comments."
+post_date: 2026-08-09
+modified_date: 2026-08-09
 tags: [meta]
-summary: "The first post — mostly here to exercise images, footnotes, and comments."
 ---
 
 This is the first post on the site, mostly here to make sure images, footnotes,
@@ -23,6 +24,12 @@ which would rather defeat the point of the whole exercise.
 More text continues here to keep wrapping alongside the image. Footnotes[^2]
 should show a small hover preview when you rest the cursor over the marker, and
 clicking the marker should jump down to the full note at the bottom of the post.
+
+And a quoted section, styled distinctly from the surrounding text:
+
+> Individually, our contributions may be small — but by each person
+> contributing something, we construct something larger than any of us
+> could do alone.
 
 Now a right-aligned image, with text wrapping to its left:
 

@@ -5,12 +5,12 @@ layout: default
   <h1>{{ page.title }}</h1>
   {{ content }}
   <ul class="entry-list">
-    {% assign entries = site.notes | sort: "date" | reverse %}
+    {% assign entries = site.notes | sort: "post_date" | reverse %}
     {% for entry in entries %}
     <li>
       <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
-      <time datetime="{{ entry.date | date_to_xmlschema }}">{{ entry.date | date: "%b %-d, %Y" }}</time>
-      {% if entry.summary %}<p class="entry-summary">{{ entry.summary }}</p>{% endif %}
+      <time datetime="{{ entry.post_date | date_to_xmlschema }}">{{ entry.post_date | date: "%b %-d, %Y" }}</time>
+      {% if entry.subtitle %}<p class="entry-summary">{{ entry.subtitle }}</p>{% endif %}
     </li>
     {% endfor %}
   </ul>

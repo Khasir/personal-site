@@ -15,11 +15,16 @@ Both collections share the same frontmatter shape:
 ```yaml
 ---
 title: "Post title"
-date: 2026-08-09
+subtitle: "One-line subtitle, also shown in list views (optional)."
+post_date: 2026-08-09
+modified_date: 2026-08-12   # optional, shown as "updated ..." if present
 tags: [optional, list]
-summary: "One-line summary shown in list views (optional)."
 ---
 ```
+
+`post_date` is what's displayed and sorted on. For `_posts` it falls back to
+the date in the filename (`YYYY-MM-DD-title.md`) if omitted; `_notes` has no
+such fallback, so set it explicitly there.
 
 Within a post/note body:
 

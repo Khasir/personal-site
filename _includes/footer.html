@@ -1,6 +1,5 @@
 <footer class="site-footer">
   <div class="wrap">
-    <span>&copy; {{ site.time | date: '%Y' }} {{ site.author.name }}</span>
-    <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+    {% include nav.html %}
   </div>
 </footer>
