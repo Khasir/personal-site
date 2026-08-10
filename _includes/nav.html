@@ -3,7 +3,11 @@
   <span class="nav-sep" aria-hidden="true">&#11045;</span>
   <a href="{{ '/posts/' | relative_url }}"{% if page.url == '/posts/' %} aria-current="page"{% endif %}>posts</a>
   <span class="nav-sep" aria-hidden="true">&#11045;</span>
-  <a href="{{ '/notes/' | relative_url }}"{% if page.url == '/notes/' %} aria-current="page"{% endif %}>notes</a>
+  <a href="{{ '/notes/' | relative_url }}"{% if page.url == '/notes/' %} aria-current="page"{% endif %}>rough notes</a>
   <span class="nav-sep" aria-hidden="true">&#11045;</span>
   <a href="{{ '/guestbook/' | relative_url }}"{% if page.url == '/guestbook/' %} aria-current="page"{% endif %}>guestbook</a>
+  {% if include.show_rss %}
+  <span class="nav-sep" aria-hidden="true">&#11045;</span>
+  <a href="{{ '/feed.xml' | relative_url }}">rss</a>
+  {% endif %}
 </nav>
