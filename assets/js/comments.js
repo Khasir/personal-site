@@ -26,6 +26,8 @@
   var pendingSelection = null; // { quote, prefix, suffix, rect }
   var allComments = []; // every comment loaded/posted for this page
   var commentsById = Object.create(null);
+  var marksByCommentId = Object.create(null); // comment id -> every <mark> segment it covers
+  var hoveredCommentId = null;
 
   // --- text-offset <-> DOM range helpers -----------------------------
 
@@ -98,6 +100,12 @@
   // union of every comment's start/end offsets. Each segment becomes a
   // single <mark>, tagged with every comment that covers it -- so clicking
   // anywhere in an overlap shows every comment anchored there.
+  //
+  // Each segment also gets a "primary" comment -- the most recently posted
+  // one covering it -- and marksByCommentId records every segment each
+  // comment touches, so hovering any one segment of a comment's range can
+  // highlight that comment's full extent as a single cohesive block instead
+  // of just the fragment under the cursor.
 
   function renderAll() {
     article.querySelectorAll("mark.comment-highlight").forEach(function (mark) {
@@ -109,6 +117,8 @@
 
     commentsById = Object.create(null);
     allComments.forEach(function (c) { commentsById[c.id] = c; });
+    marksByCommentId = Object.create(null);
+    hoveredCommentId = null;
 
     var fullText = article.textContent;
     var anchored = [];
@@ -135,9 +145,14 @@
       var range = rangeFromOffsets(article, segStart, segEnd);
       if (!range) continue;
 
+      var mostRecentFirst = covering.slice().sort(function (a, b) {
+        return new Date(b.comment.created_at) - new Date(a.comment.created_at);
+      });
+
       var mark = document.createElement("mark");
       mark.className = "comment-highlight";
       mark.dataset.commentIds = covering.map(function (a) { return a.comment.id; }).join(",");
+      mark.dataset.primaryCommentId = mostRecentFirst[0].comment.id;
       try {
         range.surroundContents(mark);
       } catch (e) {
@@ -147,6 +162,27 @@
         mark.appendChild(frag);
         range.insertNode(mark);
       }
+
+      covering.forEach(function (a) {
+        (marksByCommentId[a.comment.id] = marksByCommentId[a.comment.id] || []).push(mark);
+      });
+    }
+  }
+
+  // Highlights every segment belonging to the given comment as one group;
+  // pass null to clear. No-ops if the group is already the one showing.
+  function setHoverGroup(commentId) {
+    if (commentId === hoveredCommentId) return;
+    if (hoveredCommentId) {
+      (marksByCommentId[hoveredCommentId] || []).forEach(function (m) {
+        m.classList.remove("is-hovered");
+      });
+    }
+    hoveredCommentId = commentId;
+    if (hoveredCommentId) {
+      (marksByCommentId[hoveredCommentId] || []).forEach(function (m) {
+        m.classList.add("is-hovered");
+      });
     }
   }
 
@@ -269,6 +305,17 @@
       e.stopPropagation();
       showThreadFor(mark);
     }
+  });
+
+  article.addEventListener("mouseover", function (e) {
+    var mark = e.target.closest("mark.comment-highlight");
+    setHoverGroup(mark ? mark.dataset.primaryCommentId : null);
+  });
+
+  article.addEventListener("mouseout", function (e) {
+    var to = e.relatedTarget;
+    if (to && to.closest && to.closest("mark.comment-highlight")) return; // mouseover on the new mark will take over
+    setHoverGroup(null);
   });
 
   document.addEventListener("click", function (e) {
