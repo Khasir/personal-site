@@ -175,10 +175,14 @@ blockquote {
 }
 blockquote p:last-child { margin-bottom: 0; }
 
-/* A blockquote's final paragraph, when there's more than one, reads as an
-   attribution line -- e.g. a quote followed by a blank ">" line and then
-   "-- Someone". Right-align just that line. */
-blockquote p:last-child:not(:only-child) { text-align: right; }
+/* Mark a quote's attribution line explicitly with a kramdown IAL so it
+   doesn't get confused with an unattributed multi-paragraph quote:
+     > Quote text.
+     >
+     > -- Someone
+     > {: .attribution}
+*/
+blockquote p.attribution { text-align: right; }
 
 /* Figures */
 

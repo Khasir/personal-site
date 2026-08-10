@@ -40,6 +40,17 @@ Within a post/note body:
   underlying text/`datetime` attribute are untouched). On post/note pages the
   meta line reads `p. <date>` / `l.m. <date>` (posted / last modified), each
   wrapped in `<abbr title="...">` so the full word shows on hover.
+- **External links** automatically open in a new tab and get a small arrow
+  (`assets/js/external-links.js`, based on the link's hostname — no markup
+  needed).
+- **Quote attribution**: mark a blockquote's attribution line explicitly so
+  it right-aligns:
+  ```
+  > Quote text.
+  >
+  > — Someone
+  > {: .attribution}
+  ```
 
 ## Design
 
