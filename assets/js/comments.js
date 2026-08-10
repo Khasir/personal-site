@@ -428,7 +428,7 @@
         allComments.push(created);
         renderAll();
         window.getSelection().removeAllRanges();
-        setTimeout(hideForm, 900);
+        setTimeout(hideForm, 2000);
       })
       .catch(function () {
         formStatus.textContent = "Something went wrong. Please try again :(";
