@@ -22,12 +22,14 @@
   var threadPopover = root.querySelector("[data-comment-thread-popover]");
   var threadList = root.querySelector("[data-comment-thread-list]");
   var threadClose = root.querySelector("[data-comment-thread-close]");
+  var threadReply = root.querySelector("[data-comment-thread-reply]");
 
   var pendingSelection = null; // { quote, prefix, suffix, rect }
   var allComments = []; // every comment loaded/posted for this page
   var commentsById = Object.create(null);
   var marksByCommentId = Object.create(null); // comment id -> every <mark> segment it covers
   var hoveredCommentId = null;
+  var currentThreadMark = null; // the <mark> the thread popover is currently showing
 
   // --- text-offset <-> DOM range helpers -----------------------------
 
@@ -215,6 +217,8 @@
   }
 
   function showThreadFor(mark) {
+    currentThreadMark = mark;
+
     var ids = (mark.dataset.commentIds || "").split(",").filter(Boolean);
     var comments = ids.map(function (id) { return commentsById[id]; }).filter(Boolean);
     comments.sort(function (a, b) { return new Date(a.created_at) - new Date(b.created_at); });
@@ -244,6 +248,19 @@
     var d = new Date(iso);
     if (isNaN(d.getTime())) return "";
     return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  }
+
+  // Opens the comment form pre-filled with a given anchor (either a live
+  // text selection, or -- when replying from a thread popover -- the anchor
+  // of whichever comment is primary for that highlight).
+  function openCommentForm(info) {
+    pendingSelection = info;
+    formQuote.textContent = info.quote;
+    positionAt(formDialog, info.rect);
+    hidePopover();
+    hideThread();
+    formDialog.hidden = false;
+    form.querySelector("#comment-name").focus();
   }
 
   // --- selection handling -------------------------------------------
@@ -290,11 +307,7 @@
 
   popoverTrigger.addEventListener("click", function () {
     if (!pendingSelection) return;
-    formQuote.textContent = pendingSelection.quote;
-    positionAt(formDialog, pendingSelection.rect);
-    hidePopover();
-    formDialog.hidden = false;
-    form.querySelector("#comment-name").focus();
+    openCommentForm(pendingSelection);
   });
 
   formCancel.addEventListener("click", hideForm);
@@ -336,6 +349,18 @@
   });
 
   threadClose.addEventListener("click", hideThread);
+
+  threadReply.addEventListener("click", function () {
+    if (!currentThreadMark) return;
+    var primary = commentsById[currentThreadMark.dataset.primaryCommentId];
+    if (!primary) return;
+    openCommentForm({
+      quote: primary.quote,
+      prefix: primary.prefix,
+      suffix: primary.suffix,
+      rect: currentThreadMark.getBoundingClientRect()
+    });
+  });
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();

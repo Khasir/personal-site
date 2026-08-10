@@ -251,6 +251,13 @@ mark.comment-highlight.is-active {
 .comment-thread-popover li { padding: 0.5rem 0; border-bottom: 1px solid var(--color-border); }
 .comment-thread-popover li:last-child { border-bottom: none; }
 
+.comment-thread-actions { margin-top: 0.75rem; }
+button[data-comment-thread-close] {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+  margin-left: 0.5rem;
+}
 .comment-author { font-weight: 600; font-size: 0.85rem; }
 .comment-time { color: var(--color-muted); font-size: 0.75rem; margin-left: 0.4rem; }
 .comment-body { margin: 0.15rem 0 0; font-size: 0.9rem; }
