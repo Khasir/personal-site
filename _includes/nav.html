@@ -10,4 +10,8 @@
   <span class="nav-sep" aria-hidden="true">&#11045;</span>
   <a href="{{ '/feed.xml' | relative_url }}">rss</a>
   {% endif %}
+  {% if include.show_colophon %}
+  <span class="nav-sep" aria-hidden="true">&#11045;</span>
+  <a href="{{ '/colophon/' | relative_url }}"{% if page.url == '/colophon/' %} aria-current="page"{% endif %}>colophon</a>
+  {% endif %}
 </nav>
