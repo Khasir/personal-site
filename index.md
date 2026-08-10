@@ -1,6 +1,6 @@
 ---
 layout: home
-title: khasir's blog
+title: home
 permalink: /
 ---
 
