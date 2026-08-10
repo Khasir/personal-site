@@ -1,5 +1,5 @@
 ---
-title: "Hello, world"
+title: "hello, world"
 subtitle: "Mostly here to exercise images, footnotes, and comments."
 post_date: 2026-08-09
 modified_date: 2026-08-09
@@ -18,6 +18,8 @@ paragraphs fill the space to the right of it rather than the image sitting on
 its own line. This paragraph is padded out a bit longer specifically so there's
 enough text to actually wrap around the image instead of just sitting below it,
 which would rather defeat the point of the whole exercise.
+
+Here's a [link](https://example.com/) to test that out.
 
 {% include figure.html src="/assets/images/sample-left.svg" alt="Placeholder illustration" caption="Left-aligned, text wraps to the right." align="left" width="240px" %}
 
