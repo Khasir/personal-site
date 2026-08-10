@@ -1,0 +1,76 @@
+# Site settings
+title: Khasir's Blog
+tagline: Welcome to my blog
+description: >-
+  This is Khasir's Blog
+url: "" # filled in once a domain is chosen, e.g. "https://example.com"
+baseurl: ""
+
+author:
+  name: Khasir
+
+# Build settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  footnote_nr: 1
+
+highlighter: rouge
+
+permalink: /posts/:title/
+
+collections:
+  posts:
+    output: true
+    permalink: /posts/:title/
+  notes:
+    output: true
+    permalink: /notes/:title/
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: entry
+      comments: true
+  - scope:
+      path: ""
+      type: notes
+    values:
+      layout: entry
+      comments: true
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: page
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# API base for comments/guestbook (Cloudflare Pages Function).
+# Empty string means "same origin" -- works for both local `wrangler pages dev`
+# and production once deployed.
+comments_api_base: ""
+
+sass:
+  style: compressed
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - package.json
+  - package-lock.json
+  - node_modules
+  - functions
+  - wrangler.toml
+  - migrations
+  - README.md
+  - LICENSE
+  - .dev.vars.example
+  - vendor
+  - "*.gemspec"

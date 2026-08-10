@@ -1,0 +1,15 @@
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.bundle/
+vendor/
+.sass-cache/
+
+# Cloudflare / node
+node_modules/
+.wrangler/
+.dev.vars
+
+# OS
+.DS_Store
+Thumbs.db

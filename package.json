@@ -1,0 +1,14 @@
+{
+  "name": "personal-site",
+  "private": true,
+  "scripts": {
+    "build": "bundle exec jekyll build",
+    "jekyll:watch": "bundle exec jekyll build --watch --incremental",
+    "d1:migrate:local": "wrangler d1 execute personal-site-comments --local --file=migrations/0001_init.sql",
+    "d1:migrate:remote": "wrangler d1 execute personal-site-comments --remote --file=migrations/0001_init.sql",
+    "dev": "wrangler pages dev _site --compatibility-date=2026-08-08"
+  },
+  "devDependencies": {
+    "wrangler": "^4.120.0"
+  }
+}

@@ -1,0 +1,36 @@
+<aside class="comments" data-comments data-api-base="{{ site.comments_api_base }}" data-post-slug="{{ page.slug | default: page.url }}">
+  <p class="comments-hint">Select any text in the post above to leave a comment on it.</p>
+
+  <div class="comment-popover" data-comment-popover hidden>
+    <button type="button" class="comment-popover-trigger" data-comment-trigger>Comment</button>
+  </div>
+
+  <div class="comment-form-dialog" data-comment-form-dialog hidden>
+    <form data-comment-form>
+      <blockquote class="comment-form-quote" data-comment-form-quote></blockquote>
+      <div class="field">
+        <label for="comment-name">Name</label>
+        <input id="comment-name" name="name" type="text" maxlength="80" required>
+      </div>
+      <div class="field">
+        <label for="comment-body">Comment</label>
+        <textarea id="comment-body" name="body" maxlength="1000" rows="3" required></textarea>
+      </div>
+      <!-- Honeypot field: real visitors never fill this in; bots usually do. -->
+      <div class="field field--hidden" aria-hidden="true">
+        <label for="comment-website">Website</label>
+        <input id="comment-website" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <div class="comment-form-actions">
+        <button type="submit">Post comment</button>
+        <button type="button" data-comment-form-cancel>Cancel</button>
+      </div>
+      <p class="form-status" data-comment-form-status role="status"></p>
+    </form>
+  </div>
+
+  <div class="comment-thread-popover" data-comment-thread-popover hidden>
+    <ul data-comment-thread-list></ul>
+    <button type="button" data-comment-thread-close>Close</button>
+  </div>
+</aside>
