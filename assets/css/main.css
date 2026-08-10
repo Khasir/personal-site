@@ -66,6 +66,16 @@ body {
 a { color: var(--color-accent); text-decoration: none; }
 a:hover, a:focus { text-decoration: underline; }
 
+/* External links open in a new tab (assets/js/external-links.js) and get a
+   small arrow. Remove this rule to drop just the arrow and keep the
+   new-tab behavior. */
+a.external-link::after {
+  content: "\2197";
+  display: inline-block;
+  margin-left: 0.15em;
+  font-size: 0.8em;
+}
+
 h1, h2, h3 { line-height: 1.25; font-weight: 600; }
 
 /* All dates render lowercase, wherever they show up. */
