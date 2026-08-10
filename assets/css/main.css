@@ -151,14 +151,14 @@ main.wrap { padding-top: 2.5rem; padding-bottom: 4rem; min-height: 60vh; }
 
 /* Blockquotes */
 
-.entry-content blockquote {
+blockquote {
   margin: 1.5rem 0;
   padding: 1rem 1.25rem;
   background: var(--color-blockquote-bg);
   border-left: 4px solid var(--color-blockquote-border);
   color: var(--color-blockquote-text);
 }
-.entry-content blockquote p:last-child { margin-bottom: 0; }
+blockquote p:last-child { margin-bottom: 0; }
 
 /* Figures */
 
