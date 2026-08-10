@@ -152,6 +152,28 @@ Then open the URL Wrangler prints (typically http://localhost:8788).
   its local D1 file slightly differently, and stray leftover processes from
   earlier runs cause exactly this symptom. Kill the extras and restart.
 
+## Testing
+
+Two layers, `npm test` runs both:
+
+- **Unit tests** (`tests/unit/`, Node's built-in test runner) — the pure
+  validation/rate-limit/hashing logic in `functions/_lib/comments.js`.
+  `npm run test:unit`.
+- **E2E tests** (`tests/e2e/`, Playwright + real Chromium) — everything that
+  only breaks with an actual browser's Range/CSS engine, which is most of
+  what's gone wrong in this project so far: nested `<mark>`s from
+  overlapping comments, selections crossing block boundaries, the popover
+  dismissing itself, duplicate `<title>` tags. `npm run test:e2e` builds the
+  site, wipes and re-migrates a dedicated local D1 (`--persist-to=.wrangler-test/`,
+  entirely separate from your own dev database), and serves it on port 8799
+  before running — see `playwright.config.js`'s `webServer`. Each test sets
+  its own fake `CF-Connecting-IP` header so the shared rate limiter doesn't
+  trip between unrelated tests (see `fakeIp()` in `tests/e2e/helpers.js`).
+
+Run `npx playwright test --ui` for the interactive UI mode when debugging a
+failure, or `npx playwright show-trace <path>` to inspect a failed run's
+trace (saved automatically to `test-results/`).
+
 ## Deploying
 
 1. `npx wrangler d1 create personal-site-comments`, then paste the returned

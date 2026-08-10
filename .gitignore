@@ -8,7 +8,12 @@ vendor/
 # Cloudflare / node
 node_modules/
 .wrangler/
+.wrangler-test/
 .dev.vars
+
+# Test output
+test-results/
+playwright-report/
 
 # OS
 .DS_Store
