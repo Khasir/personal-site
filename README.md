@@ -36,6 +36,76 @@ Within a post/note body:
 - **Comments**: automatic on any post/note (set `comments: false` in
   frontmatter to disable). Visitors select text in the body to attach a
   comment to that passage — no account required.
+- **Dates**: rendered lowercase everywhere (CSS `text-transform`, so the
+  underlying text/`datetime` attribute are untouched). On post/note pages the
+  meta line reads `p. <date>` / `l.m. <date>` (posted / last modified), each
+  wrapped in `<abbr title="...">` so the full word shows on hover.
+
+## Design
+
+Minimal, elegant, bookish, nostalgic — EB Garamond throughout, warm
+cream/tan palette. Self-hosted (`assets/fonts/`, two variable-font files:
+regular + italic, each covering weights 400–700) rather than pulled from
+Google Fonts, mainly to avoid sending every visitor's IP to Google on each
+page load.
+
+Palette (see `:root` in `assets/css/main.css` for the full list):
+- Background `#eadbcb`, text `#000000`, links `#1155cc`
+- Blockquotes: background `#fff2cc`, left border `#b0aea9`, text `#1b1b1a`
+
+Header and footer both show the same nav (`home / posts / rough notes /
+guestbook`, diamond-separated, sharing `_includes/nav.html`); the footer
+additionally gets an `rss` link the header doesn't have. There's no
+copyright line by design.
+
+## Comments & guestbook architecture
+
+Both are backed by the same `comments` D1 table (see `functions/`), split by
+a `kind` column. Deliberate choices worth knowing before changing this:
+
+- **Appears instantly, no moderation queue.** The user chose speed over
+  safety here — a submission is live as soon as it's POSTed. The only
+  guards are a honeypot field and a per-IP rate limit (5 posts/60s, salted
+  hash, see `functions/_lib/comments.js`). No Turnstile/CAPTCHA yet, but the
+  submit path is structured so one can be dropped in later. No notification
+  (email/Discord/etc.) is wired up either — both were explicitly deferred.
+- **Overlapping highlights.** When two comments' anchored text ranges
+  overlap, the article is re-partitioned into non-overlapping `<mark>`
+  segments, each tagged with every comment covering it (see `renderAll()` in
+  `assets/js/comments.js`) — wrapping each comment's range independently
+  corrupted the markup. Hovering any one segment of a comment's range
+  highlights that comment's *entire* range as one block, using whichever
+  comment is most-recently-posted as "primary" wherever ranges overlap.
+  Clicking a highlight's thread popover has an "add a comment" action that
+  replies using that same primary comment's anchor, without the visitor
+  re-selecting text.
+- **Text anchoring** uses a quote + prefix/suffix context match (like a
+  simplified Hypothes.is), falling back to a bare quote search if the
+  surrounding text has since changed. If neither matches, the comment is
+  dropped from the inline view (still in the DB, just not rendered).
+
+## Crawling / scraping stance
+
+`robots.txt` (blanket `Disallow: /`) and `llms.txt` (plain-language opt-out
+of AI training/scraping use) are both intentional — this site is meant to
+be shared link-to-link with people the author knows, not indexed or
+crawled. `jekyll-sitemap` was deliberately removed for the same reason
+(publishing a full sitemap.xml undercuts asking crawlers to stay out).
+Keep this in mind before adding anything SEO/discoverability-oriented.
+
+Both files are honor-system only; they don't stop a scraper that ignores
+them. Cloudflare's dashboard-level bot-blocking (incl. a one-click "block AI
+bots" toggle, free tier) would add real enforcement but hasn't been turned
+on yet — it's an account setting, not a repo change.
+
+## Current status
+
+- **Not yet deployed.** Everything so far has been built and tested against
+  a local Jekyll + `wrangler pages dev` setup. `wrangler.toml`'s
+  `database_id` is still the `REPLACE_ME` placeholder — see "Deploying"
+  below for the real first-deploy steps.
+- **No custom domain picked yet** — will run on the free `*.pages.dev`
+  subdomain until one is chosen.
 
 ## Local development
 
@@ -61,6 +131,15 @@ npm run dev
 ```
 
 Then open the URL Wrangler prints (typically http://localhost:8788).
+
+**Gotchas hit while developing this:**
+- `jekyll:watch` rebuilds on content/template changes, but does **not**
+  reload `_config.yml` — restart it after editing site title, plugins, etc.
+- If `wrangler pages dev` starts returning `D1_ERROR: no such table` after
+  working fine, check for more than one `wrangler pages dev` process bound
+  to the same port (`netstat -ano | grep 8788` on Windows) — each resolves
+  its local D1 file slightly differently, and stray leftover processes from
+  earlier runs cause exactly this symptom. Kill the extras and restart.
 
 ## Deploying
 
