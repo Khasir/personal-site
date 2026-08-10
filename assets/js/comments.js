@@ -77,6 +77,17 @@
     return range;
   }
 
+  // A <mark> is inline (phrasing) content and can't validly contain block
+  // elements like <p> or <figure>. If a range's two ends land in different
+  // direct children of the article, wrapping it in one <mark> would nest a
+  // block inside an inline element, which browsers can't lay out cleanly --
+  // it shows up as a stray paragraph break where the mark starts.
+  function rangeSpansMultipleBlocks(range) {
+    var node = range.commonAncestorContainer;
+    var el = node.nodeType === 1 ? node : node.parentNode;
+    return el === article;
+  }
+
   // Locates a comment's anchor text in the current article text, preferring
   // an exact prefix+quote+suffix match and falling back to a bare match of
   // the quote alone if the surrounding text has since changed.
@@ -126,7 +137,10 @@
     var anchored = [];
     allComments.forEach(function (c) {
       var pos = resolveAnchor(fullText, c);
-      if (pos) anchored.push({ comment: c, start: pos.start, end: pos.end });
+      if (!pos) return;
+      var testRange = rangeFromOffsets(article, pos.start, pos.end);
+      if (!testRange || rangeSpansMultipleBlocks(testRange)) return;
+      anchored.push({ comment: c, start: pos.start, end: pos.end });
     });
     if (!anchored.length) return;
 
@@ -270,6 +284,7 @@
     if (!sel || sel.isCollapsed || sel.rangeCount === 0) return null;
     var range = sel.getRangeAt(0);
     if (!article.contains(range.commonAncestorContainer)) return null;
+    if (rangeSpansMultipleBlocks(range)) return null;
 
     var startOffset = textOffsetOf(article, range.startContainer, range.startOffset);
     var endOffset = textOffsetOf(article, range.endContainer, range.endOffset);
