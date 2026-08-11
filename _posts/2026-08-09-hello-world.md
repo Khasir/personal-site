@@ -4,6 +4,7 @@ subtitle: "Mostly here to exercise images, footnotes, and comments."
 post_date: 2026-08-09
 modified_date: 2026-08-09
 tags: [meta]
+hidden: true
 ---
 
 This is the first post on the site, mostly here to make sure images, footnotes,
