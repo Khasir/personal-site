@@ -26,6 +26,10 @@ tags: [optional, list]
 the date in the filename (`YYYY-MM-DD-title.md`) if omitted; `_notes` has no
 such fallback, so set it explicitly there.
 
+Add `hidden: true` to exclude a post/note from `/posts/`, `/notes/`, and the
+homepage's "recent" lists — the page still builds normally and is reachable
+by anyone with the direct link.
+
 Within a post/note body:
 
 - **Images**: `{% include figure.html src="/assets/images/foo.jpg" alt="..." caption="..." align="left|right|center" width="320px" %}`
@@ -50,6 +54,16 @@ Within a post/note body:
   >
   > — Someone
   > {: .attribution}
+  ```
+- **Expansion sections**: native `<details>`/`<summary>`, styled to match the
+  site. Markdown inside requires `markdown="1"` on the `<details>` tag:
+  ```html
+  <details markdown="1">
+  <summary>Click to expand</summary>
+
+  Body text, **markdown** works here.
+
+  </details>
   ```
 
 ## Design
