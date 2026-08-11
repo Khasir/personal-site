@@ -212,6 +212,38 @@ blockquote p.attribution { text-align: right; }
 
 .fig-link { cursor: zoom-in; display: block; }
 
+/* Expansion sections (native <details>/<summary>) */
+
+details {
+  margin: 1.5rem 0;
+  padding: 0.75rem 1.1rem;
+  background: var(--color-blockquote-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+}
+details[open] { padding-bottom: 1rem; }
+
+details summary {
+  cursor: pointer;
+  font-weight: 400;
+  font-style: italic;
+  list-style: none;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: "\25B8";
+  display: inline-block;
+  width: 1em;
+  margin-right: 0.35em;
+  color: var(--color-muted);
+  transition: transform 0.15s ease;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details summary:hover { color: var(--color-accent); }
+
+details > *:not(summary) { margin-top: 0.75rem; }
+details p:last-child, details > *:not(summary):last-child { margin-bottom: 0; }
+
 /* Lightbox */
 
 .lightbox-overlay {

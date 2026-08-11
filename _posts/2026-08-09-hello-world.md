@@ -9,6 +9,15 @@ tags: [meta]
 This is the first post on the site, mostly here to make sure images, footnotes,
 and comments all work end to end before any real writing happens.
 
+Here's a disclosure section below.
+
+<details markdown="1">
+<summary>Click to expand</summary>
+
+Whatever you want inside — including **markdown** if you add `markdown="1"` to the `<details>` tag, e.g. `<details markdown="1">`.
+
+</details>
+
 Here's a centered image with a caption:
 
 {% include figure.html src="/assets/images/sample-center.svg" alt="Placeholder illustration" caption="A centered figure, caption included." %}
