@@ -5,13 +5,13 @@
   "scripts": {
     "build": "bundle exec jekyll build",
     "jekyll:watch": "bundle exec jekyll build --watch --incremental",
-    "d1:migrate:local": "wrangler d1 execute personal-site-comments --local --file=migrations/0001_init.sql",
-    "d1:migrate:remote": "wrangler d1 execute personal-site-comments --remote --file=migrations/0001_init.sql",
+    "d1:migrate:local": "wrangler d1 execute personal-site-comments --local --file=migrations/0001_init.sql && wrangler d1 execute personal-site-comments --local --file=migrations/0002_guestbook_email.sql",
+    "d1:migrate:remote": "wrangler d1 execute personal-site-comments --remote --file=migrations/0001_init.sql && wrangler d1 execute personal-site-comments --remote --file=migrations/0002_guestbook_email.sql",
     "dev": "wrangler pages dev _site --compatibility-date=2026-08-08",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "node --test tests/unit/**/*.test.js",
     "test:e2e": "playwright test",
-    "test:e2e:migrate": "wrangler d1 execute personal-site-comments --local --persist-to=.wrangler-test/state --file=migrations/0001_init.sql && wrangler d1 execute personal-site-comments --local --persist-to=.wrangler-test/state --command=\"DELETE FROM comments\"",
+    "test:e2e:migrate": "wrangler d1 execute personal-site-comments --local --persist-to=.wrangler-test/state --file=migrations/0001_init.sql && wrangler d1 execute personal-site-comments --local --persist-to=.wrangler-test/state --file=migrations/0002_guestbook_email.sql && wrangler d1 execute personal-site-comments --local --persist-to=.wrangler-test/state --command=\"DELETE FROM comments\"",
     "test:e2e:server": "npm run build && npm run test:e2e:migrate && wrangler pages dev _site --port=8799 --compatibility-date=2026-08-08 --persist-to=.wrangler-test/state"
   },
   "devDependencies": {

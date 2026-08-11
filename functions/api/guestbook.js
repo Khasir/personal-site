@@ -10,7 +10,7 @@ import {
 // GET /api/guestbook -- list approved guestbook entries, newest first.
 export async function onRequestGet({ env }) {
   const { results } = await env.DB.prepare(
-    `SELECT id, author_name, body, created_at
+    `SELECT id, author_name, author_email, body, created_at
      FROM comments
      WHERE kind = 'guestbook' AND approved = 1
      ORDER BY created_at DESC`
@@ -28,7 +28,7 @@ export async function onRequestPost({ request, env }) {
     return errorJson("Invalid JSON body.", 400);
   }
 
-  const parsed = parseSubmission(body, { requireQuote: false });
+  const parsed = parseSubmission(body, { requireQuote: false, requireBody: false });
   if (!parsed.ok) return errorJson(parsed.error, 400);
 
   const ip = getClientIp(request);
@@ -43,14 +43,20 @@ export async function onRequestPost({ request, env }) {
 
   await env.DB.prepare(
     `INSERT INTO comments
-       (id, kind, post_slug, author_name, body, created_at, approved, ip_hash)
-     VALUES (?, 'guestbook', NULL, ?, ?, ?, 1, ?)`
+       (id, kind, post_slug, author_name, author_email, body, created_at, approved, ip_hash)
+     VALUES (?, 'guestbook', NULL, ?, ?, ?, ?, 1, ?)`
   )
-    .bind(id, parsed.value.name, parsed.value.body, createdAt, ipHash)
+    .bind(id, parsed.value.name, parsed.value.email, parsed.value.body || "", createdAt, ipHash)
     .run();
 
   return json(
-    { id, author_name: parsed.value.name, body: parsed.value.body, created_at: createdAt },
+    {
+      id,
+      author_name: parsed.value.name,
+      author_email: parsed.value.email,
+      body: parsed.value.body || "",
+      created_at: createdAt
+    },
     201
   );
 }

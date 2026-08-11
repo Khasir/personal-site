@@ -33,15 +33,28 @@
       var author = document.createElement("span");
       author.className = "comment-author";
       author.textContent = entry.author_name;
+      li.appendChild(author);
+
+      if (entry.author_email) {
+        var email = document.createElement("a");
+        email.className = "guestbook-email";
+        email.href = "mailto:" + entry.author_email;
+        email.textContent = entry.author_email;
+        li.appendChild(email);
+      }
+
       var time = document.createElement("span");
       time.className = "comment-time";
       time.textContent = formatTime(entry.created_at);
-      var body = document.createElement("p");
-      body.className = "comment-body";
-      body.textContent = entry.body;
-      li.appendChild(author);
       li.appendChild(time);
-      li.appendChild(body);
+
+      if (entry.body) {
+        var body = document.createElement("p");
+        body.className = "comment-body";
+        body.textContent = entry.body;
+        li.appendChild(body);
+      }
+
       list.appendChild(li);
     });
   }
@@ -64,10 +77,11 @@
     var data = new FormData(form);
     var payload = {
       name: (data.get("name") || "").toString().trim(),
+      email: (data.get("email") || "").toString().trim(),
       body: (data.get("message") || "").toString().trim(),
       website: (data.get("website") || "").toString() // honeypot
     };
-    if (!payload.name || !payload.body) return;
+    if (!payload.name) return;
 
     status.textContent = "Posting…";
     delete status.dataset.state;

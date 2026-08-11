@@ -385,7 +385,9 @@ button[data-comment-thread-close] {
 
 .field { margin-bottom: 0.75rem; }
 .field label { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; }
+.field-optional { color: var(--color-muted); font-weight: normal; font-style: italic; }
 .field input[type="text"],
+.field input[type="email"],
 .field textarea {
   width: 100%;
   font: inherit;
@@ -427,3 +429,8 @@ button[data-comment-form-cancel] {
   border-bottom: 1px solid var(--color-border);
 }
 .guestbook-entries .loading { color: var(--color-muted); font-style: italic; }
+.guestbook-email {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  margin-left: 0.4rem;
+}

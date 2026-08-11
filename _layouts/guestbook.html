@@ -12,8 +12,12 @@ layout: default
       <input id="gb-name" name="name" type="text" maxlength="80" required>
     </div>
     <div class="field">
-      <label for="gb-message">Message</label>
-      <textarea id="gb-message" name="message" maxlength="1000" rows="4" required></textarea>
+      <label for="gb-email">Email <span class="field-optional">(optional, shown publicly)</span></label>
+      <input id="gb-email" name="email" type="email" maxlength="254">
+    </div>
+    <div class="field">
+      <label for="gb-message">Message <span class="field-optional">(optional)</span></label>
+      <textarea id="gb-message" name="message" maxlength="1000" rows="4"></textarea>
     </div>
     <!-- Honeypot field: real visitors never fill this in; bots usually do. -->
     <div class="field field--hidden" aria-hidden="true">

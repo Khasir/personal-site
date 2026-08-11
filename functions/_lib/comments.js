@@ -5,6 +5,7 @@
 const MAX_NAME_LEN = 80;
 const MAX_BODY_LEN = 1000;
 const MAX_QUOTE_LEN = 500;
+const MAX_EMAIL_LEN = 254;
 const RATE_LIMIT_WINDOW_SECONDS = 60;
 const RATE_LIMIT_MAX_PER_WINDOW = 5;
 
@@ -49,7 +50,7 @@ function cleanContext(value, maxLen) {
  * Parses and validates a comment/guestbook submission payload.
  * Returns { ok: true, value } or { ok: false, error }.
  */
-export function parseSubmission(body, { requireQuote }) {
+export function parseSubmission(body, { requireQuote, requireBody = true }) {
   if (typeof body !== "object" || body === null) {
     return { ok: false, error: "Invalid request body." };
   }
@@ -61,8 +62,8 @@ export function parseSubmission(body, { requireQuote }) {
 
   const name = cleanString(body.name, MAX_NAME_LEN);
   const text = cleanString(body.body, MAX_BODY_LEN);
-  if (!name || !text) {
-    return { ok: false, error: "Name and comment are required." };
+  if (!name || (requireBody && !text)) {
+    return { ok: false, error: requireBody ? "Name and comment are required." : "Name is required." };
   }
 
   const quote = cleanString(body.quote, MAX_QUOTE_LEN);
@@ -70,12 +71,13 @@ export function parseSubmission(body, { requireQuote }) {
     return { ok: false, error: "Missing highlighted text to attach the comment to." };
   }
 
+  const email = cleanString(body.email, MAX_EMAIL_LEN);
   const prefix = cleanContext(body.prefix, 64);
   const suffix = cleanContext(body.suffix, 64);
 
   return {
     ok: true,
-    value: { name, body: text, quote: quote || null, prefix, suffix }
+    value: { name, body: text, email, quote: quote || null, prefix, suffix }
   };
 }
 
