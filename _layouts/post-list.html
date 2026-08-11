@@ -5,7 +5,8 @@ layout: default
   <h1>{{ page.title }}</h1>
   {{ content }}
   <ul class="entry-list">
-    {% for entry in site.posts %}
+    {% assign entries = site.posts | where_exp: "p", "p.hidden != true" %}
+    {% for entry in entries %}
     {% assign entry_date = entry.post_date | default: entry.date %}
     <li>
       <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>

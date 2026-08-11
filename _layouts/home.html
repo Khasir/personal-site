@@ -6,7 +6,8 @@ layout: default
 
   <h2>recent posts</h2>
   <ul class="entry-list">
-    {% for post in site.posts limit: 5 %}
+    {% assign posts = site.posts | where_exp: "p", "p.hidden != true" %}
+    {% for post in posts limit: 5 %}
     {% assign post_date = post.post_date | default: post.date %}
     <li>
       <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
@@ -18,7 +19,7 @@ layout: default
 
   <h2>recent notes</h2>
   <ul class="entry-list">
-    {% assign notes = site.notes | sort: "post_date" | reverse %}
+    {% assign notes = site.notes | sort: "post_date" | reverse | where_exp: "n", "n.hidden != true" %}
     {% for note in notes limit: 5 %}
     <li>
       <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
