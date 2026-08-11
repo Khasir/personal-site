@@ -29,6 +29,48 @@ test("signing the guestbook adds an entry to the list", async ({ page }) => {
   await expect(page.locator("[data-guestbook-entries]")).toContainText(message);
 });
 
+test("signing with only a name omits email and message from the entry", async ({ page }) => {
+  await page.goto("/guestbook/");
+  const tag = uniqueTag();
+  const name = `NameOnly-${tag}`;
+
+  await page.locator("#gb-name").fill(name);
+
+  const responsePromise = page.waitForResponse(
+    (res) => res.url().includes("/api/guestbook") && res.request().method() === "POST"
+  );
+  await page.locator("[data-guestbook-form]").locator('button[type="submit"]').click();
+  await responsePromise;
+
+  await expect(page.locator("[data-guestbook-status]")).toHaveAttribute("data-state", "success");
+  const entry = page.locator("[data-guestbook-entries] li", { hasText: name });
+  await expect(entry).toBeVisible();
+  await expect(entry.locator(".guestbook-email")).toHaveCount(0);
+  await expect(entry.locator(".comment-body")).toHaveCount(0);
+});
+
+test("an email is shown publicly as a mailto link on the entry", async ({ page }) => {
+  await page.goto("/guestbook/");
+  const tag = uniqueTag();
+  const name = `Emailer-${tag}`;
+  const email = `${tag}@example.com`;
+
+  await page.locator("#gb-name").fill(name);
+  await page.locator("#gb-email").fill(email);
+
+  const responsePromise = page.waitForResponse(
+    (res) => res.url().includes("/api/guestbook") && res.request().method() === "POST"
+  );
+  await page.locator("[data-guestbook-form]").locator('button[type="submit"]').click();
+  await responsePromise;
+
+  await expect(page.locator("[data-guestbook-status]")).toHaveAttribute("data-state", "success");
+  const entry = page.locator("[data-guestbook-entries] li", { hasText: name });
+  const emailLink = entry.locator(".guestbook-email");
+  await expect(emailLink).toHaveText(email);
+  await expect(emailLink).toHaveAttribute("href", `mailto:${email}`);
+});
+
 test("the honeypot silently rejects a bot-like submission", async ({ page }) => {
   await page.goto("/guestbook/");
   const tag = uniqueTag();

@@ -17,6 +17,7 @@ describe("parseSubmission", () => {
     assert.deepEqual(result.value, {
       name: "Ada",
       body: "Nice post!",
+      email: null,
       quote: "some text",
       prefix: "before ",
       suffix: " after",
@@ -43,6 +44,36 @@ describe("parseSubmission", () => {
     assert.equal(result.value.quote, null);
     assert.equal(result.value.prefix, "");
     assert.equal(result.value.suffix, "");
+  });
+
+  test("requires body by default, but not when requireBody is false", () => {
+    const withoutFlag = parseSubmission({ name: "Grace" }, { requireQuote: false });
+    assert.equal(withoutFlag.ok, false);
+
+    const withFlag = parseSubmission(
+      { name: "Grace" },
+      { requireQuote: false, requireBody: false }
+    );
+    assert.equal(withFlag.ok, true);
+    assert.equal(withFlag.value.body, null);
+  });
+
+  test("accepts an optional email and trims/caps it like other fields", () => {
+    const result = parseSubmission(
+      { name: "Grace", email: "  grace@example.com  " },
+      { requireQuote: false, requireBody: false }
+    );
+    assert.equal(result.ok, true);
+    assert.equal(result.value.email, "grace@example.com");
+  });
+
+  test("email is null when omitted", () => {
+    const result = parseSubmission(
+      { name: "Grace" },
+      { requireQuote: false, requireBody: false }
+    );
+    assert.equal(result.ok, true);
+    assert.equal(result.value.email, null);
   });
 
   test("rejects when the honeypot field is filled in", () => {
