@@ -1,8 +1,8 @@
 # Site settings
 title: khasir's blog
-tagline: Welcome to my blog
+tagline: klogging
 description: >-
-  This is Khasir's Blog
+  musings and other ephemera
 url: "" # filled in once a domain is chosen, e.g. "https://example.com"
 baseurl: ""
 
