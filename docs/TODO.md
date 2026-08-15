@@ -13,6 +13,20 @@ site is built; this is just what's left to do.
   (pushed to `main`).
 - **Pick a domain.** Until then the site runs on the free `*.pages.dev`
   subdomain.
+- ~~Update the Pages dashboard build command.~~ Done for `main` — build
+  command is now `node scripts/check-env.js && jekyll build`, failing the
+  build if `IP_HASH_SALT` is unset/empty instead of quietly falling back to
+  the insecure default salt at runtime. Worth confirming `dev`/preview
+  deploys also pick this up, since Pages build commands are traditionally
+  project-wide rather than per-branch.
+- ~~Finish wiring up the separate dev/preview D1 database.~~ Done in
+  `wrangler.toml` — `personal-site-comments-dev` created and migrated, and
+  since this Pages project uses `wrangler.toml` as the binding source of
+  truth (dashboard binding UI is read-only here), the split is a
+  `[[env.preview.d1_databases]]` override rather than a dashboard change.
+  Takes effect once this commit is pushed and a preview deploy runs —
+  worth confirming a `dev` push actually lands in the dev database rather
+  than production.
 
 ## Deferred
 

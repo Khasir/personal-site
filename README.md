@@ -200,8 +200,12 @@ trace (saved automatically to `test-results/`).
 
 ## Deployment steps taken
 
+Merges to main and other branches are automatically deployed.
+
+### Prod
+
 1. Create a D1 DB via `npx wrangler d1 create personal-site-comments`, then paste the returned values into `wrangler.toml`.
-2. `npm run d1:migrate:remote` to apply the schema to the real database.
+2. `npm run d1:migrate:remote` to apply the schema to the prod database.
 3. In the Cloudflare web UI, create an app that connects the repo in the Cloudflare dashboard as a Pages project ([add'l info here](https://developers.cloudflare.com/pages/get-started/git-integration/)):
     - Compute -> Workers and Pages -> Create application -> Get started with Pages -> Continue with GitHub
     - Select framework preset: Jekyll
@@ -210,5 +214,9 @@ trace (saved automatically to `test-results/`).
     - Add environment vars:
         - Secret: `IP_HASH_SALT` = whatever
         - Text: `RUBY_VERSION` = `3.2.10` to match local dev
+4. Enable deployments only for `main` and `dev`.
 
-Merges to main and other branches are automatically deployed.
+### Dev
+
+1. Create dev DB via `npx wrangler d1 create personal-site-comments-dev`, then pasted values into `wrangler.toml` under `[[env.preview.d1_databases]]`.
+2. `npm run d1:migrate:preview` to apply the schema to the dev DB.
