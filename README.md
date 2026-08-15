@@ -1,5 +1,7 @@
 # personal-site
-Source code (+related stuff) for Khasir's personal website.
+Source code (+related stuff) for Khasir's personal website. The following README is largely AI-generated.
+
+---
 
 Jekyll static site, deployed on Cloudflare Pages. Public comments and the
 guestbook are backed by a Cloudflare Pages Function + D1 (SQLite) database,
@@ -39,7 +41,13 @@ Within a post/note body:
   jumps to the note at the bottom of the post.
 - **Comments**: automatic on any post/note (set `comments: false` in
   frontmatter to disable). Visitors select text in the body to attach a
-  comment to that passage — no account required.
+  comment to that passage — no account required. Also enabled on the
+  homepage, `/posts/`, and `/notes/`, scoped to each page's own intro copy
+  (the `{{ content }}` in `index.md`/`posts.md`/`notes.md`, wrapped in
+  `.entry-content` by `_layouts/home.html`/`post-list.html`/`notes-list.html`)
+  rather than the generated post/note lists on those pages — the thread key
+  there is the page's URL (`/`, `/posts/`, `/notes/`) rather than a post
+  slug.
 - **Dates**: rendered lowercase everywhere (CSS `text-transform`, so the
   underlying text/`datetime` attribute are untouched). On post/note pages the
   meta line reads `p. <date>` / `l.m. <date>` (posted / last modified), each
@@ -177,7 +185,10 @@ Two layers, `npm test` runs both:
   only breaks with an actual browser's Range/CSS engine, which is most of
   what's gone wrong in this project so far: nested `<mark>`s from
   overlapping comments, selections crossing block boundaries, the popover
-  dismissing itself, duplicate `<title>` tags. `npm run test:e2e` builds the
+  dismissing itself, duplicate `<title>` tags. `tests/e2e/other-pages-comments.spec.js`
+  covers the homepage/`/posts/`/`/notes/` comment threads specifically
+  (correct `data-post-slug` scoping, select-and-post-and-reload on each
+  page's intro copy). `npm run test:e2e` builds the
   site, wipes and re-migrates a dedicated local D1 (`--persist-to=.wrangler-test/`,
   entirely separate from your own dev database), and serves it on port 8799
   before running — see `playwright.config.js`'s `webServer`. Each test sets

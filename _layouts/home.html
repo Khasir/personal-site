@@ -2,7 +2,9 @@
 layout: default
 ---
 <section class="home">
-  {{ content }}
+  <div class="entry-content">
+    {{ content }}
+  </div>
 
   <h2>recent posts</h2>
   <ul class="entry-list">
@@ -29,3 +31,7 @@ layout: default
   </ul>
   <a class="see-all" href="{{ '/notes/' | relative_url }}">all notes &rarr;</a>
 </section>
+
+{% if page.comments %}
+{% include comments.html %}
+{% endif %}
