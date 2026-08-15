@@ -13,7 +13,7 @@ export async function onRequestGet({ request, env }) {
   const slug = url.searchParams.get("slug");
   if (!slug) return errorJson("Missing slug.", 400);
 
-  const { results } = await env.DB.prepare(
+  const { results } = await env.personal_site_comments.prepare(
     `SELECT id, author_name, body, quote, prefix, suffix, created_at
      FROM comments
      WHERE kind = 'comment' AND post_slug = ? AND approved = 1
@@ -43,14 +43,14 @@ export async function onRequestPost({ request, env }) {
   const ip = getClientIp(request);
   const ipHash = await hashIp(ip, env.IP_HASH_SALT || "dev-salt");
 
-  if (await isRateLimited(env.DB, ipHash)) {
-    return errorJson("Too many comments -- please slow down.", 429);
+  if (await isRateLimited(env.personal_site_comments, ipHash)) {
+    return errorJson("Please slow down.", 429);
   }
 
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
 
-  await env.DB.prepare(
+  await env.personal_site_comments.prepare(
     `INSERT INTO comments
        (id, kind, post_slug, author_name, body, quote, prefix, suffix, created_at, approved, ip_hash)
      VALUES (?, 'comment', ?, ?, ?, ?, ?, ?, ?, 1, ?)`

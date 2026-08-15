@@ -9,7 +9,7 @@ import {
 
 // GET /api/guestbook -- list approved guestbook entries, newest first.
 export async function onRequestGet({ env }) {
-  const { results } = await env.DB.prepare(
+  const { results } = await env.personal_site_comments.prepare(
     `SELECT id, author_name, author_email, body, created_at
      FROM comments
      WHERE kind = 'guestbook' AND approved = 1
@@ -34,14 +34,14 @@ export async function onRequestPost({ request, env }) {
   const ip = getClientIp(request);
   const ipHash = await hashIp(ip, env.IP_HASH_SALT || "dev-salt");
 
-  if (await isRateLimited(env.DB, ipHash)) {
+  if (await isRateLimited(env.personal_site_comments, ipHash)) {
     return errorJson("Too many entries -- please slow down.", 429);
   }
 
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
 
-  await env.DB.prepare(
+  await env.personal_site_comments.prepare(
     `INSERT INTO comments
        (id, kind, post_slug, author_name, author_email, body, created_at, approved, ip_hash)
      VALUES (?, 'guestbook', NULL, ?, ?, ?, ?, 1, ?)`
