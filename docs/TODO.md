@@ -1,19 +1,23 @@
 # Outstanding tasks
 
-Status snapshot as of 2026-08-10. See [README.md](README.md) for how the
+Status snapshot as of 2026-08-10. See [README.md](../README.md) for how the
 site is built; this is just what's left to do.
 
 ## Before going live
 
-- **Deploy.** Nothing's been pushed to production yet. `wrangler.toml`'s
-  `database_id` is still the `REPLACE_ME` placeholder — the real first-deploy
-  steps (create the production D1 database, migrate it, connect the
-  Cloudflare Pages project, set the `IP_HASH_SALT` secret) haven't been run.
-  See the "Deploying" section of the README.
+- ~~Deploy~~ Done — connected to Cloudflare Pages, auto-deploys on push to
+  `main` and `dev`. See the README's "Deployment steps taken" section.
+- **⚠️ Fix the D1 binding name mismatch.** `wrangler.toml` binds the database
+  as `personal_site_comments`, but `functions/api/comments.js` and
+  `functions/api/guestbook.js` both read `env.DB`. Confirmed locally that
+  this breaks the API outright. Whether it also breaks the live deployment
+  depends on how the D1 binding is named in the Pages project's own
+  dashboard settings (configured separately from `wrangler.toml`) — check
+  there, or make the two names match.
 - **Pick a domain.** Until then the site runs on the free `*.pages.dev`
   subdomain.
 
-## Deferred, not forgotten
+## Deferred
 
 - **Cloudflare's dashboard-level bot-blocking controls** (including the
   one-click "block AI bots" toggle) — `robots.txt`/`llms.txt` are honor-system

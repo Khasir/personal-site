@@ -125,11 +125,23 @@ on yet — it's an account setting, not a repo change.
 
 ## Current status
 
-- **Not yet deployed.** Everything so far has been built and tested against
-  a local Jekyll + `wrangler pages dev` setup. `wrangler.toml`'s
-  `database_id` is still the `REPLACE_ME` placeholder — see "Deploying"
-  below for the real first-deploy steps.
-- **No custom domain picked yet** — will run on the free `*.pages.dev`
+- **Connected to Cloudflare Pages.** The repo is linked as a Pages project
+  and auto-deploys on push to `main` and `dev`. Cloudflare Pages' usual
+  behavior is that one branch (typically `main`) is the "production"
+  branch deploying to the project's main URL, while every other connected
+  branch (`dev` here) gets its own preview deployment at a separate URL —
+  worth double-checking that's set up the way you want in the Pages
+  project's dashboard settings.
+- **⚠️ D1 binding name mismatch.** `wrangler.toml` now binds the database as
+  `personal_site_comments`, but `functions/api/comments.js` and
+  `functions/api/guestbook.js` both still read `env.DB`. Confirmed locally
+  that this breaks the API outright (`TypeError: Cannot read properties of
+  undefined (reading 'prepare')` from `GET /api/guestbook`). Whether this
+  also breaks the live deployment depends on what the D1 binding is named
+  in the Cloudflare Pages dashboard's own Functions settings, which is
+  configured separately from `wrangler.toml` for a Git-connected project —
+  worth checking there, or renaming one side to match.
+- **No custom domain picked yet** — runs on the free `*.pages.dev`
   subdomain until one is chosen.
 
 ## Local development
@@ -188,14 +200,17 @@ Run `npx playwright test --ui` for the interactive UI mode when debugging a
 failure, or `npx playwright show-trace <path>` to inspect a failed run's
 trace (saved automatically to `test-results/`).
 
-## Deploying
+## Deployment steps taken
 
-1. `npx wrangler d1 create personal-site-comments`, then paste the returned
-   `database_id` into `wrangler.toml`.
+1. Create a D1 DB via `npx wrangler d1 create personal-site-comments`, then paste the returned values into `wrangler.toml`.
 2. `npm run d1:migrate:remote` to apply the schema to the real database.
-3. Connect the repo in the Cloudflare dashboard as a Pages project (build
-   command `bundle exec jekyll build`, output directory `_site`), or deploy
-   directly with `npx wrangler pages deploy _site`.
-4. Set the `IP_HASH_SALT` secret on the Pages project: `npx wrangler pages secret put IP_HASH_SALT`.
-5. Bind the `personal-site-comments` D1 database to the Pages project as `DB`
-   (Cloudflare dashboard → Pages project → Settings → Functions → D1 bindings).
+3. In the Cloudflare web UI, create an app that connects the repo in the Cloudflare dashboard as a Pages project ([add'l info here](https://developers.cloudflare.com/pages/get-started/git-integration/)):
+    - Compute -> Workers and Pages -> Create application -> Get started with Pages -> Continue with GitHub
+    - Select framework preset: Jekyll
+    - Set build command: `jekyll build`
+    - Set build output directory: `_site`
+    - Add environment vars:
+        - Secret: `IP_HASH_SALT` = whatever
+        - Text: `RUBY_VERSION` = `3.2.10` to match local dev
+
+Merges to main and other branches are automatically deployed.
