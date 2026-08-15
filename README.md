@@ -134,6 +134,13 @@ on yet — it's an account setting, not a repo change.
   project's dashboard settings.
 - **No custom domain picked yet** — runs on the free `*.pages.dev`
   subdomain until one is chosen.
+- **`IP_HASH_SALT` build check wired up for `main`.** The Pages dashboard
+  build command now runs `node scripts/check-env.js && jekyll build`
+  (Settings → Builds & deployments), so a deploy fails instead of silently
+  falling back to the insecure default salt at runtime. Confirmed set for
+  `main`; Cloudflare Pages build commands are historically project-wide
+  rather than per-branch, but worth double-checking `dev`/preview deploys
+  pick it up too.
 
 ## Local development
 
