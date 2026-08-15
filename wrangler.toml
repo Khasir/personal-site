@@ -3,9 +3,9 @@ compatibility_date = "2026-08-08"
 pages_build_output_dir = "_site"
 
 [[d1_databases]]
-binding = "DB"
+binding = "personal_site_comments"
 database_name = "personal-site-comments"
-database_id = "REPLACE_ME"  # filled in after `npx wrangler d1 create personal-site-comments`
+database_id = "a6354347-24de-4f0e-b294-aa4cc4321071"
 
 # Set locally with `npx wrangler pages secret put IP_HASH_SALT` for the
 # deployed project, and in .dev.vars for local dev. Any random string works;
