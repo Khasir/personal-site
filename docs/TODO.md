@@ -7,13 +7,10 @@ site is built; this is just what's left to do.
 
 - ~~Deploy~~ Done — connected to Cloudflare Pages, auto-deploys on push to
   `main` and `dev`. See the README's "Deployment steps taken" section.
-- **⚠️ Fix the D1 binding name mismatch.** `wrangler.toml` binds the database
-  as `personal_site_comments`, but `functions/api/comments.js` and
-  `functions/api/guestbook.js` both read `env.DB`. Confirmed locally that
-  this breaks the API outright. Whether it also breaks the live deployment
-  depends on how the D1 binding is named in the Pages project's own
-  dashboard settings (configured separately from `wrangler.toml`) — check
-  there, or make the two names match.
+- ~~Fix the D1 binding name mismatch.~~ Done — `functions/api/comments.js`
+  and `functions/api/guestbook.js` now read `env.personal_site_comments`,
+  matching `wrangler.toml`. Confirmed working both locally and in prod
+  (pushed to `main`).
 - **Pick a domain.** Until then the site runs on the free `*.pages.dev`
   subdomain.
 

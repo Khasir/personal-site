@@ -132,15 +132,6 @@ on yet — it's an account setting, not a repo change.
   branch (`dev` here) gets its own preview deployment at a separate URL —
   worth double-checking that's set up the way you want in the Pages
   project's dashboard settings.
-- **⚠️ D1 binding name mismatch.** `wrangler.toml` now binds the database as
-  `personal_site_comments`, but `functions/api/comments.js` and
-  `functions/api/guestbook.js` both still read `env.DB`. Confirmed locally
-  that this breaks the API outright (`TypeError: Cannot read properties of
-  undefined (reading 'prepare')` from `GET /api/guestbook`). Whether this
-  also breaks the live deployment depends on what the D1 binding is named
-  in the Cloudflare Pages dashboard's own Functions settings, which is
-  configured separately from `wrangler.toml` for a Git-connected project —
-  worth checking there, or renaming one side to match.
 - **No custom domain picked yet** — runs on the free `*.pages.dev`
   subdomain until one is chosen.
 
