@@ -198,7 +198,7 @@ trace (saved automatically to `test-results/`).
 3. In the Cloudflare web UI, create an app that connects the repo in the Cloudflare dashboard as a Pages project ([add'l info here](https://developers.cloudflare.com/pages/get-started/git-integration/)):
     - Compute -> Workers and Pages -> Create application -> Get started with Pages -> Continue with GitHub
     - Select framework preset: Jekyll
-    - Set build command: `jekyll build`
+    - Set build command: `node scripts/check-env.js && jekyll build`
     - Set build output directory: `_site`
     - Add environment vars:
         - Secret: `IP_HASH_SALT` = whatever
