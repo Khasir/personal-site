@@ -7,6 +7,11 @@ binding = "personal_site_comments"
 database_name = "personal-site-comments"
 database_id = "a6354347-24de-4f0e-b294-aa4cc4321071"
 
+[[env.production.d1_databases]]
+binding = "personal_site_comments"
+database_name = "personal-site-comments"
+database_id = "a6354347-24de-4f0e-b294-aa4cc4321071"
+
 [[env.preview.d1_databases]]
 binding = "personal_site_comments"
 database_name = "personal-site-comments-dev"
