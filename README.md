@@ -183,15 +183,20 @@ to manually trigger the scheduled handler instead of waiting for the cron.
    if deploying the dev-DB copy, rather than only testing it locally via
    `.dev.vars`).
 3. `npm run notifier:deploy:dev` (against the dev D1 binding) and/or
-   `npm run notifier:deploy:prod` (against the prod D1 binding).
+   `npm run notifier:deploy:prod` (against the prod D1 binding) — or,
+   equivalently, `cd workers/comment-notifier && wrangler deploy` (add
+   `--env preview` for the dev DB copy); Wrangler picks up
+   `wrangler.jsonc` from the current directory automatically, so the
+   `--config` flag the npm scripts pass is only needed when running from
+   elsewhere.
 
 ### Deployment scope (as of writing)
 
 | Environment | Site hosting | D1 database | Notifier deployed? |
 | --- | --- | --- | --- |
 | Local | `npm run jekyll:watch` + `npm run site:local` | local D1 (`.wrangler/state`) | `npm run notifier:local` runs against the same local D1 |
-| Dev (`dev` branch) | Cloudflare Pages preview deployment | `personal-site-comments-dev` | **Not deployed yet.** `npm run notifier:deploy:dev` exists, but nothing runs it automatically, unlike the Pages site |
-| Prod (`main` branch) | Cloudflare Pages production deployment | `personal-site-comments` | Deployed via `npm run notifier:deploy:prod` (manual, not tied to a branch push — the Worker isn't connected to git the way the Pages project is) |
+| Dev (`dev` branch) | Cloudflare Pages preview deployment | `personal-site-comments-dev` | **Not deployed yet.** `npm run notifier:deploy:dev` exists, but nothing runs it automatically, and it isn't required for testing here |
+| Prod (`main` branch) | Cloudflare Pages production deployment | `personal-site-comments` | **Deployed and live**, running hourly. Deploys are manual and not tied to a branch push — the Worker isn't connected to git the way the Pages project is |
 
 ## Crawling / scraping stance
 
@@ -225,6 +230,10 @@ on yet — it's an account setting, not a repo change.
   `main`; Cloudflare Pages build commands are historically project-wide
   rather than per-branch, but worth double-checking `dev`/preview deploys
   pick it up too.
+- **`comment-notifier` Worker deployed to prod.** Live and running on its
+  hourly Cron Trigger against the prod D1 database. Not yet deployed for
+  dev (see the "Deployment scope" table under "Comment notification
+  digest").
 
 ## Local development
 
