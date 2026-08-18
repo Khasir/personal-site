@@ -158,19 +158,19 @@ ends up committed there. Locally they come from
 
 ### Local dev / testing
 
-`notifier:dev` uses `--persist-to=.wrangler/state`, the same local D1
-storage directory as `npm run dev` — so it reads/writes the same local
-database, no separate migration step needed as long as you've already run
-`npm run d1:migrate:local` for the main site.
+`notifier:local` uses `--persist-to=.wrangler/state`, the same local D1
+storage directory as `npm run site:local` — so it reads/writes the same
+local database, no separate migration step needed as long as you've
+already run `npm run d1:migrate:local` for the main site.
 
 ```bash
 cp workers/comment-notifier/.dev.vars.example workers/comment-notifier/.dev.vars   # first time only, then fill in real values
 npm test                # covers workers/comment-notifier/tests/lib.test.js too
-npm run notifier:dev    # wrangler dev --test-scheduled, sharing the main site's local D1
+npm run notifier:local  # wrangler dev --test-scheduled, sharing the main site's local D1
 ```
 
-With `notifier:dev` running, hit `http://localhost:<port>/__scheduled` to
-manually trigger the scheduled handler instead of waiting for the cron.
+With `notifier:local` running, hit `http://localhost:<port>/__scheduled`
+to manually trigger the scheduled handler instead of waiting for the cron.
 
 ### Deploy steps
 
@@ -180,17 +180,18 @@ manually trigger the scheduled handler instead of waiting for the cron.
 2. From `workers/comment-notifier/`: `wrangler secret put RESEND_API_KEY`,
    `wrangler secret put NOTIFY_TO_EMAIL`, `wrangler secret put NOTIFY_FROM_EMAIL`,
    `wrangler secret put NOTIFY_FROM_NAME` (repeat with `--env preview` too
-   if deploying that copy against the dev DB, rather than only testing it
-   locally via `.dev.vars`).
-3. `npm run notifier:deploy` (deploys against the prod D1 binding).
+   if deploying the dev-DB copy, rather than only testing it locally via
+   `.dev.vars`).
+3. `npm run notifier:deploy:dev` (against the dev D1 binding) and/or
+   `npm run notifier:deploy:prod` (against the prod D1 binding).
 
 ### Deployment scope (as of writing)
 
 | Environment | Site hosting | D1 database | Notifier deployed? |
 | --- | --- | --- | --- |
-| Local | `npm run jekyll:watch` + `npm run dev` | local D1 (`.wrangler/state`) | `npm run notifier:dev` runs against the same local D1 |
-| Dev (`dev` branch) | Cloudflare Pages preview deployment | `personal-site-comments-dev` | **Not deployed.** `wrangler.jsonc`'s `env.preview` block exists (pointed at the dev DB) but nothing deploys it automatically, unlike the Pages site — would need a manual `wrangler deploy --config workers/comment-notifier/wrangler.jsonc --env preview` |
-| Prod (`main` branch) | Cloudflare Pages production deployment | `personal-site-comments` | Deployed via `npm run notifier:deploy` (manual, not tied to a branch push — the Worker isn't connected to git the way the Pages project is) |
+| Local | `npm run jekyll:watch` + `npm run site:local` | local D1 (`.wrangler/state`) | `npm run notifier:local` runs against the same local D1 |
+| Dev (`dev` branch) | Cloudflare Pages preview deployment | `personal-site-comments-dev` | **Not deployed yet.** `npm run notifier:deploy:dev` exists, but nothing runs it automatically, unlike the Pages site |
+| Prod (`main` branch) | Cloudflare Pages production deployment | `personal-site-comments` | Deployed via `npm run notifier:deploy:prod` (manual, not tied to a branch push — the Worker isn't connected to git the way the Pages project is) |
 
 ## Crawling / scraping stance
 
@@ -245,7 +246,7 @@ npm run jekyll:watch
 # local D1 database
 cp .dev.vars.example .dev.vars   # first time only
 npm run d1:migrate:local          # first time only, and after schema changes
-npm run dev
+npm run site:local
 ```
 
 Then open the URL Wrangler prints (typically http://localhost:8788).
@@ -291,7 +292,7 @@ Merges to main and other branches are automatically deployed.
 ### Prod
 
 1. Create a D1 DB via `npx wrangler d1 create personal-site-comments`, then paste the returned values into `wrangler.toml`.
-2. `npm run d1:migrate:remote` to apply the schema to the prod database.
+2. `npm run d1:migrate:prod` to apply the schema to the prod database.
 3. In the Cloudflare web UI, create an app that connects the repo in the Cloudflare dashboard as a Pages project ([add'l info here](https://developers.cloudflare.com/pages/get-started/git-integration/)):
     - Compute -> Workers and Pages -> Create application -> Get started with Pages -> Continue with GitHub
     - Select framework preset: Jekyll
@@ -305,4 +306,4 @@ Merges to main and other branches are automatically deployed.
 ### Dev
 
 1. Create dev DB via `npx wrangler d1 create personal-site-comments-dev`, then pasted values into `wrangler.toml` under `[[env.preview.d1_databases]]`.
-2. `npm run d1:migrate:preview` to apply the schema to the dev DB.
+2. `npm run d1:migrate:dev` to apply the schema to the dev DB.
