@@ -1,0 +1,4 @@
+RESEND_API_KEY=replace-with-your-resend-api-key
+NOTIFY_TO_EMAIL=you@example.com
+NOTIFY_FROM_EMAIL=digest@your-verified-domain.example
+NOTIFY_FROM_NAME=Personal Site Comments

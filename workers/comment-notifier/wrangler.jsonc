@@ -1,0 +1,37 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "comment-notifier",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-08",
+
+  "triggers": {
+    "crons": ["0 * * * *"]
+  },
+
+  // Points at the same prod D1 database as the main site's wrangler.toml.
+  "d1_databases": [
+    {
+      "binding": "personal_site_comments",
+      "database_name": "personal-site-comments",
+      "database_id": "a6354347-24de-4f0e-b294-aa4cc4321071"
+    }
+  ],
+
+  // NOTIFY_TO_EMAIL, NOTIFY_FROM_EMAIL, NOTIFY_FROM_NAME, and
+  // RESEND_API_KEY are all secrets (not "vars") so nothing ends up
+  // committed here -- set them via `wrangler secret put <NAME>` (add
+  // --env preview for the dev DB copy), and via this directory's own
+  // .dev.vars for local dev (see .dev.vars.example).
+
+  "env": {
+    "preview": {
+      "d1_databases": [
+        {
+          "binding": "personal_site_comments",
+          "database_name": "personal-site-comments-dev",
+          "database_id": "a4ccadfb-874e-4e75-b7ab-d8bdf910b267"
+        }
+      ]
+    }
+  }
+}

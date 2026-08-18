@@ -100,8 +100,9 @@ a `kind` column. Deliberate choices worth knowing before changing this:
   safety here — a submission is live as soon as it's POSTed. The only
   guards are a honeypot field and a per-IP rate limit (5 posts/60s, salted
   hash, see `functions/_lib/comments.js`). No Turnstile/CAPTCHA yet, but the
-  submit path is structured so one can be dropped in later. No notification
-  (email/Discord/etc.) is wired up either — both were explicitly deferred.
+  submit path is structured so one can be dropped in later.
+- **Hourly email digest of new activity** via a separate Cloudflare Worker
+  with a Cron Trigger — see "Comment notification digest" below.
 - **Overlapping highlights.** When two comments' anchored text ranges
   overlap, the article is re-partitioned into non-overlapping `<mark>`
   segments, each tagged with every comment covering it (see `renderAll()` in
@@ -116,6 +117,80 @@ a `kind` column. Deliberate choices worth knowing before changing this:
   simplified Hypothes.is), falling back to a bare quote search if the
   surrounding text has since changed. If neither matches, the comment is
   dropped from the inline view (still in the DB, just not rendered).
+
+## Comment notification digest
+
+A separate Cloudflare Worker (`workers/comment-notifier/`, distinct from the
+Pages Functions in `functions/` since Pages can't run on a schedule) runs
+hourly via a Cron Trigger, checks the `comments` D1 table for anything new
+since its last run, and emails a plain-text digest via
+[Resend](https://resend.com) — e.g.:
+
+```
+New activity in the last hour:
+
+- my-post-slug: 3 new comments
+- another-post: 1 new comment
+- home: 1 new comment
+- guestbook: 2 new entries
+```
+
+Nothing is sent if there's no new activity. Deliberate choices:
+
+- **State is a single `last_notified_at` row** (`notification_state` table,
+  `migrations/0003_notification_state.sql`) rather than a per-comment
+  `notification_sent` flag — one write per hourly run instead of one per
+  comment, and no migration needed on the hot `comments` table.
+- **No links in the email**, just the raw `post_slug`/"guestbook" label —
+  `post_slug` is a bare slug for posts/notes but a full path for other pages
+  (see the "thread key" note above), and slugs alone don't say which
+  collection (`_posts` vs `_notes`) they belong to, so a generated link
+  could point to the wrong URL. One exception: the homepage's `post_slug`
+  (`/`) is special-cased to display as "home" instead of the bare slash.
+- **A failed Resend send doesn't advance `last_notified_at`** — the same
+  window gets retried on the next hourly run instead of silently dropping
+  a digest.
+
+`NOTIFY_TO_EMAIL`, `NOTIFY_FROM_EMAIL`, `NOTIFY_FROM_NAME`, and
+`RESEND_API_KEY` are all secrets, not `vars` in `wrangler.jsonc` — nothing
+ends up committed there. Locally they come from
+`workers/comment-notifier/.dev.vars`; deployed, from `wrangler secret put`.
+
+### Local dev / testing
+
+`notifier:dev` uses `--persist-to=.wrangler/state`, the same local D1
+storage directory as `npm run dev` — so it reads/writes the same local
+database, no separate migration step needed as long as you've already run
+`npm run d1:migrate:local` for the main site.
+
+```bash
+cp workers/comment-notifier/.dev.vars.example workers/comment-notifier/.dev.vars   # first time only, then fill in real values
+npm test                # covers workers/comment-notifier/tests/lib.test.js too
+npm run notifier:dev    # wrangler dev --test-scheduled, sharing the main site's local D1
+```
+
+With `notifier:dev` running, hit `http://localhost:<port>/__scheduled` to
+manually trigger the scheduled handler instead of waiting for the cron.
+
+### Deploy steps
+
+1. Set up a sender in [Resend](https://resend.com) (their shared test
+   domain works for trying it out; a verified domain of your own for real
+   use).
+2. From `workers/comment-notifier/`: `wrangler secret put RESEND_API_KEY`,
+   `wrangler secret put NOTIFY_TO_EMAIL`, `wrangler secret put NOTIFY_FROM_EMAIL`,
+   `wrangler secret put NOTIFY_FROM_NAME` (repeat with `--env preview` too
+   if deploying that copy against the dev DB, rather than only testing it
+   locally via `.dev.vars`).
+3. `npm run notifier:deploy` (deploys against the prod D1 binding).
+
+### Deployment scope (as of writing)
+
+| Environment | Site hosting | D1 database | Notifier deployed? |
+| --- | --- | --- | --- |
+| Local | `npm run jekyll:watch` + `npm run dev` | local D1 (`.wrangler/state`) | `npm run notifier:dev` runs against the same local D1 |
+| Dev (`dev` branch) | Cloudflare Pages preview deployment | `personal-site-comments-dev` | **Not deployed.** `wrangler.jsonc`'s `env.preview` block exists (pointed at the dev DB) but nothing deploys it automatically, unlike the Pages site — would need a manual `wrangler deploy --config workers/comment-notifier/wrangler.jsonc --env preview` |
+| Prod (`main` branch) | Cloudflare Pages production deployment | `personal-site-comments` | Deployed via `npm run notifier:deploy` (manual, not tied to a branch push — the Worker isn't connected to git the way the Pages project is) |
 
 ## Crawling / scraping stance
 
