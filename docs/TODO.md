@@ -1,6 +1,6 @@
 # Outstanding tasks
 
-Status snapshot as of 2026-08-10. See [README.md](../README.md) for how the
+Status snapshot as of 2026-08-18. See [README.md](../README.md) for how the
 site is built; this is just what's left to do.
 
 ## Before going live
@@ -27,6 +27,14 @@ site is built; this is just what's left to do.
   Takes effect once this commit is pushed and a preview deploy runs —
   worth confirming a `dev` push actually lands in the dev database rather
   than production.
+- ~~Notifications for new comments/guestbook signatures.~~ Done — an hourly
+  email digest via a separate Cloudflare Worker (`workers/comment-notifier/`)
+  with a Cron Trigger, sent through Resend. Deployed and running on prod.
+  See the README's "Comment notification digest" section for the full
+  design (single `last_notified_at` state row instead of a per-comment
+  flag, no links in the email, homepage special-cased to "home", etc.).
+  **Not yet deployed for dev** — `npm run notifier:deploy:dev` exists but
+  hasn't been run.
 
 ## Deferred
 
@@ -37,15 +45,22 @@ site is built; this is just what's left to do.
 - **Turnstile/CAPTCHA** on the comment and guestbook forms — skipped for now,
   but the submission path is structured so it can be dropped in later if
   spam becomes a problem.
-- **Notifications** for new comments/guestbook signatures (email, Discord,
-  etc.) — never wired up. Right now you'd only find out by checking the site
-  or querying D1 directly.
 - **Moderation queue** — comments/guestbook entries go live instantly with
   no review step. Deliberate speed-over-safety call while testing; worth
   revisiting once the site is actually public rather than just you testing
   it.
 - **CI on PR to main**, running the test suite (`tests/unit/` +
   `tests/e2e/`, see the README's "Testing" section) before a PR can merge.
+- **D1 migration tracking.** The `d1:migrate:*` npm scripts chain every
+  `migrations/*.sql` file with `wrangler d1 execute --file=...` and no
+  record of what's already applied, so re-running them against a non-fresh
+  DB re-runs old (non-idempotent) migrations and errors — hit this
+  2026-08-17 when `0002_guestbook_email.sql`'s `ALTER TABLE ADD COLUMN`
+  failed with "duplicate column name" on an already-migrated DB. Fix:
+  switch to Wrangler's built-in `wrangler d1 migrations apply` (tracks
+  applied migrations in a `d1_migrations` table, needs a `migrations_dir`
+  in `wrangler.toml` and files renamed to match its convention), then
+  update the `d1:migrate:*` scripts.
 
 ## Open design question
 
