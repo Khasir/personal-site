@@ -18,18 +18,6 @@ layout: default
     {% endfor %}
   </ul>
   <a class="see-all" href="{{ '/posts/' | relative_url }}">all posts &rarr;</a>
-
-  <h2>recent notes</h2>
-  <ul class="entry-list">
-    {% assign notes = site.notes | sort: "post_date" | reverse | where_exp: "n", "n.hidden != true" %}
-    {% for note in notes limit: 5 %}
-    <li>
-      <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
-      <time datetime="{{ note.post_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ note.post_date | date: "%b %-d, %Y" }}</time>
-    </li>
-    {% endfor %}
-  </ul>
-  <a class="see-all" href="{{ '/notes/' | relative_url }}">all notes &rarr;</a>
 </section>
 
 {% if page.comments %}
