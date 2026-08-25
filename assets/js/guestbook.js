@@ -11,8 +11,9 @@
 
   function formatTime(iso) {
     try {
-      return new Date(iso).toLocaleDateString(undefined, {
-        year: "numeric", month: "short", day: "numeric"
+      return new Date(iso).toLocaleString(undefined, {
+        year: "numeric", month: "short", day: "numeric",
+        hour: "numeric", minute: "2-digit"
       });
     } catch (e) {
       return "";

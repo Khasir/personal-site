@@ -277,7 +277,10 @@
   function formatTime(iso) {
     var d = new Date(iso);
     if (isNaN(d.getTime())) return "";
-    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    return d.toLocaleString(undefined, {
+      year: "numeric", month: "short", day: "numeric",
+      hour: "numeric", minute: "2-digit"
+    });
   }
 
   // Opens the comment form pre-filled with a given anchor (either a live
