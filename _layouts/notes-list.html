@@ -11,7 +11,7 @@ layout: default
     {% for entry in entries %}
     <li>
       <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
-      <time datetime="{{ entry.post_date | date_to_xmlschema }}">{{ entry.post_date | date: "%b %-d, %Y" }}</time>
+      <time datetime="{{ entry.post_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ entry.post_date | date: "%b %-d, %Y" }}</time>
       {% if entry.subtitle %}<p class="entry-summary">{{ entry.subtitle }}</p>{% endif %}
     </li>
     {% endfor %}

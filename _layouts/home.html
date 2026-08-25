@@ -13,7 +13,7 @@ layout: default
     {% assign post_date = post.post_date | default: post.date %}
     <li>
       <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      <time datetime="{{ post_date | date_to_xmlschema }}">{{ post_date | date: "%b %-d, %Y" }}</time>
+      <time datetime="{{ post_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ post_date | date: "%b %-d, %Y" }}</time>
     </li>
     {% endfor %}
   </ul>
@@ -25,7 +25,7 @@ layout: default
     {% for note in notes limit: 5 %}
     <li>
       <a href="{{ note.url | relative_url }}">{{ note.title }}</a>
-      <time datetime="{{ note.post_date | date_to_xmlschema }}">{{ note.post_date | date: "%b %-d, %Y" }}</time>
+      <time datetime="{{ note.post_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ note.post_date | date: "%b %-d, %Y" }}</time>
     </li>
     {% endfor %}
   </ul>
