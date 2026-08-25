@@ -9,8 +9,17 @@ since Jekyll itself can't accept submissions at request time.
 
 ## Content model
 
-- `_posts/*.md` — blog posts, permalink `/posts/:title/`
-- `_notes/*.md` — rougher notes, permalink `/notes/:title/`
+Posts, notes, and their images live in a separate
+[personal-site-content](https://github.com/Khasir/personal-site-content)
+repo, mounted here as a git submodule at `./content` (`collections_dir:
+content` in `_config.yml`). Clone with `git clone --recurse-submodules`, or
+run `git submodule update --init` after a normal clone; after pulling
+changes to this repo, also run `git submodule update` to pick up any
+content updates.
+
+- `content/_posts/*.md` — blog posts, permalink `/posts/:title/`
+- `content/_notes/*.md` — rougher notes, permalink `/notes/:title/`
+- `content/images/` — images referenced from posts/notes (see below)
 
 Both collections share the same frontmatter shape:
 
@@ -34,7 +43,7 @@ by anyone with the direct link.
 
 Within a post/note body:
 
-- **Images**: `{% include figure.html src="/assets/images/foo.jpg" alt="..." caption="..." align="left|right|center" width="320px" %}`
+- **Images**: `{% include figure.html src="/content/images/foo.jpg" alt="..." caption="..." align="left|right|center" width="320px" %}`
   — click any image to view it full-screen.
 - **Footnotes**: standard kramdown syntax, e.g. `text[^1]` with `[^1]: the note`
   at the end of the file. Hover/focus the marker to preview it inline; click
@@ -223,6 +232,13 @@ on yet — it's an account setting, not a repo change.
   project's dashboard settings.
 - **No custom domain picked yet** — runs on the free `*.pages.dev`
   subdomain until one is chosen.
+- **Posts/notes live in a submodule (`content/`, → `personal-site-content`,
+  public repo).** Cloudflare Pages' git integration fetches public
+  submodules automatically as part of the build, so this should need no
+  extra dashboard config — but worth confirming on the first post-migration
+  deploy that `content/` actually shows up with real content (not just
+  empty) in the build log, since a silently-empty submodule would build
+  fine but ship a site with no posts.
 - **`IP_HASH_SALT` build check wired up for `main`.** The Pages dashboard
   build command now runs `node scripts/check-env.js && jekyll build`
   (Settings → Builds & deployments), so a deploy fails instead of silently
@@ -241,6 +257,7 @@ Requires Ruby/Bundler (for Jekyll) and Node (for Wrangler/Cloudflare
 Pages Functions). Two processes, run in separate terminals:
 
 ```bash
+git submodule update --init   # first time only, pulls in ./content
 bundle install
 npm install
 ```

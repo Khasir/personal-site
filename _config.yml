@@ -20,6 +20,9 @@ highlighter: rouge
 
 permalink: /posts/:title/
 
+# posts/notes source files live in the personal-site-content submodule, mounted at ./content
+collections_dir: content
+
 collections:
   posts:
     output: true
@@ -73,3 +76,4 @@ exclude:
   - .dev.vars.example
   - vendor
   - "*.gemspec"
+  - content/README.md
