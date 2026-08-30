@@ -9,7 +9,7 @@
 
   function buildTooltip() {
     tooltip = document.createElement("div");
-    tooltip.className = "footnote-tooltip";
+    tooltip.className = "footnote-tooltip hover-tooltip";
     tooltip.hidden = true;
     tooltip.setAttribute("role", "tooltip");
     document.body.appendChild(tooltip);

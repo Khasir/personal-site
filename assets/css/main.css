@@ -68,14 +68,13 @@ a { color: var(--color-accent); text-decoration: none; }
 a:hover, a:focus { text-decoration: underline; }
 
 /* External links open in a new tab (assets/js/external-links.js) and get a
-   small arrow. Remove this rule to drop just the arrow and keep the
-   new-tab behavior. */
-a.external-link::after {
+   small arrow. Remove this rule to drop just the arrow. */
+/* a.external-link::after {
   content: "\2197";
   display: inline-block;
   margin-left: 0.15em;
   font-size: 0.8em;
-}
+} */
 
 h1, h2, h3 { line-height: 1.25; font-weight: 600; }
 
@@ -295,7 +294,7 @@ sup.footnote-ref, sup[id^="fnref"] a {
   text-decoration: none;
 }
 
-.footnote-tooltip {
+.hover-tooltip {
   position: absolute;
   max-width: 20rem;
   background: #2a2620;
@@ -308,8 +307,8 @@ sup.footnote-ref, sup[id^="fnref"] a {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   z-index: 500;
 }
-.footnote-tooltip[hidden] { display: none; }
-.footnote-tooltip a { color: #a9c6f5; }
+.hover-tooltip[hidden] { display: none; }
+.hover-tooltip a { color: #a9c6f5; }
 .footnote-tooltip .reversefootnote { display: none; }
 
 /* Comments */
