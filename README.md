@@ -56,7 +56,10 @@ Within a post/note body:
   `.entry-content` by `_layouts/home.html`/`post-list.html`/`notes-list.html`)
   rather than the generated post/note lists on those pages — the thread key
   there is the page's URL (`/`, `/posts/`, `/notes/`) rather than a post
-  slug.
+  slug. Standalone `layout: page` pages (e.g. `colophon.md`) need
+  `comments: true` explicitly, and `_layouts/page.html` wraps `{{ content }}`
+  in `.entry-content` for the same reason — `assets/js/comments.js` requires
+  that class to find the article body and no-ops silently if it's missing.
 - **Titles**: post/note titles render lowercase on their own page and in
   entry lists (homepage, `/posts/`, `/notes/`), via CSS `text-transform` on
   `.entry-heading h1` / `.entry-list a` — the underlying title text is

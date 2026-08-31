@@ -2,6 +2,7 @@
 layout: page
 title: colophon
 permalink: /colophon/
+comments: true
 ---
 This website is designed by Khasir (me) and largely uses [Jekyll](https://jekyllrb.com/) under the hood. [Claude Code](https://claude.com/product/claude-code) wrote most of the code but I have inspected all of it. For editing tools, I primarily use [VS Code](https://code.visualstudio.com/), [Sublime Merge](https://www.sublimemerge.com/), [Sublime Text](https://www.sublimetext.com/) and [Obsidian](https://obsidian.md/). [Cloudflare Pages](https://developers.cloudflare.com/pages/) is used for hosting and deployment, and [Functions](https://developers.cloudflare.com/pages/functions/) handles the guestbook and commenting.
 
