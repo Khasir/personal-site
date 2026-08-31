@@ -280,6 +280,13 @@ details p:last-child, details > *:not(summary):last-child { margin-bottom: 0; }
   cursor: pointer;
 }
 
+hr {
+  margin: 2rem auto;
+  border: none;
+  border-top: 1px solid var(--color-border);
+  width: 50%;
+}
+
 /* Footnotes (kramdown-generated markup, decorated here) */
 
 .footnotes {
