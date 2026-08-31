@@ -8,7 +8,9 @@ Usage:
 Params:
   src     - required, path to the image (site-relative or full URL)
   alt     - required, alt text
-  caption - optional caption text (rendered as-is; you can include inline HTML)
+  caption - optional caption text (parsed as inline markdown, so footnotes like
+            "My cat[^catnote]" work and merge into the post's normal footnotes list;
+            you can also include inline HTML)
   align   - "center" (default), "left", or "right"
   width   - optional CSS width for left/right-aligned figures (default 40%)
   full    - optional path to a higher-resolution version to show in the lightbox
@@ -16,8 +18,8 @@ Params:
 {% assign align = include.align | default: "center" %}
 {% assign full_src = include.full | default: include.src %}
 <figure class="fig fig--{{ align }}"{% if include.width %} style="--fig-width: {{ include.width }}"{% endif %}>
-  <a href="{{ full_src | relative_url }}" class="fig-link" data-lightbox data-lightbox-caption="{{ include.caption | strip_html | escape }}">
+  <a href="{{ full_src | relative_url }}" class="fig-link" data-lightbox data-lightbox-caption="{{ include.caption | strip_html | strip_footnote_refs | escape }}">
     <img src="{{ include.src | relative_url }}" alt="{{ include.alt | escape }}" loading="lazy">
   </a>
-  {% if include.caption %}<figcaption>{{ include.caption }}</figcaption>{% endif %}
+  {% if include.caption %}<figcaption markdown="span">{{ include.caption }}</figcaption>{% endif %}
 </figure>

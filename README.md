@@ -44,7 +44,12 @@ by anyone with the direct link.
 Within a post/note body:
 
 - **Images**: `{% include figure.html src="/content/images/foo.jpg" alt="..." caption="..." align="left|right|center" width="320px" %}`
-  — click any image to view it full-screen.
+  — click any image to view it full-screen. The `caption` is parsed as inline
+  markdown (`figcaption` renders with `markdown="span"`), so footnotes work
+  inside a caption too, e.g. `caption="My cat, Whiskers[^catnote]"` — it merges
+  into the post's normal footnotes list with the correct auto-numbering. The
+  lightbox's plain-text caption strips `[^...]` markers via the
+  `strip_footnote_refs` Liquid filter (`_plugins/strip_footnotes.rb`).
 - **Footnotes**: standard kramdown syntax, e.g. `text[^1]` with `[^1]: the note`
   at the end of the file. Hover/focus the marker to preview it inline; click
   jumps to the note at the bottom of the post.
