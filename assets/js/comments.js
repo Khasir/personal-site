@@ -19,6 +19,7 @@
   var formQuote = root.querySelector("[data-comment-form-quote]");
   var formStatus = root.querySelector("[data-comment-form-status]");
   var formCancel = root.querySelector("[data-comment-form-cancel]");
+  var formSubmit = form.querySelector('button[type="submit"]');
   var threadPopover = root.querySelector("[data-comment-thread-popover]");
   var threadList = root.querySelector("[data-comment-thread-list]");
   var threadClose = root.querySelector("[data-comment-thread-close]");
@@ -287,6 +288,7 @@
     form.reset();
     formStatus.textContent = "";
     delete formStatus.dataset.state;
+    formSubmit.disabled = false;
   }
 
   function hideThread() {
@@ -473,6 +475,7 @@
 
     formStatus.textContent = "Posting…";
     delete formStatus.dataset.state;
+    formSubmit.disabled = true;
 
     fetch(apiBase + "/api/comments", {
       method: "POST",
@@ -494,6 +497,7 @@
       .catch(function () {
         formStatus.textContent = "Something went wrong. Please try again :(";
         formStatus.dataset.state = "error";
+        formSubmit.disabled = false;
       });
   });
 
