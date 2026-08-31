@@ -358,7 +358,6 @@ mark.comment-highlight.is-active {
   margin: 0 0 0.75rem;
   padding-left: 0.75rem;
   border-left: 3px solid var(--color-blockquote-border);
-  font-style: italic;
   font-size: 0.9rem;
   color: var(--color-muted);
 }

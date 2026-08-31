@@ -104,6 +104,59 @@
     return closestBlockAncestor(range.startContainer) !== closestBlockAncestor(range.endContainer);
   }
 
+  // Range#cloneContents returns a bare Text node (no ancestor wrapping) when
+  // start and end fall in the same text node -- e.g. selecting "world" out
+  // of "Hello, <em>world</em>!" -- so that case is rebuilt manually here.
+  function cloneSingleTextNodeRange(range) {
+    var text = range.startContainer.nodeValue.slice(range.startOffset, range.endOffset);
+    var node = document.createTextNode(text);
+    var current = range.startContainer.parentNode;
+    while (current && current !== article) {
+      var display = getComputedStyle(current).display;
+      if (display === "block" || display === "list-item" || display === "table-cell" || display === "table-row") break;
+      var clone = current.cloneNode(false);
+      clone.appendChild(node);
+      node = clone;
+      current = current.parentNode;
+    }
+    var frag = document.createDocumentFragment();
+    frag.appendChild(node);
+    return frag;
+  }
+
+  // Serializes a range's contents to HTML, preserving inline formatting
+  // (bold, italic, code, links) so a quote looks like it does in the
+  // article. Strips comment-highlight <mark> wrappers and attributes other
+  // than <a href>.
+  function quoteHTMLFrom(range) {
+    var div = document.createElement("div");
+    var isSingleTextNode = range.startContainer === range.endContainer && range.startContainer.nodeType === 3;
+    div.appendChild(isSingleTextNode ? cloneSingleTextNodeRange(range) : range.cloneContents());
+    div.querySelectorAll("mark.comment-highlight").forEach(function (mark) {
+      var parent = mark.parentNode;
+      while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+      parent.removeChild(mark);
+    });
+    div.querySelectorAll("*").forEach(function (el) {
+      Array.from(el.attributes).forEach(function (attr) {
+        if (el.tagName === "A" && attr.name === "href") return;
+        el.removeAttribute(attr.name);
+      });
+    });
+    return div.innerHTML;
+  }
+
+  // Builds quote HTML for an already-rendered comment highlight, spanning
+  // every segment it covers (in case it was split by overlapping comments).
+  function quoteHTMLForCommentId(id) {
+    var marks = marksByCommentId[id];
+    if (!marks || !marks.length) return null;
+    var range = document.createRange();
+    range.setStartBefore(marks[0]);
+    range.setEndAfter(marks[marks.length - 1]);
+    return quoteHTMLFrom(range);
+  }
+
   // Locates a comment's anchor text in the current article text, preferring
   // an exact prefix+quote+suffix match and falling back to a bare match of
   // the quote alone if the surrounding text has since changed.
@@ -288,7 +341,8 @@
   // of whichever comment is primary for that highlight).
   function openCommentForm(info) {
     pendingSelection = info;
-    formQuote.textContent = info.quote;
+    if (info.quoteHTML) formQuote.innerHTML = info.quoteHTML;
+    else formQuote.textContent = info.quote;
     positionAt(formDialog, info.rect);
     hidePopover();
     hideThread();
@@ -319,8 +373,11 @@
     startOffset += rawQuote.indexOf(quote);
     endOffset = startOffset + quote.length;
 
+    var trimmedRange = rangeFromOffsets(article, startOffset, endOffset);
+
     return {
       quote: quote,
+      quoteHTML: trimmedRange ? quoteHTMLFrom(trimmedRange) : null,
       prefix: fullText.slice(Math.max(0, startOffset - CONTEXT_LEN), startOffset),
       suffix: fullText.slice(endOffset, endOffset + CONTEXT_LEN),
       rect: range.getBoundingClientRect()
@@ -390,6 +447,7 @@
     if (!primary) return;
     openCommentForm({
       quote: primary.quote,
+      quoteHTML: quoteHTMLForCommentId(primary.id),
       prefix: primary.prefix,
       suffix: primary.suffix,
       rect: currentThreadMark.getBoundingClientRect()
