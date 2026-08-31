@@ -57,6 +57,13 @@ Within a post/note body:
   rather than the generated post/note lists on those pages — the thread key
   there is the page's URL (`/`, `/posts/`, `/notes/`) rather than a post
   slug.
+- **Titles**: post/note titles render lowercase on their own page and in
+  entry lists (homepage, `/posts/`, `/notes/`), via CSS `text-transform` on
+  `.entry-heading h1` / `.entry-list a` — the underlying title text is
+  untouched. The browser tab title (`<title>`) on post/note pages is also
+  lowercased, via a small inline script in `_layouts/entry.html` (kept out
+  of jekyll-seo-tag's `og:title`/`twitter:title`/JSON-LD output, which stay
+  properly cased).
 - **Dates**: rendered lowercase everywhere (CSS `text-transform`, so the
   underlying text/`datetime` attribute are untouched). On post/note pages the
   meta line reads `p. <date>` / `l.m. <date>` (posted / last modified), each
