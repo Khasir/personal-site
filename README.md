@@ -79,12 +79,11 @@ Within a post/note body:
   meta line reads `p. <date>` / `l.m. <date>` (posted / last modified), each
   wrapped in `<abbr title="...">` so the full word shows on hover.
 - **Link previews**: the `og:description`/`twitter:description` meta tags
-  (via `jekyll-seo-tag`) use the post/note's `subtitle` when present, falling
-  back to the first sentence of its opening paragraph otherwise — set in
-  `page["description"]` by `_plugins/seo_description.rb` before the SEO tag
-  renders, since `jekyll-seo-tag` itself only checks
-  `description`/excerpt/site description (and would use the whole opening
-  paragraph, not just its first sentence).
+  (via `jekyll-seo-tag`) use a `link_preview` frontmatter field when present
+  — set in `page["description"]` by `_plugins/seo_description.rb` before the
+  SEO tag renders, since `jekyll-seo-tag` itself doesn't know about
+  `link_preview` — falling back to its default behaviour (the opening
+  paragraph) otherwise.
 - **External links** automatically open in a new tab and get a small arrow
   (`assets/js/external-links.js`, based on the link's hostname — no markup
   needed).
