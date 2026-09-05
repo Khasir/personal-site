@@ -33,11 +33,11 @@
     });
   }
 
-  function open(src, captionText) {
+  function open(src, altText, captionHTML) {
     if (!overlay) buildOverlay();
     img.src = src;
-    img.alt = captionText || "";
-    caption.textContent = captionText || "";
+    img.alt = altText || "";
+    caption.innerHTML = captionHTML || "";
     overlay.hidden = false;
     document.body.style.overflow = "hidden";
   }
@@ -53,6 +53,11 @@
     var link = e.target.closest("[data-lightbox]");
     if (!link) return;
     e.preventDefault();
-    open(link.getAttribute("href"), link.getAttribute("data-lightbox-caption"));
+    var captionSrc = link.parentElement.querySelector(".lightbox-caption-src");
+    open(
+      link.getAttribute("href"),
+      link.getAttribute("data-lightbox-alt"),
+      captionSrc ? captionSrc.innerHTML : ""
+    );
   });
 })();

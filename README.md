@@ -48,8 +48,10 @@ Within a post/note body:
   markdown (`figcaption` renders with `markdown="span"`), so footnotes work
   inside a caption too, e.g. `caption="My cat, Whiskers[^catnote]"` — it merges
   into the post's normal footnotes list with the correct auto-numbering. The
-  lightbox's plain-text caption strips `[^...]` markers via the
-  `strip_footnote_refs` Liquid filter (`_plugins/strip_footnotes.rb`).
+  lightbox caption renders the same markdown, minus footnote markers (stripped
+  via the `strip_footnote_refs` Liquid filter in
+  `_plugins/strip_footnotes.rb`, since footnotes don't make sense floating
+  over the fullscreen overlay); the image's `alt` text stays plain.
 - **Footnotes**: standard kramdown syntax, e.g. `text[^1]` with `[^1]: the note`
   at the end of the file. Hover/focus the marker to preview it inline; click
   jumps to the note at the bottom of the post.
