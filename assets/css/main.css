@@ -67,6 +67,8 @@ body {
 a { color: var(--color-accent); text-decoration: none; }
 a:hover, a:focus { text-decoration: underline; }
 
+del, s { color: var(--color-muted); }
+
 /* External links open in a new tab (assets/js/external-links.js) and get a
    small arrow. Remove this rule to drop just the arrow. */
 /* a.external-link::after {
