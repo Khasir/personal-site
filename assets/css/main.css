@@ -191,7 +191,7 @@ blockquote p.attribution { text-align: right; }
 .fig img { max-width: 100%; display: block; height: auto; }
 .fig figcaption {
   font-size: 0.85rem;
-  font-style: italic;
+  /* font-style: italic; */
   color: var(--color-muted);
   margin-top: 0.4rem;
 }
@@ -267,7 +267,13 @@ details p:last-child, details > *:not(summary):last-child { margin-bottom: 0; }
   object-fit: contain;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
-.lightbox-caption { color: #fff; margin-top: 1rem; font-size: 0.9rem; font-style: italic; text-align: center; }
+.lightbox-caption {
+  color: #fff;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  /* font-style: italic; */
+  text-align: center;
+}
 .lightbox-close {
   position: absolute;
   top: 1.25rem;
