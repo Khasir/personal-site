@@ -350,7 +350,7 @@ Merges to main and other branches are automatically deployed.
     - Add environment vars:
         - Secret: `IP_HASH_SALT` = whatever
         - Text: `RUBY_VERSION` = `3.2.10` to match local dev
-4. Enable deployments only for `main` and `dev`.
+4. Enable automatic deployments only for `main`.
 
 ### Dev
 
