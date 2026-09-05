@@ -78,6 +78,11 @@ Within a post/note body:
   underlying text/`datetime` attribute are untouched). On post/note pages the
   meta line reads `p. <date>` / `l.m. <date>` (posted / last modified), each
   wrapped in `<abbr title="...">` so the full word shows on hover.
+- **Link previews**: the `og:description`/`twitter:description` meta tags
+  (via `jekyll-seo-tag`) use the post/note's `subtitle` when present, falling
+  back to its opening paragraph otherwise — set in `page["description"]` by
+  `_plugins/seo_description.rb` before the SEO tag renders, since
+  `jekyll-seo-tag` itself only checks `description`/excerpt/site description.
 - **External links** automatically open in a new tab and get a small arrow
   (`assets/js/external-links.js`, based on the link's hostname — no markup
   needed).
