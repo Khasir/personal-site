@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bundle exec jekyll build",
-    "jekyll:watch": "bundle exec jekyll build --watch --incremental",
+    "build": "bundle exec jekyll build --watch",
+    "build:inc": "bundle exec jekyll build --watch --incremental",
     "d1:migrate:local": "wrangler d1 execute personal-site-comments --local --file=migrations/0001_init.sql && wrangler d1 execute personal-site-comments --local --file=migrations/0002_guestbook_email.sql && wrangler d1 execute personal-site-comments --local --file=migrations/0003_notification_state.sql",
     "d1:migrate:dev": "wrangler d1 execute personal-site-comments-dev --remote --file=migrations/0001_init.sql && wrangler d1 execute personal-site-comments-dev --remote --file=migrations/0002_guestbook_email.sql && wrangler d1 execute personal-site-comments-dev --remote --file=migrations/0003_notification_state.sql",
     "d1:migrate:prod": "wrangler d1 execute personal-site-comments --remote --file=migrations/0001_init.sql && wrangler d1 execute personal-site-comments --remote --file=migrations/0002_guestbook_email.sql && wrangler d1 execute personal-site-comments --remote --file=migrations/0003_notification_state.sql",
