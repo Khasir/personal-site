@@ -14,43 +14,40 @@
 
 Minimal, elegant, bookish, nostalgic — EB Garamond throughout, warm
 cream/tan palette. Self-hosted (`assets/fonts/`, two variable-font files:
-regular + italic, each covering weights 400–700) rather than pulled from
-Google Fonts, mainly to avoid sending every visitor's IP to Google on each
-page load.
+regular + italic, weights 400–700) rather than pulled from Google Fonts, to
+avoid sending every visitor's IP to Google on each page load.
 
 Palette (see `:root` in `assets/css/main.css` for the full list):
 - Background `#eadbcb`, text `#000000`, links `#1155cc`
 - Blockquotes: background `#fff2cc`, left border `#cbb99e`, text `#1b1b1a`
 
-Header and footer both show the same nav (`home / posts / guestbook`,
-diamond-separated, sharing `_includes/nav.html`); the footer additionally
-gets `rss` and `colophon` links the header doesn't have. A `rough notes`
-link also exists in `nav.html` behind a `show_notes` param, but nothing
-currently passes it `true`, so it's hidden from the nav on both header and
-footer (commit `c0ca090`, "hide rough notes") — `/notes/` itself still
-works, just isn't linked. There's no copyright line by design.
+Header and footer share one nav (`_includes/nav.html`): `home / posts /
+guestbook`, diamond-separated. Footer additionally shows `rss` and
+`colophon` links. A `rough notes` link exists behind a `show_notes` param
+that nothing currently passes `true` (commit `c0ca090`, "hide rough
+notes"), so it's hidden from the nav on both — `/notes/` itself still
+works, just isn't linked. No copyright line, by design.
 
 ## Site architecture
 
-Jekyll static site, deployed on Cloudflare Pages. Public comments and the
-guestbook are backed by a Cloudflare Pages Function + D1 (SQLite) database,
-since Jekyll itself can't accept submissions at request time.
+Jekyll static site on Cloudflare Pages. Comments and the guestbook are
+backed by a Cloudflare Pages Function + D1 (SQLite) database, since Jekyll
+can't accept submissions at request time.
 
 ### Content model
 
-Posts, notes, and their images live in a separate
+Posts, notes, and images live in a separate
 [personal-site-content](https://github.com/Khasir/personal-site-content)
-repo, mounted here as a git submodule at `./content` (`collections_dir:
+repo, mounted as a git submodule at `./content` (`collections_dir:
 content` in `_config.yml`). Clone with `git clone --recurse-submodules`, or
-run `git submodule update --init` after a normal clone; after pulling
-changes to this repo, also run `git submodule update` to pick up any
-content updates.
+`git submodule update --init` after a normal clone; run `git submodule
+update` after pulling to this repo to pick up content updates.
 
 - `content/_posts/*.md` — blog posts, permalink `/posts/:title/`
 - `content/_notes/*.md` — rougher notes, permalink `/notes/:title/`
-- `content/images/` — images referenced from posts/notes (see below)
+- `content/images/` — images referenced from posts/notes
 
-Both collections share the same frontmatter shape:
+Shared frontmatter:
 
 ```yaml
 ---
@@ -62,113 +59,83 @@ tags: [optional, list]
 ---
 ```
 
-`post_date` is what's displayed and sorted on. For `_posts` it falls back to
-the date in the filename (`YYYY-MM-DD-title.md`) if omitted; `_notes` has no
-such fallback, so set it explicitly there.
+`post_date` drives display/sort order. `_posts` falls back to the filename
+date (`YYYY-MM-DD-title.md`) if omitted; `_notes` has no fallback, so set
+it explicitly.
 
-Add `hidden: true` to exclude a post/note from `/posts/`, `/notes/`, and the
-homepage's "recent" lists — the page still builds normally and is reachable
-by anyone with the direct link.
+`hidden: true` excludes a post/note from `/posts/`, `/notes/`, and the
+homepage's "recent" lists — it still builds and is reachable by direct
+link.
 
 Within a post/note body:
 
 - **Images**: `{% include figure.html src="/content/images/foo.jpg" alt="..." caption="..." align="left|right|center" width="320px" %}`
-  — click any image to view it full-screen. The `caption` is parsed as inline
-  markdown (`figcaption` renders with `markdown="span"`), so footnotes work
-  inside a caption too, e.g. `caption="My cat, Whiskers[^catnote]"` — it merges
-  into the post's normal footnotes list with the correct auto-numbering. The
-  lightbox caption renders the same markdown, minus footnote markers (stripped
-  via the `strip_footnote_refs` Liquid filter in
-  `_plugins/strip_footnotes.rb`, since footnotes don't make sense floating
-  over the fullscreen overlay); the image's `alt` text stays plain.
-- **Footnotes**: standard kramdown syntax, e.g. `text[^1]` with `[^1]: the note`
-  at the end of the file. Hover/focus the marker to preview it inline; click
-  jumps to the note at the bottom of the post.
-- **Comments**: automatic on any post/note (set `comments: false` in
-  frontmatter to disable). Visitors select text in the body to attach a
-  comment to that passage — no account required. Also enabled on the
-  homepage, `/posts/`, and `/notes/`, scoped to each page's own intro copy
-  (the `{{ content }}` in `index.md`/`posts.md`/`notes.md`, wrapped in
-  `.entry-content` by `_layouts/home.html`/`post-list.html`/`notes-list.html`)
-  rather than the generated post/note lists on those pages — the thread key
-  there is the page's URL (`/`, `/posts/`, `/notes/`) rather than a post
-  slug. Standalone `layout: page` pages (e.g. `colophon.md`) need
-  `comments: true` explicitly, and `_layouts/page.html` wraps `{{ content }}`
-  in `.entry-content` for the same reason — `assets/js/comments.js` requires
-  that class to find the article body and no-ops silently if it's missing.
-- **Titles**: post/note titles render lowercase on their own page and in
-  entry lists (homepage, `/posts/`, `/notes/`), via CSS `text-transform` on
-  `.entry-heading h1` / `.entry-list a` — the underlying title text is
-  untouched. The browser tab title (`<title>`) on post/note pages is also
-  lowercased, via a small inline script in `_layouts/entry.html` (kept out
-  of jekyll-seo-tag's `og:title`/`twitter:title`/JSON-LD output, which stay
-  properly cased).
-- **Dates**: rendered lowercase everywhere (CSS `text-transform`, so the
-  underlying text/`datetime` attribute are untouched). On post/note pages the
-  meta line reads `p. <date>` / `l.m. <date>` (posted / last modified), each
-  wrapped in `<abbr title="...">` so the full word shows on hover.
-- **Link previews**: the `og:description`/`twitter:description` meta tags
-  (via `jekyll-seo-tag`) use a `link_preview` frontmatter field when present
-  — set in `page["description"]` by `_plugins/seo_description.rb` before the
-  SEO tag renders, since `jekyll-seo-tag` itself doesn't know about
-  `link_preview` — falling back to its default behaviour (the opening
-  paragraph) otherwise.
-- **External links** automatically open in a new tab and get a small arrow
-  (`assets/js/external-links.js`, based on the link's hostname — no markup
-  needed).
-- **Quote attribution**: mark a blockquote's attribution line explicitly so
-  it right-aligns:
+  — click to view full-screen. `caption` is parsed as inline markdown
+  (`markdown="span"` on `figcaption`), so footnotes work inside captions
+  too and merge into the post's normal auto-numbered list. The lightbox
+  caption strips footnote markers (`strip_footnote_refs` filter,
+  `_plugins/strip_footnotes.rb`) since they don't make sense floating over
+  the overlay; `alt` stays plain text.
+- **Footnotes**: standard kramdown (`text[^1]` / `[^1]: note`). Hover/focus
+  previews inline; click jumps to the note.
+- **Comments**: on by default (`comments: false` to disable). Visitors
+  select text to attach a comment, no account needed. Also enabled on the
+  homepage, `/posts/`, `/notes/`, scoped to each page's own intro copy
+  (`.entry-content` wrapping `{{ content }}`) rather than the generated
+  lists — thread key is the page URL (`/`, `/posts/`, `/notes/`) instead
+  of a slug. Standalone `layout: page` pages (e.g. `colophon.md`) need
+  `comments: true` explicitly; `assets/js/comments.js` needs
+  `.entry-content` present or it no-ops.
+- **Titles/dates**: rendered lowercase via CSS `text-transform` (underlying
+  text untouched); post/note `<title>` is also lowercased via an inline
+  script in `_layouts/entry.html` (kept out of jekyll-seo-tag's
+  `og:title`/JSON-LD, which stay properly cased). Meta line reads `p.
+  <date>` / `l.m. <date>` (posted/last modified) with `<abbr>` tooltips.
+- **Link previews**: `og:description`/`twitter:description` use a
+  `link_preview` frontmatter field when present (`_plugins/seo_description.rb`
+  sets `page["description"]` before jekyll-seo-tag renders), else fall
+  back to the opening paragraph.
+- **External links** auto-open in a new tab with a small arrow
+  (`assets/js/external-links.js`, by hostname, no markup needed).
+- **Quote attribution**:
   ```
   > Quote text.
   >
   > — Someone
   > {: .attribution}
   ```
-- **Expansion sections**: native `<details>`/`<summary>`, styled to match the
-  site. Markdown inside requires `markdown="1"` on the `<details>` tag:
-  ```html
-  <details markdown="1">
-  <summary>Click to expand</summary>
-
-  Body text, **markdown** works here.
-
-  </details>
-  ```
+- **Expansion sections**: native `<details>`/`<summary>`; needs
+  `markdown="1"` on `<details>` for markdown to render inside.
 
 ### Comments & guestbook architecture
 
-Both are backed by the same `comments` D1 table (see `functions/`), split by
-a `kind` column. Deliberate choices worth knowing before changing this:
+Both backed by the same `comments` D1 table (`functions/`), split by a
+`kind` column. Deliberate choices:
 
-- **Appears instantly, no moderation queue.** The user chose speed over
-  safety here — a submission is live as soon as it's POSTed. The only
-  guards are a honeypot field and a per-IP rate limit (5 posts/60s, salted
-  hash, see `functions/_lib/comments.js`). No Turnstile/CAPTCHA yet, but the
-  submit path is structured so one can be dropped in later.
-- **Hourly email digest of new activity** via a separate Cloudflare Worker
-  with a Cron Trigger — see "Comment notification digest" below.
-- **Overlapping highlights.** When two comments' anchored text ranges
-  overlap, the article is re-partitioned into non-overlapping `<mark>`
-  segments, each tagged with every comment covering it (see `renderAll()` in
-  `assets/js/comments.js`) — wrapping each comment's range independently
-  corrupted the markup. Hovering any one segment of a comment's range
-  highlights that comment's *entire* range as one block, using whichever
-  comment is most-recently-posted as "primary" wherever ranges overlap.
-  Clicking a highlight's thread popover has an "add a comment" action that
-  replies using that same primary comment's anchor, without the visitor
-  re-selecting text.
-- **Text anchoring** uses a quote + prefix/suffix context match (like a
-  simplified Hypothes.is), falling back to a bare quote search if the
-  surrounding text has since changed. If neither matches, the comment is
-  dropped from the inline view (still in the DB, just not rendered).
+- **Instant, no moderation queue** — live as soon as POSTed. Only a
+  honeypot field and a per-IP rate limit (5 posts/60s, salted hash —
+  `functions/_lib/comments.js`) guard it; no Turnstile/CAPTCHA yet, but the
+  path is structured to add one later.
+- **Hourly email digest** of new activity — see "Comment notification
+  digest" below.
+- **Overlapping highlights**: when two comments' anchored ranges overlap,
+  the article is re-partitioned into non-overlapping `<mark>` segments
+  each tagged with every covering comment (`renderAll()` in
+  `assets/js/comments.js`) — wrapping each range independently corrupted
+  the markup. Hovering any segment highlights that comment's full range;
+  whichever comment is most-recently-posted is "primary" where ranges
+  overlap, and a highlight's "add a comment" reply reuses that anchor
+  without re-selecting text.
+- **Text anchoring**: quote + prefix/suffix context match (simplified
+  Hypothes.is-style), falling back to a bare quote search. If neither
+  matches, the comment is dropped from the inline view (stays in the DB).
 
 ### Comment notification digest
 
-A separate Cloudflare Worker (`workers/comment-notifier/`, distinct from the
-Pages Functions in `functions/` since Pages can't run on a schedule) runs
-hourly via a Cron Trigger, checks the `comments` D1 table for anything new
-since its last run, and emails a plain-text digest via
-[Resend](https://resend.com) — e.g.:
+A separate Cloudflare Worker (`workers/comment-notifier/`, since Pages
+Functions can't run on a schedule) runs hourly via Cron, checks the
+`comments` table for anything new since its last run, and emails a
+plain-text digest via [Resend](https://resend.com):
 
 ```
 New activity in the last hour:
@@ -179,33 +146,27 @@ New activity in the last hour:
 - guestbook: 2 new entries
 ```
 
-Nothing is sent if there's no new activity. Deliberate choices:
+Nothing sent if no new activity. Deliberate choices:
 
-- **State is a single `last_notified_at` row** (`notification_state` table,
+- **State is one `last_notified_at` row** (`notification_state` table,
   `migrations/0003_notification_state.sql`) rather than a per-comment
-  `notification_sent` flag — one write per hourly run instead of one per
-  comment, and no migration needed on the hot `comments` table.
-- **No links in the email**, just the raw `post_slug`/"guestbook" label —
-  `post_slug` is a bare slug for posts/notes but a full path for other pages
-  (see the "thread key" note above), and slugs alone don't say which
-  collection (`_posts` vs `_notes`) they belong to, so a generated link
-  could point to the wrong URL. One exception: the homepage's `post_slug`
-  (`/`) is special-cased to display as "home" instead of the bare slash.
-- **A failed Resend send doesn't advance `last_notified_at`** — the same
-  window gets retried on the next hourly run instead of silently dropping
-  a digest.
+  flag — one write per run, no migration on the hot `comments` table.
+- **No links in the email** — `post_slug` is a bare slug for posts/notes
+  but a full path elsewhere, and slugs alone don't say `_posts` vs
+  `_notes`, so a generated link could be wrong. Exception: the homepage's
+  `post_slug` (`/`) displays as "home".
+- **A failed Resend send doesn't advance `last_notified_at`** — the window
+  retries next run instead of silently dropping.
 
-`NOTIFY_TO_EMAIL`, `NOTIFY_FROM_EMAIL`, `NOTIFY_FROM_NAME`, and
-`RESEND_API_KEY` are all secrets, not `vars` in `wrangler.jsonc` — nothing
-ends up committed there. Locally they come from
-`workers/comment-notifier/.dev.vars`; deployed, from `wrangler secret put`.
+`NOTIFY_TO_EMAIL`, `NOTIFY_FROM_EMAIL`, `NOTIFY_FROM_NAME`,
+`RESEND_API_KEY` are secrets (not `vars` in `wrangler.jsonc`) — locally via
+`workers/comment-notifier/.dev.vars`, deployed via `wrangler secret put`.
 
 #### Local dev / testing
 
-`notifier:local` uses `--persist-to=.wrangler/state`, the same local D1
-storage directory as `npm run site:local` — so it reads/writes the same
-local database, no separate migration step needed as long as you've
-already run `npm run d1:migrate:local` for the main site.
+`notifier:local` uses `--persist-to=.wrangler/state`, same as `npm run
+site:local`, so it shares the local D1 — no separate migration step if
+you've already run `npm run d1:migrate:local`.
 
 ```bash
 cp workers/comment-notifier/.dev.vars.example workers/comment-notifier/.dev.vars   # first time only, then fill in real values
@@ -214,92 +175,75 @@ npm run notifier:local  # wrangler dev --test-scheduled, sharing the main site's
 ```
 
 With `notifier:local` running, hit `http://localhost:<port>/__scheduled`
-to manually trigger the scheduled handler instead of waiting for the cron.
+to trigger the scheduled handler manually.
 
 #### Logging
 
-`src/index.js` logs each step of a run (`console.log`/`console.error`,
-prefixed `[comment-notifier]`) — the `since` cutoff, how many new rows were
-found, whether a digest was sent (and its subject), and any failure.
-`wrangler.jsonc` sets `observability.enabled: true` so these show up both
-in `wrangler tail` and the Cloudflare dashboard's Logs tab for the Worker;
-without it, the dashboard only surfaces the raw cron trigger metadata
-(e.g. `0 * * * *`), not anything logged from inside the Worker.
+`src/index.js` logs each step (`console.log`/`console.error`, prefixed
+`[comment-notifier]`): the `since` cutoff, rows found, whether a digest
+sent, any failure. `wrangler.jsonc` sets `observability.enabled: true` so
+these show in `wrangler tail` and the dashboard's Logs tab — without it
+only raw cron metadata (e.g. `0 * * * *`) surfaces.
 
 #### Deploy steps
 
-1. Set up a sender in [Resend](https://resend.com) (their shared test
-   domain works for trying it out; a verified domain of your own for real
-   use).
+1. Set up a sender in [Resend](https://resend.com) (shared test domain to
+   try it, a verified domain for real use).
 2. From `workers/comment-notifier/`: `wrangler secret put RESEND_API_KEY`,
-   `wrangler secret put NOTIFY_TO_EMAIL`, `wrangler secret put NOTIFY_FROM_EMAIL`,
-   `wrangler secret put NOTIFY_FROM_NAME` (repeat with `--env preview` too
-   if deploying the dev-DB copy, rather than only testing it locally via
-   `.dev.vars`).
-3. `npm run notifier:deploy:dev` (against the dev D1 binding) and/or
-   `npm run notifier:deploy:prod` (against the prod D1 binding) — or,
-   equivalently, `cd workers/comment-notifier && wrangler deploy` (add
-   `--env preview` for the dev DB copy); Wrangler picks up
-   `wrangler.jsonc` from the current directory automatically, so the
-   `--config` flag the npm scripts pass is only needed when running from
-   elsewhere.
+   `NOTIFY_TO_EMAIL`, `NOTIFY_FROM_EMAIL`, `NOTIFY_FROM_NAME` (repeat with
+   `--env preview` for the dev-DB copy too, if not just testing locally
+   via `.dev.vars`).
+3. `npm run notifier:deploy:dev` and/or `npm run notifier:deploy:prod` —
+   or `cd workers/comment-notifier && wrangler deploy` (add `--env
+   preview` for dev); Wrangler picks up `wrangler.jsonc` automatically, so
+   the npm scripts' `--config` flag is only needed running from elsewhere.
 
 #### Deployment scope (as of writing)
 
 | Environment | Site hosting | D1 database | Notifier deployed? |
 | --- | --- | --- | --- |
 | Local | `npm run build` + `npm run site:local` | local D1 (`.wrangler/state`) | `npm run notifier:local` runs against the same local D1 |
-| Dev (`dev` branch) | Cloudflare Pages preview deployment | `personal-site-comments-dev` | **Not deployed yet.** `npm run notifier:deploy:dev` exists, but nothing runs it automatically, and it isn't required for testing here |
-| Prod (`main` branch) | Cloudflare Pages production deployment | `personal-site-comments` | **Deployed and live**, running hourly. Deploys are manual and not tied to a branch push — the Worker isn't connected to git the way the Pages project is |
+| Dev (`dev` branch) | Cloudflare Pages preview deployment | `personal-site-comments-dev` | **Not deployed.** `npm run notifier:deploy:dev` exists but nothing runs it automatically |
+| Prod (`main` branch) | Cloudflare Pages production deployment | `personal-site-comments` | **Deployed and live**, hourly. Deploys are manual, not tied to a branch push |
 
 ### Crawling / scraping stance
 
-`robots.txt` (blanket `Disallow: /`) and `llms.txt` (plain-language opt-out
-of AI training/scraping use) are both intentional — this site is meant to
-be shared link-to-link with people the author knows, not indexed or
-crawled. `jekyll-sitemap` was deliberately removed for the same reason
-(publishing a full sitemap.xml undercuts asking crawlers to stay out).
-Keep this in mind before adding anything SEO/discoverability-oriented.
+`robots.txt` (blanket `Disallow: /`) and `llms.txt` (opt-out of AI
+training/scraping) are intentional — this site is meant to be shared
+link-to-link, not indexed or crawled. `jekyll-sitemap` was deliberately
+removed for the same reason. Keep this in mind before adding anything
+SEO/discoverability-oriented.
 
-Both files are honor-system only; they don't stop a scraper that ignores
-them. Cloudflare's dashboard-level bot-blocking (incl. a one-click "block AI
-bots" toggle, free tier) would add real enforcement but hasn't been turned
-on yet — it's an account setting, not a repo change.
+Both are honor-system only. Cloudflare's dashboard-level bot-blocking
+(incl. a one-click "block AI bots" toggle, free tier) would add real
+enforcement but isn't turned on yet — an account setting, not a repo
+change.
 
 ### Current status
 
-- **Connected to Cloudflare Pages.** The repo is linked as a Pages project
-  and auto-deploys on push to `main` and `dev`. Cloudflare Pages' usual
-  behavior is that one branch (typically `main`) is the "production"
-  branch deploying to the project's main URL, while every other connected
-  branch (`dev` here) gets its own preview deployment at a separate URL —
-  worth double-checking that's set up the way you want in the Pages
-  project's dashboard settings.
-- **No custom domain picked yet** — runs on the free `*.pages.dev`
-  subdomain until one is chosen.
-- **Posts/notes live in a submodule (`content/`, → `personal-site-content`,
-  public repo).** Cloudflare Pages' git integration fetches public
-  submodules automatically as part of the build, so this should need no
-  extra dashboard config — but worth confirming on the first post-migration
-  deploy that `content/` actually shows up with real content (not just
-  empty) in the build log, since a silently-empty submodule would build
-  fine but ship a site with no posts.
-- **`IP_HASH_SALT` build check wired up for `main`.** The Pages dashboard
-  build command now runs `node scripts/check-env.js && jekyll build`
-  (Settings → Builds & deployments), so a deploy fails instead of silently
-  falling back to the insecure default salt at runtime. Confirmed set for
-  `main`; Cloudflare Pages build commands are historically project-wide
-  rather than per-branch, but worth double-checking `dev`/preview deploys
-  pick it up too.
-- **`comment-notifier` Worker deployed to prod.** Live and running on its
-  hourly Cron Trigger against the prod D1 database. Not yet deployed for
-  dev (see the "Deployment scope" table under "Comment notification
-  digest").
+- **Connected to Cloudflare Pages**, auto-deploying on push to `main` and
+  `dev`. `main` is the production branch (main URL); `dev` gets its own
+  preview URL — confirm this matches the Pages project's dashboard
+  settings if it changes.
+- **No custom domain yet** — runs on the free `*.pages.dev` subdomain.
+- **`content/` submodule (public repo)** — Cloudflare Pages' git
+  integration fetches public submodules automatically; confirm on any
+  post-migration deploy that `content/` shows up with real content in the
+  build log (a silently-empty submodule would build fine but ship no
+  posts).
+- **`IP_HASH_SALT` build check wired up for `main`** — build command runs
+  `node scripts/check-env.js && jekyll build` (Settings → Builds &
+  deployments), so a deploy fails instead of silently using the insecure
+  default salt. Confirmed for `main`; double-check `dev`/preview picks it
+  up too (Pages build commands are historically project-wide, not
+  per-branch).
+- **`comment-notifier` Worker deployed to prod only** — live, hourly Cron
+  against prod D1. Not yet deployed for dev.
 
 ### Local development
 
-Requires Ruby/Bundler (for Jekyll) and Node (for Wrangler/Cloudflare
-Pages Functions). Two processes, run in separate terminals:
+Requires Ruby/Bundler (Jekyll) and Node (Wrangler/Pages Functions). Two
+terminals:
 
 ```bash
 git submodule update --init   # first time only, pulls in ./content
@@ -322,59 +266,57 @@ npm run site:local
 
 Then open the URL Wrangler prints (typically http://localhost:8788).
 
-**Gotchas hit while developing this:**
-- `npm run build` rebuilds on content/template changes, but does **not**
-  reload `_config.yml` — restart it after editing site title, plugins, etc.
+**Gotchas:**
+- `npm run build` doesn't reload `_config.yml` — restart it after editing
+  site title, plugins, etc.
 - If `wrangler pages dev` starts returning `D1_ERROR: no such table` after
   working fine, check for more than one `wrangler pages dev` process bound
   to the same port (`netstat -ano | grep 8788` on Windows) — each resolves
-  its local D1 file slightly differently, and stray leftover processes from
-  earlier runs cause exactly this symptom. Kill the extras and restart.
+  its local D1 file slightly differently. Kill the extras and restart.
 
 ### Testing
 
 Two layers, `npm test` runs both:
 
-- **Unit tests** (`tests/unit/`, Node's built-in test runner) — the pure
-  validation/rate-limit/hashing logic in `functions/_lib/comments.js`.
-  `npm run test:unit`.
-- **E2E tests** (`tests/e2e/`, Playwright + real Chromium) — everything that
-  only breaks with an actual browser's Range/CSS engine, which is most of
-  what's gone wrong in this project so far: nested `<mark>`s from
-  overlapping comments, selections crossing block boundaries, the popover
-  dismissing itself, duplicate `<title>` tags. `tests/e2e/other-pages-comments.spec.js`
-  covers the homepage/`/posts/`/`/notes/` comment threads specifically
-  (correct `data-post-slug` scoping, select-and-post-and-reload on each
-  page's intro copy). `npm run test:e2e` builds the
-  site, wipes and re-migrates a dedicated local D1 (`--persist-to=.wrangler-test/`,
-  entirely separate from your own dev database), and serves it on port 8799
-  before running — see `playwright.config.js`'s `webServer`. Each test sets
-  its own fake `CF-Connecting-IP` header so the shared rate limiter doesn't
-  trip between unrelated tests (see `fakeIp()` in `tests/e2e/helpers.js`).
+- **Unit** (`tests/unit/`, Node's test runner) — validation/rate-limit/
+  hashing logic in `functions/_lib/comments.js`. `npm run test:unit`.
+- **E2E** (`tests/e2e/`, Playwright + Chromium) — everything that only
+  breaks with a real browser's Range/CSS engine: nested `<mark>`s from
+  overlapping comments, selections crossing block boundaries, popover
+  dismissal, duplicate `<title>` tags. `tests/e2e/other-pages-comments.spec.js`
+  covers homepage/`/posts/`/`/notes/` comment threads (`data-post-slug`
+  scoping, select-and-post-and-reload). `npm run test:e2e` builds the
+  site, wipes/re-migrates a dedicated local D1 (`--persist-to=.wrangler-test/`,
+  separate from your dev database), and serves it on port 8799
+  (`playwright.config.js`'s `webServer`). Each test sets its own fake
+  `CF-Connecting-IP` header so the shared rate limiter doesn't trip
+  between tests (`fakeIp()` in `tests/e2e/helpers.js`).
 
-Run `npx playwright test --ui` for the interactive UI mode when debugging a
-failure, or `npx playwright show-trace <path>` to inspect a failed run's
-trace (saved automatically to `test-results/`).
+Debugging: `npx playwright test --ui` for interactive mode, `npx
+playwright show-trace <path>` to inspect a failed run's trace (saved to
+`test-results/`).
 
 ### Deployment steps taken
 
-Merges to main and other branches are automatically deployed.
+Merges to `main` and other branches auto-deploy.
 
 #### Prod
 
-1. Create a D1 DB via `npx wrangler d1 create personal-site-comments`, then paste the returned values into `wrangler.toml`.
-2. `npm run d1:migrate:prod` to apply the schema to the prod database.
-3. In the Cloudflare web UI, create an app that connects the repo in the Cloudflare dashboard as a Pages project ([add'l info here](https://developers.cloudflare.com/pages/get-started/git-integration/)):
-    - Compute -> Workers and Pages -> Create application -> Get started with Pages -> Continue with GitHub
-    - Select framework preset: Jekyll
-    - Set build command: `node scripts/check-env.js && jekyll build`
-    - Set build output directory: `_site`
-    - Add environment vars:
-        - Secret: `IP_HASH_SALT` = whatever
-        - Text: `RUBY_VERSION` = `3.2.10` to match local dev
-4. Enable automatic deployments only for `main`.
+1. Created a D1 DB via `npx wrangler d1 create personal-site-comments`,
+   pasted values into `wrangler.toml`.
+2. `npm run d1:migrate:prod` to apply the schema.
+3. Connected the repo as a Cloudflare Pages project (Compute → Workers and
+   Pages → Create application → Pages → Continue with GitHub;
+   [docs](https://developers.cloudflare.com/pages/get-started/git-integration/)):
+    - Framework preset: Jekyll
+    - Build command: `node scripts/check-env.js && jekyll build`
+    - Build output directory: `_site`
+    - Env vars: Secret `IP_HASH_SALT` = whatever; Text `RUBY_VERSION` =
+      `3.2.10` (match local)
+4. Enabled automatic deployments only for `main`.
 
 #### Dev
 
-1. Create dev DB via `npx wrangler d1 create personal-site-comments-dev`, then pasted values into `wrangler.toml` under `[[env.preview.d1_databases]]`.
-2. `npm run d1:migrate:dev` to apply the schema to the dev DB.
+1. Created dev DB via `npx wrangler d1 create personal-site-comments-dev`,
+   pasted values into `wrangler.toml` under `[[env.preview.d1_databases]]`.
+2. `npm run d1:migrate:dev` to apply the schema.
