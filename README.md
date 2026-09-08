@@ -204,6 +204,16 @@ npm run notifier:local  # wrangler dev --test-scheduled, sharing the main site's
 With `notifier:local` running, hit `http://localhost:<port>/__scheduled`
 to manually trigger the scheduled handler instead of waiting for the cron.
 
+### Logging
+
+`src/index.js` logs each step of a run (`console.log`/`console.error`,
+prefixed `[comment-notifier]`) — the `since` cutoff, how many new rows were
+found, whether a digest was sent (and its subject), and any failure.
+`wrangler.jsonc` sets `observability.enabled: true` so these show up both
+in `wrangler tail` and the Cloudflare dashboard's Logs tab for the Worker;
+without it, the dashboard only surfaces the raw cron trigger metadata
+(e.g. `0 * * * *`), not anything logged from inside the Worker.
+
 ### Deploy steps
 
 1. Set up a sender in [Resend](https://resend.com) (their shared test

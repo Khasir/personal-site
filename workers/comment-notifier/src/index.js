@@ -1,6 +1,7 @@
 import { groupNewComments, buildEmailBody, buildFromHeader } from "./lib.js";
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
+const LOG_PREFIX = "[comment-notifier]";
 
 async function getLastNotifiedAt(db, scheduledTime) {
   const row = await db
@@ -44,25 +45,38 @@ async function sendDigestEmail(env, { subject, text }) {
 
 export default {
   async scheduled(event, env, ctx) {
-    const db = env.personal_site_comments;
-    const runAt = new Date(event.scheduledTime).toISOString();
+    try {
+      const db = env.personal_site_comments;
+      const runAt = new Date(event.scheduledTime).toISOString();
 
-    const since = await getLastNotifiedAt(db, event.scheduledTime);
+      const since = await getLastNotifiedAt(db, event.scheduledTime);
+      console.log(`${LOG_PREFIX} run started (since=${since})`);
 
-    const { results } = await db
-      .prepare(
-        "SELECT kind, post_slug FROM comments WHERE approved = 1 AND created_at > ?"
-      )
-      .bind(since)
-      .all();
+      const { results } = await db
+        .prepare(
+          "SELECT kind, post_slug FROM comments WHERE approved = 1 AND created_at > ?"
+        )
+        .bind(since)
+        .all();
+      const rows = results ?? [];
+      console.log(`${LOG_PREFIX} found ${rows.length} new row(s) since ${since}`);
 
-    const grouped = groupNewComments(results ?? []);
-    const email = buildEmailBody(grouped);
+      const grouped = groupNewComments(rows);
+      const email = buildEmailBody(grouped);
 
-    if (email) {
-      await sendDigestEmail(env, email);
+      if (email) {
+        console.log(`${LOG_PREFIX} sending digest: "${email.subject}"`);
+        await sendDigestEmail(env, email);
+        console.log(`${LOG_PREFIX} digest sent`);
+      } else {
+        console.log(`${LOG_PREFIX} no new activity, skipping email`);
+      }
+
+      await setLastNotifiedAt(db, runAt);
+      console.log(`${LOG_PREFIX} run complete, last_notified_at=${runAt}`);
+    } catch (err) {
+      console.error(`${LOG_PREFIX} run failed: ${err.message}`);
+      throw err;
     }
-
-    await setLastNotifiedAt(db, runAt);
   }
 };

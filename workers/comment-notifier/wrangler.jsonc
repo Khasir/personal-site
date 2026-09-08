@@ -8,6 +8,11 @@
     "crons": ["0 * * * *"]
   },
 
+  // Enable logging & error message visibility in Cloudflare
+  "observability": {
+    "enabled": true
+  },
+
   // Points at the same prod D1 database as the main site's wrangler.toml.
   "d1_databases": [
     {
