@@ -6,6 +6,31 @@
   var root = document.querySelector("[data-comments]");
   if (!root) return;
 
+  // Higher weight = more likely to show.
+  var HINTS = [
+    { text: "", weight: 13 },
+    { text: "i love you, still", weight: 1 },
+    { text: "Sometimes our selections may surprise us.", weight: 1 },
+    { text: "Click and drag. Click and draaaaaaag.", weight: 1 },
+    { text: "Have you tried turning it back off and on again?", weight: 1 },
+    { text: "All your base are belong to us.", weight: 1 },
+    { text: "https://youtu.be/xchmB7-fKSE?si=UxJkUmVazZJBMgCa", weight: 1 },
+    { text: "https://qntm.org/mmacevedo", weight: 1 }
+  ];
+
+  function pickWeighted(items) {
+    var total = items.reduce(function (sum, item) { return sum + item.weight; }, 0);
+    var roll = Math.random() * total;
+    for (var i = 0; i < items.length; i++) {
+      roll -= items[i].weight;
+      if (roll < 0) return items[i].text;
+    }
+    return items[items.length - 1].text;
+  }
+
+  var hintEl = root.querySelector(".comments-hint");
+  if (hintEl) hintEl.textContent = pickWeighted(HINTS);
+
   var article = document.querySelector(".entry-content");
   if (!article) return;
 
