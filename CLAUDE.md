@@ -67,6 +67,14 @@ it explicitly.
 homepage's "recent" lists — it still builds and is reachable by direct
 link.
 
+`tags` drives an auto-generated `/tags/:tag-slug/` list page per tag
+(`_plugins/tag_pages.rb`, a Generator plugin; slug via Jekyll's `slugify`
+filter), listing every non-hidden post/note carrying that tag, newest
+first, across both collections. The template lives at `_layouts/tag.html`
+and is loaded via `read_yaml` rather than a normal `layout:` reference —
+the standard Jekyll pattern for generator-created pages. Each tag in
+`entry.html`'s meta line links to its tag page.
+
 Within a post/note body:
 
 - **Images**: `{% include figure.html src="/content/images/foo.jpg" alt="..." caption="..." align="left|right|center" width="320px" %}`
