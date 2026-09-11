@@ -13,7 +13,7 @@ layout: default
     <li>
       <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
       <time datetime="{{ entry_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ entry_date | date: "%b %-d, %Y" }}</time>
-      {% if entry.subtitle %}<p class="entry-summary">{{ entry.subtitle }}</p>{% endif %}
+      {% if entry.link_preview %}<p class="entry-summary">{{ entry.link_preview }}</p>{% endif %}
     </li>
     {% endfor %}
   </ul>
