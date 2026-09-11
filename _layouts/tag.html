@@ -1,0 +1,17 @@
+---
+layout: default
+---
+<section class="entry-list-page">
+  <h1>tag: {{ page.tag }}</h1>
+  <ul class="entry-list">
+    {% for entry in page.entries %}
+    {% assign entry_date = entry.post_date | default: entry.date %}
+    <li>
+      <span class="entry-kind">{% if entry.collection == 'notes' %}note{% else %}post{% endif %}</span>
+      <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
+      <time datetime="{{ entry_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ entry_date | date: "%b %-d, %Y" }}</time>
+      {% if entry.link_preview %}<p class="entry-summary">{{ entry.link_preview }}</p>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>

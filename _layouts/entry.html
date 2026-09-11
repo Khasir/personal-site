@@ -16,7 +16,7 @@ layout: default
       {% endif %}
       {% if page.tags and page.tags.size > 0 %}
       <span class="entry-tags">
-        {% for tag in page.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+        {% for tag in page.tags %}{% assign tag_slug = tag | slugify %}<a class="tag" href="{{ '/tags/' | append: tag_slug | append: '/' | relative_url }}">{{ tag }}</a>{% endfor %}
       </span>
       {% endif %}
     </p>
