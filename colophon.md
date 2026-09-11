@@ -8,7 +8,7 @@ This website is designed by Khasir (me) and largely uses [Jekyll](https://jekyll
 
 All comments and guestbook signatures are public. IP hashes are stored to preserve privacy while reducing spam. IP addresses themselves are not stored.
 
-The [source code](https://github.com/Khasir/personal-site) for this site is available under the [GNU GPL v3](https://opensource.org/license/gpl-3.0) — you are free to share and reuse the code, given that you credit me and also make your project open source.
+The [source code](https://github.com/Khasir/personal-site) for this site is available under the [GNU GPL v3](https://opensource.org/license/gpl-3.0)—you are free to share and reuse the code, given that you credit me and also make your project open source.
 
 All photos are my own unless otherwise indicated. Blog posts are written by myself without AI unless otherwise indicated.
 
