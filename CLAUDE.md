@@ -7,6 +7,7 @@
 - Please allow the user to run the server locally (`npm run build` and `npm run dev`) instead of running it yourself. Check with the user if they have it running before running any relevant commands or checks.
 - Please hold off from changing `README.md`, but instead inform the user if any changes need to be made there.
 - Please do not read any of the files in the `./content` submodule unless explicitly instructed to by the user.
+- Similarly to the previous point, please do not read any of the files in `_site\posts` or `_site\content\images`.
 
 ---
 
