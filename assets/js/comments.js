@@ -411,7 +411,7 @@
     };
   }
 
-  document.addEventListener("mouseup", function (e) {
+  function showPopoverForCurrentSelection() {
     if (!formDialog.hidden) return; // don't interrupt an open form
     var info = currentSelectionInfo();
     if (!info) {
@@ -421,6 +421,17 @@
     pendingSelection = info;
     positionAt(popover, info.rect);
     popover.hidden = false;
+  }
+
+  document.addEventListener("mouseup", showPopoverForCurrentSelection);
+
+  // Use "selectionchange" to capture touch device selection. This fires
+  // throughout that drag (and on mouse selections too), so debounce it and
+  // treat a pause as the selection having settled.
+  var selectionChangeTimer = null;
+  document.addEventListener("selectionchange", function () {
+    clearTimeout(selectionChangeTimer);
+    selectionChangeTimer = setTimeout(showPopoverForCurrentSelection, 250);
   });
 
   popoverTrigger.addEventListener("click", function () {
