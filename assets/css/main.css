@@ -121,9 +121,9 @@ main.wrap { padding-top: 2.5rem; padding-bottom: 4rem; min-height: 60vh; }
 
 .entry-list { list-style: none; padding: 0; }
 .entry-list li { padding: 1rem 0; border-bottom: 1px solid var(--color-border); }
-.entry-list a { font-weight: 600; font-size: 1.1rem; text-transform: lowercase; }
-.entry-list time { display: block; color: var(--color-muted); font-size: 0.85rem; font-style: italic; margin-top: 0.15rem; }
-.entry-summary { color: var(--color-muted); margin: 0.35rem 0 0; font-style: italic; font-size: 1.0rem; }
+.entry-list a { font-weight: 600; font-size: 1.15rem; text-transform: lowercase; }
+.entry-list time { display: block; color: var(--color-muted); font-size: 1.0rem; font-style: italic; margin-top: 0.15rem; }
+.entry-summary { color: var(--color-muted); margin: 0.35rem 0 0; font-style: italic; font-size: 1.1rem; }
 .see-all { display: inline-block; margin: 0.75rem 0 2rem; }
 .entry-list .entry-kind { display: inline; margin-right: 0.5rem; }
 
@@ -133,7 +133,7 @@ main.wrap { padding-top: 2.5rem; padding-bottom: 4rem; min-height: 60vh; }
 .entry-kind {
   letter-spacing: 0.06em;
   font-style: italic;
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   color: var(--color-muted);
   margin: 0 0 0.25rem;
 }
@@ -146,7 +146,7 @@ main.wrap { padding-top: 2.5rem; padding-bottom: 4rem; min-height: 60vh; }
 }
 .entry-meta {
   color: var(--color-muted);
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   font-style: italic;
   margin-top: 0.9rem;
 }
@@ -157,7 +157,7 @@ main.wrap { padding-top: 2.5rem; padding-bottom: 4rem; min-height: 60vh; }
   padding: 0.1rem 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   font-style: normal;
   color: inherit;
 }
@@ -195,7 +195,7 @@ blockquote p.attribution { text-align: right; }
 .fig { margin: 1.5rem 0; }
 .fig img { max-width: 100%; display: block; height: auto; }
 .fig figcaption {
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   /* font-style: italic; */
   color: var(--color-muted);
   margin-top: 0.4rem;
@@ -275,7 +275,7 @@ details p:last-child, details > *:not(summary):last-child { margin-bottom: 0; }
 .lightbox-caption {
   color: #fff;
   margin-top: 1rem;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   /* font-style: italic; */
   text-align: center;
 }
@@ -404,7 +404,7 @@ button[data-comment-thread-close] {
 /* Forms (comments + guestbook) */
 
 .field { margin-bottom: 0.75rem; }
-.field label { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; }
+.field label { display: block; font-size: 1.0rem; margin-bottom: 0.25rem; }
 .field-optional { color: var(--color-muted); font-weight: normal; font-style: italic; }
 .field input[type="text"],
 .field input[type="email"],
@@ -436,7 +436,7 @@ button[data-comment-form-cancel] {
   margin-left: 0.5rem;
 }
 
-.form-status { font-size: 0.85rem; font-style: italic; color: var(--color-muted); min-height: 1.2em; }
+.form-status { font-size: 0.9rem; font-style: italic; color: var(--color-muted); min-height: 1.2em; }
 .form-status[data-state="error"] { color: #a3311e; }
 .form-status[data-state="success"] { color: #2f6b3a; }
 
@@ -451,6 +451,6 @@ button[data-comment-form-cancel] {
 .guestbook-entries .loading { color: var(--color-muted); font-style: italic; }
 .guestbook-email {
   color: var(--color-muted);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   margin-left: 0.4rem;
 }
