@@ -304,7 +304,7 @@ hr {
   margin-top: 3rem;
   padding-top: 1rem;
   border-top: 1px solid var(--color-border);
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   color: var(--color-muted);
 }
 
@@ -319,7 +319,7 @@ sup.footnote-ref, sup[id^="fnref"] a {
   color: #fdf8ee;
   padding: 0.6rem 0.8rem;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   font-family: var(--font-serif);
   line-height: 1.4;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
