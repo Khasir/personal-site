@@ -121,9 +121,9 @@ Both backed by the same `comments` D1 table (`functions/`), split by a
 `kind` column. Deliberate choices:
 
 - **Instant, no moderation queue** — live as soon as POSTed. Only a
-  honeypot field and a per-IP rate limit (5 posts/60s, salted hash —
-  `functions/_lib/comments.js`) guard it; no Turnstile/CAPTCHA yet, but the
-  path is structured to add one later.
+  honeypot field and a per-IP rate limit (5 posts/60s, and 25 posts/day,
+  salted hash — `functions/_lib/comments.js`) guard it; no Turnstile/CAPTCHA
+  yet, but the path is structured to add one later.
 - **Hourly email digest** of new activity — see "Comment notification
   digest" below.
 - **Overlapping highlights**: when two comments' anchored ranges overlap,

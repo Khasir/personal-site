@@ -150,12 +150,17 @@ describe("hashIp", () => {
 });
 
 describe("isRateLimited", () => {
-  function mockDb(count) {
+  // isRateLimited issues two queries -- the short burst window first, then
+  // the rolling daily window -- so the mock returns counts in that order.
+  function mockDb(shortCount, dailyCount = shortCount) {
+    let call = 0;
     return {
       prepare() {
         return {
           bind() {
-            return { first: async () => ({ n: count }) };
+            const n = call === 0 ? shortCount : dailyCount;
+            call++;
+            return { first: async () => ({ n }) };
           },
         };
       },
@@ -166,16 +171,28 @@ describe("isRateLimited", () => {
     assert.equal(await isRateLimited(mockDb(999), null), false);
   });
 
-  test("returns false under the limit", async () => {
-    assert.equal(await isRateLimited(mockDb(4), "somehash"), false);
+  test("returns false under both limits", async () => {
+    assert.equal(await isRateLimited(mockDb(4, 10), "somehash"), false);
   });
 
-  test("returns true at the limit", async () => {
-    assert.equal(await isRateLimited(mockDb(5), "somehash"), true);
+  test("returns true at the short-window limit", async () => {
+    assert.equal(await isRateLimited(mockDb(5, 5), "somehash"), true);
   });
 
-  test("returns true over the limit", async () => {
-    assert.equal(await isRateLimited(mockDb(12), "somehash"), true);
+  test("returns true over the short-window limit", async () => {
+    assert.equal(await isRateLimited(mockDb(12, 12), "somehash"), true);
+  });
+
+  test("returns false under the daily limit even with a fresh short window", async () => {
+    assert.equal(await isRateLimited(mockDb(0, 24), "somehash"), false);
+  });
+
+  test("returns true at the daily limit", async () => {
+    assert.equal(await isRateLimited(mockDb(0, 25), "somehash"), true);
+  });
+
+  test("returns true over the daily limit", async () => {
+    assert.equal(await isRateLimited(mockDb(0, 40), "somehash"), true);
   });
 });
 

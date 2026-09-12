@@ -8,6 +8,8 @@ const MAX_QUOTE_LEN = 500;
 const MAX_EMAIL_LEN = 254;
 const RATE_LIMIT_WINDOW_SECONDS = 60;
 const RATE_LIMIT_MAX_PER_WINDOW = 5;
+const DAILY_RATE_LIMIT_WINDOW_SECONDS = 24 * 60 * 60;
+const DAILY_RATE_LIMIT_MAX_PER_WINDOW = 25;
 
 export function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -83,18 +85,32 @@ export function parseSubmission(body, { requireQuote, requireBody = true }) {
 
 /**
  * Rejects if the given ip_hash has posted more than the allowed number of
- * times in the current rate-limit window. Best-effort only -- this is a
- * simple deterrent, not a substitute for proper abuse protection (e.g.
- * Cloudflare rate limiting rules or Turnstile) if spam becomes a problem.
+ * times in either the short burst window or the rolling daily window.
+ * Best-effort only -- this is a simple deterrent, not a substitute for
+ * proper abuse protection (e.g. Cloudflare rate limiting rules or
+ * Turnstile) if spam becomes a problem.
  */
 export async function isRateLimited(db, ipHash) {
   if (!ipHash) return false;
-  const since = new Date(Date.now() - RATE_LIMIT_WINDOW_SECONDS * 1000).toISOString();
-  const row = await db
-    .prepare("SELECT COUNT(*) AS n FROM comments WHERE ip_hash = ? AND created_at > ?")
-    .bind(ipHash, since)
-    .first();
-  return (row?.n ?? 0) >= RATE_LIMIT_MAX_PER_WINDOW;
+
+  const shortSince = new Date(Date.now() - RATE_LIMIT_WINDOW_SECONDS * 1000).toISOString();
+  const dailySince = new Date(Date.now() - DAILY_RATE_LIMIT_WINDOW_SECONDS * 1000).toISOString();
+
+  const [shortRow, dailyRow] = await Promise.all([
+    db
+      .prepare("SELECT COUNT(*) AS n FROM comments WHERE ip_hash = ? AND created_at > ?")
+      .bind(ipHash, shortSince)
+      .first(),
+    db
+      .prepare("SELECT COUNT(*) AS n FROM comments WHERE ip_hash = ? AND created_at > ?")
+      .bind(ipHash, dailySince)
+      .first()
+  ]);
+
+  return (
+    (shortRow?.n ?? 0) >= RATE_LIMIT_MAX_PER_WINDOW ||
+    (dailyRow?.n ?? 0) >= DAILY_RATE_LIMIT_MAX_PER_WINDOW
+  );
 }
 
 export function getClientIp(request) {
