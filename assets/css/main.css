@@ -348,6 +348,9 @@ mark.comment-highlight.is-active {
   z-index: 400;
   transform: translate(-50%, -100%);
 }
+.comment-popover.is-below {
+  transform: translate(-50%, 0);
+}
 .comment-popover[hidden] { display: none; }
 .comment-popover-trigger {
   background: var(--color-button-preferred);

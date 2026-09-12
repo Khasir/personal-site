@@ -299,8 +299,12 @@
 
   // --- popovers ---------------------------------------------------------
 
-  function positionAt(el, rect) {
-    el.style.top = window.scrollY + rect.top + "px";
+  // Touch devices show their own selection menu above, so move our button below on mobile.
+  var isTouchDevice = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+
+  function positionAt(el, rect, anchorEdge) {
+    var y = anchorEdge === "bottom" ? rect.bottom : rect.top;
+    el.style.top = window.scrollY + y + "px";
     el.style.left = window.scrollX + rect.left + rect.width / 2 + "px";
   }
 
@@ -419,7 +423,8 @@
       return;
     }
     pendingSelection = info;
-    positionAt(popover, info.rect);
+    popover.classList.toggle("is-below", isTouchDevice);
+    positionAt(popover, info.rect, isTouchDevice ? "bottom" : "top");
     popover.hidden = false;
   }
 
