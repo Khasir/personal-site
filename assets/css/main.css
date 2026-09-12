@@ -354,7 +354,7 @@ mark.comment-highlight.is-active {
   border: none;
   border-radius: 4px;
   padding: 0.4rem 0.75rem;
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   cursor: pointer;
 }
 
@@ -376,7 +376,7 @@ mark.comment-highlight.is-active {
   margin: 0 0 0.75rem;
   padding-left: 0.75rem;
   border-left: 3px solid var(--color-blockquote-border);
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   color: var(--color-muted);
 }
 
@@ -391,11 +391,11 @@ button[data-comment-thread-close] {
   border-color: var(--color-border);
   margin-left: 0.5rem;
 }
-.comment-author { font-weight: 600; font-size: 0.85rem; }
-.comment-time { color: var(--color-muted); font-style: italic; font-size: 0.8rem; margin-left: 0.4rem; }
-.comment-body { margin: 0.15rem 0 0; font-size: 0.95rem; }
+.comment-author { font-weight: 600; font-size: 1.0rem; }
+.comment-time { color: var(--color-muted); font-style: italic; font-size: 0.9rem; margin-left: 0.4rem; }
+.comment-body { margin: 0.15rem 0 0; font-size: 1.0rem; }
 
-.comments-hint { color: var(--color-muted); font-style: italic; font-size: 0.9rem; }
+.comments-hint { color: var(--color-muted); font-style: italic; font-size: 1.0rem; }
 
 /* Forms (comments + guestbook) */
 
