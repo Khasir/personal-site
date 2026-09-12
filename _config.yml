@@ -3,8 +3,9 @@ title: khasir's blog
 tagline: klogging
 description: >-
   musings and other ephemera
-url: "" # filled in once a domain is chosen, e.g. "https://example.com"
+url: "https://www.klogg.blog" # filled in once a domain is chosen, e.g. "https://example.com"
 baseurl: ""
+timezone: America/New_York
 
 author:
   name: Khasir
