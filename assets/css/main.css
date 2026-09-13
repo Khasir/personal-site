@@ -115,7 +115,7 @@ time, .comment-time { text-transform: lowercase; }
 .site-nav a[aria-current="page"] { font-weight: 600; text-decoration: underline; }
 .nav-sep { color: var(--color-border); font-size: 0.7em; }
 
-main.wrap { padding-top: 2.5rem; padding-bottom: 4rem; min-height: 60vh; }
+main.wrap { padding-top: 2.5rem; padding-bottom: 2.5rem; min-height: 60vh; }
 
 /* Entry lists */
 
