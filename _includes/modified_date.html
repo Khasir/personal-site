@@ -1,0 +1,5 @@
+{% if page.modified_date %}
+<p class="entry-meta">
+  <time class="entry-modified" datetime="{{ page.modified_date | date_to_xmlschema }}"><abbr title="last modified">l.m.</abbr> {{ page.modified_date | date: "%b %-d, %Y" }}</time>
+</p>
+{% endif %}

@@ -3,6 +3,7 @@ layout: home
 title: home
 permalink: /
 comments: true
+modified_date: 2026-09-13
 ---
 
 {% include figure.html src="/content/images/cn-tower-0.jpg" align="right" width="200px" alt="The CN Tower" %}

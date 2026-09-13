@@ -3,6 +3,7 @@ layout: default
 ---
 <article class="page">
   {% if page.title %}<h1>{{ page.title }}</h1>{% endif %}
+  {% include modified_date.html %}
   <div class="entry-content">
     {{ content }}
   </div>
