@@ -16,6 +16,18 @@ Source code (+ related stuff) for Khasir's personal website. The following READM
   - [Resend](https://resend.com/) free tier
 
 
+## Features
+
+- Homepage with feed of most recent posts
+- Comments can be added on most body text
+- Notify owner of new comments hourly
+- Click to pop up images
+- Preview when hovering over links and footnotes
+- Auto-generated pages for tags
+- Password-protected posts (but no images or footnotes in these posts)
+- Guestbook
+- RSS feed
+
 ## Local development
 
 How to run locally:
