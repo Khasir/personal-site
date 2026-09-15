@@ -26,6 +26,8 @@ layout: default
 {% include comments.html %}
 {% endif %}
 
+{% if jekyll.environment == "production" %}
 <div align="center">
   <img src="https://hitscounter.dev/api/hit?url=https%3A%2F%2Fwww.klogg.blog%2F&label=&icon=heart&color=%23feb272&message=&style=plastic&tz=US%2FEastern">
 </div>
+{% endif %}

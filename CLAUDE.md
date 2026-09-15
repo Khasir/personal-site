@@ -239,6 +239,17 @@ real enforcement but isn't turned on (account setting, not a repo change).
   salt. Confirmed for `main`; double-check `dev`/preview too.
 - `comment-notifier` Worker deployed to prod only (hourly Cron against prod
   D1); not yet deployed for dev.
+- Homepage hit counter (`_layouts/home.html`) only renders when
+  `jekyll.environment == "production"`, so local builds don't increment it.
+  Driven by `JEKYLL_ENV = "production"` under `[env.production.vars]` in
+  `wrangler.toml` — the Pages dashboard no longer accepts plain-text env
+  vars for this project ("managed through wrangler.toml"), only secrets. Not
+  set for `dev`/preview, so it stays off there too.
+- Since dashboard text vars are no longer accepted, double-check
+  `RUBY_VERSION=3.2.10` (previously set as a dashboard Text var per
+  Deployment steps below) still applies to the `main` build — it likely
+  needs to move into `wrangler.toml` (`[env.production.vars]`) too, or the
+  build may be running against a different default Ruby version now.
 
 ### Local development
 
