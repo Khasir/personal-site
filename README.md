@@ -49,7 +49,6 @@ npm run site:local
 # Run comment notifier service
 npm run notifier:local
 # Can then visit to trigger manually: http://localhost:<port>/__scheduled
-
 ```
 
 ## Local testing
@@ -59,6 +58,14 @@ How to test locally:
 ```sh
 npm test
 ```
+
+## Creating a password-protected post
+
+1. Write the post.
+2. Set the link preview to "This post is password-protected."
+3. Run `npm run encrypt-post -- <source.md> <dest.md>`.
+4. Delete the original post or just ensure it doesn't get committed.
+5. (Optional) Decrypt the post with `npm run decrypt-post -- <source.md> <dest.md>`
 
 ## Deployment
 
