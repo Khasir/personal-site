@@ -13,38 +13,37 @@
 
 ## Site design
 
-Minimal, elegant, bookish, nostalgic — EB Garamond throughout, warm
-cream/tan palette. Self-hosted (`assets/fonts/`, two variable-font files:
-regular + italic, weights 400–700) rather than pulled from Google Fonts, to
-avoid sending every visitor's IP to Google on each page load.
+Minimal, elegant, bookish, nostalgic — EB Garamond throughout, warm cream/tan
+palette. Fonts are self-hosted (`assets/fonts/`, regular + italic variable
+files, weights 400–700) rather than pulled from Google Fonts, to avoid
+sending visitor IPs to Google.
 
-Palette (see `:root` in `assets/css/main.css` for the full list):
-- Background `#eadbcb`, text `#000000`, links `#1155cc`
-- Blockquotes: background `#fff2cc`, left border `#cbb99e`, text `#1b1b1a`
+Palette (full list in `:root`, `assets/css/main.css`): background `#eadbcb`,
+text `#000000`, links `#1155cc`; blockquotes background `#fff2cc`, border
+`#cbb99e`, text `#1b1b1a`.
 
-Header and footer share one nav (`_includes/nav.html`): `home / posts /
-guestbook`, diamond-separated. Footer additionally shows `rss` and
-`colophon` links. A `rough notes` link exists behind a `show_notes` param
-that nothing currently passes `true` (commit `c0ca090`, "hide rough
-notes"), so it's hidden from the nav on both — `/notes/` itself still
-works, just isn't linked. No copyright line, by design.
+Header/footer share one nav (`_includes/nav.html`): `home / posts /
+guestbook`, diamond-separated; footer adds `rss` / `colophon`. A `rough
+notes` link exists behind a `show_notes` param nothing currently passes
+`true` (see commit `c0ca090`) — `/notes/` still works, just isn't linked. No
+copyright line, by design.
 
 ## Site architecture
 
 Jekyll static site on Cloudflare Pages. Comments and the guestbook are
-backed by a Cloudflare Pages Function + D1 (SQLite) database, since Jekyll
-can't accept submissions at request time.
+backed by a Cloudflare Pages Function + D1 (SQLite), since Jekyll can't
+accept submissions at request time.
 
 ### Content model
 
 Posts, notes, and images live in a separate
 [personal-site-content](https://github.com/Khasir/personal-site-content)
-repo, mounted as a git submodule at `./content` (`collections_dir:
-content` in `_config.yml`). Clone with `git clone --recurse-submodules`, or
-`git submodule update --init` after a normal clone; run `git submodule
-update` after pulling to this repo to pick up content updates.
+repo, mounted as a git submodule at `./content` (`collections_dir: content`
+in `_config.yml`). Clone with `--recurse-submodules`, or `git submodule
+update --init` after a normal clone; `git submodule update` after pulling to
+pick up content changes.
 
-- `content/_posts/*.md` — blog posts, permalink `/posts/:title/`
+- `content/_posts/*.md` — posts, permalink `/posts/:title/`
 - `content/_notes/*.md` — rougher notes, permalink `/notes/:title/`
 - `content/images/` — images referenced from posts/notes
 
@@ -60,170 +59,113 @@ tags: [optional, list]
 ---
 ```
 
-`post_date` drives display/sort order. `_posts` falls back to the filename
-date (`YYYY-MM-DD-title.md`) if omitted; `_notes` has no fallback, so set
-it explicitly.
-
-`hidden: true` excludes a post/note from `/posts/`, `/notes/`, and the
-homepage's "recent" lists — it still builds and is reachable by direct
-link.
-
-`tags` drives an auto-generated `/tags/:tag-slug/` list page per tag
-(`_plugins/tag_pages.rb`, a Generator plugin; slug via Jekyll's `slugify`
-filter), listing every non-hidden post/note carrying that tag, newest
-first, across both collections. The template lives at `_layouts/tag.html`
-and is loaded via `read_yaml` rather than a normal `layout:` reference —
-the standard Jekyll pattern for generator-created pages. Each tag in
-`entry.html`'s meta line links to its tag page.
+`post_date` drives sort order (`_posts` falls back to the filename date;
+`_notes` has no fallback — set it explicitly). `hidden: true` excludes a
+post/note from `/posts/`, `/notes/`, and the homepage's recent list, but it's
+still reachable by direct link. `tags` drives an auto-generated
+`/tags/:tag-slug/` page per tag (`_plugins/tag_pages.rb`, template
+`_layouts/tag.html` loaded via `read_yaml`), newest-first across both
+collections; each tag in `entry.html`'s meta line links there.
 
 Within a post/note body:
 
-- **Images**: `{% include figure.html src="/content/images/foo.jpg" alt="..." caption="..." align="left|right|center" width="320px" %}`
-  — click to view full-screen. `caption` is parsed as inline markdown
-  (`markdown="span"` on `figcaption`), so footnotes work inside captions
-  too and merge into the post's normal auto-numbered list. The lightbox
-  caption strips footnote markers (`strip_footnote_refs` filter,
-  `_plugins/strip_footnotes.rb`) since they don't make sense floating over
-  the overlay; `alt` stays plain text.
-- **Footnotes**: standard kramdown (`text[^1]` / `[^1]: note`). Hover/focus
-  previews inline; click jumps to the note.
-- **Comments**: on by default (`comments: false` to disable). Visitors
-  select text to attach a comment, no account needed. Also enabled on the
-  homepage, `/posts/`, `/notes/`, scoped to each page's own intro copy
-  (`.entry-content` wrapping `{{ content }}`) rather than the generated
-  lists — thread key is the page URL (`/`, `/posts/`, `/notes/`) instead
-  of a slug. Standalone `layout: page` pages (e.g. `colophon.md`) need
-  `comments: true` explicitly; `assets/js/comments.js` needs
-  `.entry-content` present or it no-ops.
-- **Titles/dates**: rendered lowercase via CSS `text-transform` (underlying
-  text untouched); post/note `<title>` is also lowercased via an inline
-  script in `_layouts/entry.html` (kept out of jekyll-seo-tag's
-  `og:title`/JSON-LD, which stay properly cased). Meta line reads `p.
-  <date>` / `l.m. <date>` (posted/last modified) with `<abbr>` tooltips.
+- **Images**: `{% include figure.html src="..." alt="..." caption="..." align="left|right|center" width="320px" %}` —
+  click for full-screen. `caption` is inline-markdown (footnotes merge into
+  the post's numbering); the lightbox caption strips footnote markers
+  (`_plugins/strip_footnotes.rb`); `alt` stays plain text.
+- **Footnotes**: standard kramdown (`text[^1]` / `[^1]: note`), with
+  hover/focus preview.
+- **Comments**: on by default (`comments: false` to disable); no account
+  needed. Also enabled on the homepage/`/posts/`/`/notes/`, scoped to each
+  page's intro copy (`.entry-content`) with the page URL as thread key.
+  Standalone `layout: page` pages need `comments: true` explicitly;
+  `assets/js/comments.js` no-ops if `.entry-content` isn't present.
+- **Titles/dates**: lowercased via CSS (and via inline script for
+  `<title>`, kept out of jekyll-seo-tag's `og:title`/JSON-LD). Meta line
+  reads `p. <date>` / `l.m. <date>` (posted/modified).
 - **Link previews**: `og:description`/`twitter:description` use a
-  `link_preview` frontmatter field when present (`_plugins/seo_description.rb`
-  sets `page["description"]` before jekyll-seo-tag renders), else fall
-  back to the opening paragraph.
-- **External links** auto-open in a new tab with a small arrow
-  (`assets/js/external-links.js`, by hostname, no markup needed).
-- **Quote attribution**:
-  ```
-  > Quote text.
-  >
-  > — Someone
-  > {: .attribution}
-  ```
-- **Expansion sections**: native `<details>`/`<summary>`; needs
-  `markdown="1"` on `<details>` for markdown to render inside.
+  `link_preview` frontmatter field if present (`_plugins/seo_description.rb`),
+  else the opening paragraph.
+- **External links** auto-open in a new tab with an arrow
+  (`assets/js/external-links.js`, by hostname).
+- **Quote attribution**: `> Quote.\n>\n> — Someone\n> {: .attribution}`
+- **Expansion sections**: native `<details>`/`<summary>`, needs
+  `markdown="1"` for markdown inside.
 
 ### Password-protected ("encrypted") posts
 
 A post/note can be gated behind a shared passphrase — listed and linkable
-normally, but its real body unreadable without the passphrase. This is
-deliberately not real per-user access control (no accounts, no server-side
-check) — the goal is "mostly secure" casual gatekeeping among people the
-author knows personally, not resistance to a determined attacker.
+normally, but the body unreadable without it. This is casual gatekeeping
+among people the author knows, not real access control (no accounts, no
+server-side check, no resistance to a determined attacker).
 
-- **Why client-side encryption, not a server check**: this is a fully
-  static site with no live auth path, and the `content` submodule is a
-  *public* repo — a server-side password check would still leave the
-  plaintext sitting in that repo's git history. So the body is encrypted
-  (AES-256-GCM, key via PBKDF2-SHA256/600k iterations,
-  `scripts/lib/encrypted-post-crypto.js`) *before* it's ever committed,
-  using `scripts/encrypt-post.js` (`npm run encrypt-post -- <source.md>
-  <dest.md>`) run locally against a plaintext draft kept *outside*
-  `content/`. The passphrase lives in the local shell env
-  (`ENCRYPTED_POST_PASSWORD`) only — never in Cloudflare Pages config, and
-  never read by the build.
-- **Frontmatter written by the script**: `encrypted: true`,
-  `encrypted_salt`/`encrypted_iv`/`encrypted_data` (all base64). The
-  script keeps the source's public fields (`title`, `tags`, `link_preview`,
-  etc.) as-is and leaves the body empty — there's no placeholder body text.
-  `_layouts/entry.html` renders *only* the password form for
-  `page.encrypted` posts (no `{{ content }}` at all), so title/subtitle/
-  tags/`link_preview` are what the post shows before unlocking, nothing
-  more. `scripts/decrypt-post.js` reverses this (`npm run decrypt-post --
-  <encrypted.md> <dest.md>`) to get the plaintext back for editing — run
-  `encrypt-post.js` again afterward, which picks a fresh salt/iv.
-- **No images/footnotes/Liquid includes in encrypted posts** — the real
-  body never goes through kramdown/Liquid (that would mean the plaintext
-  had to exist in the repo first), so it only supports a small markdown
-  subset: paragraphs, `**bold**`, `*italic*`, `[text](url)` links,
-  hand-rolled in `assets/js/encrypted-post.js`'s `renderSubsetMarkdown()`.
-- **Unlock UI**: `_layouts/entry.html` renders a password form (input type
-  `text`, not `password` — deliberate, see below) plus a hidden
+- **Client-side encryption, not a server check**: the site is fully static
+  and the `content` submodule is public, so a server-side password check
+  would still leave plaintext in that repo's history. Instead the body is
+  encrypted (AES-256-GCM, key via PBKDF2-SHA256/600k iterations,
+  `scripts/lib/encrypted-post-crypto.js`) locally before commit, via `npm
+  run encrypt-post -- <source.md> <dest.md>`, against a plaintext draft kept
+  outside `content/`. Passphrase lives only in local shell env
+  (`ENCRYPTED_POST_PASSWORD`) — never in Cloudflare config or read by the
+  build. `npm run decrypt-post -- <encrypted.md> <dest.md>` reverses this for
+  editing; re-run `encrypt-post` afterward (fresh salt/iv each time).
+- Script writes `encrypted: true` +
+  `encrypted_salt`/`encrypted_iv`/`encrypted_data` (base64) to frontmatter,
+  keeps public fields (`title`, `tags`, `link_preview`) as-is, leaves body
+  empty. `_layouts/entry.html` renders *only* the password form for
+  `page.encrypted` (no `{{ content }}`).
+- Real body never passes through kramdown/Liquid, so only a small hand-rolled
+  markdown subset is supported (paragraphs, bold, italic, links —
+  `renderSubsetMarkdown()` in `assets/js/encrypted-post.js`). No
+  images/footnotes/includes in encrypted posts.
+- **Unlock UI**: `_layouts/entry.html` renders a password form plus a hidden
   `.entry-content` container carrying the base64 salt/iv/ciphertext as data
-  attributes when `page.encrypted` is set; centered via flexbox on
-  `.encrypted-post form` in `assets/css/main.css`.
-  `assets/js/encrypted-post.js` (loaded unconditionally like the other
-  `assets/js/*.js` files, no-ops if `[data-encrypted-post]` isn't present)
-  derives the key via `crypto.subtle` and attempts AES-GCM decryption on
-  submit; GCM's auth tag makes a wrong password fail decryption outright
-  rather than producing garbage output. Fully static — no request is made
-  either way, so there's no rate limit to bypass; passphrase strength and
-  the PBKDF2 cost are the only real defenses.
-- **Input type is `text`, not `password`** — a deliberate choice so the
-  reader can see what they're typing. No real security cost here: this
-  isn't a login (no account, nothing transmitted over the network either
-  way — decryption is entirely local), so there's no server-side exposure
-  or credential-manager interaction to worry about either way. The only
-  tradeoff is the classic shoulder-surfing risk of unmasked input, which
-  is a physical-environment concern rather than a property of this site.
-- **Two things that only work on already-loaded DOM, so decrypted content
-  needs to opt back in**:
-  - Links: `external-links.js`'s own pass at load time never sees links
-    that show up later, so it exposes `window.wireExternalLinks(root)`
-    for exactly this; `encrypted-post.js` calls it on the revealed content.
-  - Comment highlights: `comments.js` fetches existing comments and calls
-    its internal `renderAll()` once, right after page load — before
-    anything is unlocked, `.entry-content` is still empty, so every
-    existing comment fails to anchor and (with nothing re-triggering it)
-    never gets a second chance to render once the real text appears, even
-    though the comment itself did save correctly. `comments.js` exposes
-    `window.refreshCommentHighlights()` (`= renderAll`) for
-    `encrypted-post.js` to call after revealing content.
-- **Feed**: `feed.xml` forces `excerpt_only` for `post.encrypted` so the
-  (now-empty) `<content>` block is skipped — only `<summary>` (via
-  `link_preview`/`_plugins/seo_description.rb`) appears. List pages
-  (`home.html`, `post-list.html`, `notes-list.html`) needed no changes —
-  they already only ever render `entry.link_preview`, never a raw excerpt.
-- **Known caveat**: comments are still on by default for encrypted posts.
-  Once a reader unlocks one client-side, `comments.js` anchors to whatever
-  is in `.entry-content` same as any other post — so a reader selecting
-  text from the decrypted body and posting a comment would quote part of
-  the real content into the public `comments` D1 table, visible to anyone,
-  password or not. Not yet addressed; likely fix is disabling comments by
-  default for `page.encrypted` posts unless overridden.
+  attributes when `page.encrypted` is set. Password input is `type="text"`
+  (deliberate — this isn't a login, nothing is transmitted either way, so
+  there's no server-side exposure to mask against; only tradeoff is
+  shoulder-surfing). `assets/js/encrypted-post.js` (loaded unconditionally
+  like the other `assets/js/*.js` files, no-ops if `[data-encrypted-post]`
+  isn't present) derives the key via `crypto.subtle` and attempts AES-GCM
+  decryption on submit; GCM's auth tag makes a wrong password fail outright.
+  No network request either way, so no rate limit applies — passphrase
+  strength and PBKDF2 cost are the real defenses.
+- **Decrypted content must opt back into load-time-only behavior**:
+  `external-links.js` exposes `window.wireExternalLinks(root)`, and
+  `comments.js` exposes `window.refreshCommentHighlights()`, both called by
+  `encrypted-post.js` after revealing content (otherwise links aren't wired
+  and existing comments never anchor, since `.entry-content` was empty at
+  initial render).
+- `feed.xml` forces `excerpt_only` for `post.encrypted` (empty `<content>`,
+  only `<summary>` from `link_preview`). List pages needed no changes.
+- **Known caveat**: comments stay on by default for encrypted posts, so a
+  reader could quote decrypted text into the public `comments` table.
+  Not yet addressed; likely fix is disabling comments by default for
+  `page.encrypted` unless overridden.
 
 ### Comments & guestbook architecture
 
 Both backed by the same `comments` D1 table (`functions/`), split by a
-`kind` column. Deliberate choices:
+`kind` column.
 
-- **Instant, no moderation queue** — live as soon as POSTed. Only a
-  honeypot field and a per-IP rate limit (5 posts/60s, and 25 posts/day,
-  salted hash — `functions/_lib/comments.js`) guard it; no Turnstile/CAPTCHA
-  yet, but the path is structured to add one later.
-- **Hourly email digest** of new activity — see "Comment notification
-  digest" below.
-- **Overlapping highlights**: when two comments' anchored ranges overlap,
-  the article is re-partitioned into non-overlapping `<mark>` segments
-  each tagged with every covering comment (`renderAll()` in
-  `assets/js/comments.js`) — wrapping each range independently corrupted
-  the markup. Hovering any segment highlights that comment's full range;
-  whichever comment is most-recently-posted is "primary" where ranges
-  overlap, and a highlight's "add a comment" reply reuses that anchor
-  without re-selecting text.
+- **Instant, no moderation queue** — live as soon as POSTed. Guarded only by
+  a honeypot field and a per-IP rate limit (5/60s, 25/day, salted hash —
+  `functions/_lib/comments.js`); no CAPTCHA yet, but the path allows one.
+- **Hourly email digest** — see below.
+- **Overlapping highlights**: overlapping comment ranges are re-partitioned
+  into non-overlapping `<mark>` segments each tagged with every covering
+  comment (`renderAll()` in `assets/js/comments.js`), since wrapping ranges
+  independently corrupts markup. Most-recently-posted comment is "primary"
+  on overlap; a highlight's reply reuses that anchor.
 - **Text anchoring**: quote + prefix/suffix context match (simplified
-  Hypothes.is-style), falling back to a bare quote search. If neither
-  matches, the comment is dropped from the inline view (stays in the DB).
+  Hypothes.is-style), falling back to bare quote search. No match = dropped
+  from inline view (stays in DB).
 
 ### Comment notification digest
 
 A separate Cloudflare Worker (`workers/comment-notifier/`, since Pages
-Functions can't run on a schedule) runs hourly via Cron, checks the
-`comments` table for anything new since its last run, and emails a
-plain-text digest via [Resend](https://resend.com):
+Functions can't run on a schedule) runs hourly via Cron, checks `comments`
+for anything new since its last run, and emails a plain-text digest via
+[Resend](https://resend.com):
 
 ```
 New activity in the last hour:
@@ -234,104 +176,73 @@ New activity in the last hour:
 - guestbook: 2 new entries
 ```
 
-Nothing sent if no new activity. Deliberate choices:
+Nothing sent if no new activity.
 
-- **State is one `last_notified_at` row** (`notification_state` table,
-  `migrations/0003_notification_state.sql`) rather than a per-comment
-  flag — one write per run, no migration on the hot `comments` table.
-- **No links in the email** — `post_slug` is a bare slug for posts/notes
-  but a full path elsewhere, and slugs alone don't say `_posts` vs
-  `_notes`, so a generated link could be wrong. Exception: the homepage's
-  `post_slug` (`/`) displays as "home".
-- **A failed Resend send doesn't advance `last_notified_at`** — the window
-  retries next run instead of silently dropping.
+- State is one `last_notified_at` row (`notification_state` table,
+  `migrations/0003_notification_state.sql`) rather than a per-comment flag
+  — one write per run.
+- No links in the email (slug alone doesn't disambiguate `_posts`/`_notes`,
+  and could be wrong). Homepage's `post_slug` (`/`) displays as "home".
+- A failed Resend send doesn't advance `last_notified_at` — retries next run.
 
 `NOTIFY_TO_EMAIL`, `NOTIFY_FROM_EMAIL`, `NOTIFY_FROM_NAME`,
-`RESEND_API_KEY` are secrets (not `vars` in `wrangler.jsonc`) — locally via
+`RESEND_API_KEY` are secrets (not `vars`) — locally via
 `workers/comment-notifier/.dev.vars`, deployed via `wrangler secret put`.
 
-#### Local dev / testing
-
-`notifier:local` uses `--persist-to=.wrangler/state`, same as `npm run
-site:local`, so it shares the local D1 — no separate migration step if
-you've already run `npm run d1:migrate:local`.
+**Local dev**: `notifier:local` uses `--persist-to=.wrangler/state`, same as
+`site:local`, sharing the local D1.
 
 ```bash
-cp workers/comment-notifier/.dev.vars.example workers/comment-notifier/.dev.vars   # first time only, then fill in real values
+cp workers/comment-notifier/.dev.vars.example workers/comment-notifier/.dev.vars   # first time only
 npm test                # covers workers/comment-notifier/tests/lib.test.js too
 npm run notifier:local  # wrangler dev --test-scheduled, sharing the main site's local D1
 ```
 
-With `notifier:local` running, hit `http://localhost:<port>/__scheduled`
-to trigger the scheduled handler manually.
+Hit `http://localhost:<port>/__scheduled` to trigger the scheduled handler
+manually.
 
-#### Logging
+**Logging**: `src/index.js` logs each step, prefixed `[comment-notifier]`.
+`wrangler.jsonc` sets `observability.enabled: true` so logs show in
+`wrangler tail`/dashboard (without it only raw cron metadata surfaces).
 
-`src/index.js` logs each step (`console.log`/`console.error`, prefixed
-`[comment-notifier]`): the `since` cutoff, rows found, whether a digest
-sent, any failure. `wrangler.jsonc` sets `observability.enabled: true` so
-these show in `wrangler tail` and the dashboard's Logs tab — without it
-only raw cron metadata (e.g. `0 * * * *`) surfaces.
+**Deploy**: set up a sender in Resend, then from `workers/comment-notifier/`
+run `wrangler secret put RESEND_API_KEY`/`NOTIFY_TO_EMAIL`/
+`NOTIFY_FROM_EMAIL`/`NOTIFY_FROM_NAME` (repeat with `--env preview` for dev),
+then `npm run notifier:deploy:dev` / `notifier:deploy:prod`.
 
-#### Deploy steps
-
-1. Set up a sender in [Resend](https://resend.com) (shared test domain to
-   try it, a verified domain for real use).
-2. From `workers/comment-notifier/`: `wrangler secret put RESEND_API_KEY`,
-   `NOTIFY_TO_EMAIL`, `NOTIFY_FROM_EMAIL`, `NOTIFY_FROM_NAME` (repeat with
-   `--env preview` for the dev-DB copy too, if not just testing locally
-   via `.dev.vars`).
-3. `npm run notifier:deploy:dev` and/or `npm run notifier:deploy:prod` —
-   or `cd workers/comment-notifier && wrangler deploy` (add `--env
-   preview` for dev); Wrangler picks up `wrangler.jsonc` automatically, so
-   the npm scripts' `--config` flag is only needed running from elsewhere.
-
-#### Deployment scope (as of writing)
+Deployment scope (as of writing):
 
 | Environment | Site hosting | D1 database | Notifier deployed? |
 | --- | --- | --- | --- |
-| Local | `npm run build` + `npm run site:local` | local D1 (`.wrangler/state`) | `npm run notifier:local` runs against the same local D1 |
-| Dev (`dev` branch) | Cloudflare Pages preview deployment | `personal-site-comments-dev` | **Not deployed.** `npm run notifier:deploy:dev` exists but nothing runs it automatically |
-| Prod (`main` branch) | Cloudflare Pages production deployment | `personal-site-comments` | **Deployed and live**, hourly. Deploys are manual, not tied to a branch push |
+| Local | `npm run build` + `npm run site:local` | local D1 (`.wrangler/state`) | Runs via `npm run notifier:local` against the same local D1 |
+| Dev (`dev` branch) | Cloudflare Pages preview | `personal-site-comments-dev` | **Not deployed** |
+| Prod (`main` branch) | Cloudflare Pages production | `personal-site-comments` | **Deployed and live**, hourly |
 
 ### Crawling / scraping stance
 
-`robots.txt` (blanket `Disallow: /`) and `llms.txt` (opt-out of AI
-training/scraping) are intentional — this site is meant to be shared
-link-to-link, not indexed or crawled. `jekyll-sitemap` was deliberately
-removed for the same reason. Keep this in mind before adding anything
-SEO/discoverability-oriented.
-
-Both are honor-system only. Cloudflare's dashboard-level bot-blocking
-(incl. a one-click "block AI bots" toggle, free tier) would add real
-enforcement but isn't turned on yet — an account setting, not a repo
-change.
+`robots.txt` (blanket `Disallow: /`) and `llms.txt` (AI training opt-out) are
+intentional — meant to be shared link-to-link, not indexed/crawled.
+`jekyll-sitemap` was deliberately removed for the same reason. Keep this in
+mind before adding anything SEO/discoverability-oriented. Both are
+honor-system only; Cloudflare's dashboard "block AI bots" toggle would add
+real enforcement but isn't turned on (account setting, not a repo change).
 
 ### Current status
 
-- **Connected to Cloudflare Pages**, auto-deploying on push to `main` and
-  `dev`. `main` is the production branch (main URL); `dev` gets its own
-  preview URL — confirm this matches the Pages project's dashboard
-  settings if it changes.
-- **No custom domain yet** — runs on the free `*.pages.dev` subdomain.
-- **`content/` submodule (public repo)** — Cloudflare Pages' git
-  integration fetches public submodules automatically; confirm on any
-  post-migration deploy that `content/` shows up with real content in the
-  build log (a silently-empty submodule would build fine but ship no
-  posts).
-- **`IP_HASH_SALT` build check wired up for `main`** — build command runs
-  `node scripts/check-env.js && jekyll build` (Settings → Builds &
-  deployments), so a deploy fails instead of silently using the insecure
-  default salt. Confirmed for `main`; double-check `dev`/preview picks it
-  up too (Pages build commands are historically project-wide, not
-  per-branch).
-- **`comment-notifier` Worker deployed to prod only** — live, hourly Cron
-  against prod D1. Not yet deployed for dev.
+- Connected to Cloudflare Pages, auto-deploying on push to `main` (prod) and
+  `dev` (own preview URL) — confirm this still matches the Pages dashboard.
+- No custom domain yet — `*.pages.dev`.
+- `content/` submodule is public; Cloudflare fetches it automatically —
+  confirm it's non-empty in the build log after any migration.
+- `IP_HASH_SALT` build check wired up for `main` (`node scripts/check-env.js
+  && jekyll build`) so a deploy fails rather than using the insecure default
+  salt. Confirmed for `main`; double-check `dev`/preview too.
+- `comment-notifier` Worker deployed to prod only (hourly Cron against prod
+  D1); not yet deployed for dev.
 
 ### Local development
 
-Requires Ruby/Bundler (Jekyll) and Node (Wrangler/Pages Functions). Two
-terminals:
+Requires Ruby/Bundler (Jekyll) and Node (Wrangler/Pages Functions).
 
 ```bash
 git submodule update --init   # first time only, pulls in ./content
@@ -345,80 +256,60 @@ npm run build
 ```
 
 ```bash
-# Terminal 2 — serves _site/ and the /api/* functions together, with a
-# local D1 database
+# Terminal 2 — serves _site/ and /api/* together, with a local D1 database
 cp .dev.vars.example .dev.vars   # first time only
 npm run d1:migrate:local          # first time only, and after schema changes
 npm run site:local
 ```
 
-Then open the URL Wrangler prints (typically http://localhost:8788).
+Open the URL Wrangler prints (typically http://localhost:8788).
 
 **Gotchas:**
-- `npm run build` doesn't reload `_config.yml` — restart it after editing
-  site title, plugins, etc.
+- `npm run build` doesn't reload `_config.yml` — restart after editing site
+  title, plugins, etc.
 - If `wrangler pages dev` starts returning `D1_ERROR: no such table` after
-  working fine, check for more than one `wrangler pages dev` process bound
-  to the same port (`netstat -ano | grep 8788` on Windows) — each resolves
-  its local D1 file slightly differently. Kill the extras and restart.
+  working fine, check for a second `wrangler pages dev` process bound to
+  the same port — each resolves its local D1 slightly differently. Kill the
+  extras and restart.
 
 ### Testing
 
-Two layers, `npm test` runs both:
+`npm test` runs both layers:
 
 - **Unit** (`tests/unit/`, Node's test runner) — validation/rate-limit/
-  hashing logic in `functions/_lib/comments.js`, plus the encrypt/decrypt
-  round-trip in `scripts/lib/encrypted-post-crypto.js`
-  (`tests/unit/encrypted-post-crypto.test.js`, using Node's own
-  `crypto.webcrypto` — the same `SubtleCrypto` surface the browser uses).
-  `npm run test:unit`.
-- **E2E** (`tests/e2e/`, Playwright + Chromium) — everything that only
-  breaks with a real browser's Range/CSS engine: nested `<mark>`s from
-  overlapping comments, selections crossing block boundaries, popover
-  dismissal, duplicate `<title>` tags. `tests/e2e/other-pages-comments.spec.js`
-  covers homepage/`/posts/`/`/notes/` comment threads (`data-post-slug`
-  scoping, select-and-post-and-reload). `tests/e2e/encrypted-post.spec.js`
-  covers the password-unlock flow (title/preview visible but no plaintext
-  in the served HTML, wrong password errors, correct password decrypts
-  and renders the markdown subset, external links get wired up) plus a
-  regression case for the `window.refreshCommentHighlights()` fix (a
-  comment posted after unlocking must still render after a reload +
-  re-unlock) against a throwaway fixture post that
-  `tests/e2e/fixtures/setup-encrypted-fixture.js` writes into
-  `content/_posts/` right before the build step in `test:e2e:server` (the
-  content submodule is public, so this fixture is never committed —
-  `tests/e2e/global-teardown.js` deletes it once the suite finishes).
-  `npm run test:e2e` builds the site, wipes/re-migrates a dedicated local
-  D1 (`--persist-to=.wrangler-test/`, separate from your dev database),
-  and serves it on port 8799 (`playwright.config.js`'s `webServer`). Each
-  test sets its own fake `CF-Connecting-IP` header so the shared rate
-  limiter doesn't trip between tests (`fakeIp()` in `tests/e2e/helpers.js`).
+  hashing in `functions/_lib/comments.js`, plus the encrypt/decrypt
+  round-trip in `scripts/lib/encrypted-post-crypto.js` (via Node's
+  `crypto.webcrypto`). `npm run test:unit`.
+- **E2E** (`tests/e2e/`, Playwright + Chromium) — things that only break
+  with a real browser's Range/CSS engine: nested `<mark>`s from overlapping
+  comments, selections crossing block boundaries, popover dismissal.
+  `other-pages-comments.spec.js` covers homepage/`/posts/`/`/notes/`
+  threads; `encrypted-post.spec.js` covers the unlock flow (no plaintext in
+  served HTML, wrong/correct password, markdown subset, external links) plus
+  a regression case for `window.refreshCommentHighlights()`, against a
+  throwaway fixture post (`tests/e2e/fixtures/setup-encrypted-fixture.js`
+  writes it into `content/_posts/` before build; `global-teardown.js`
+  deletes it — never committed, since `content` is public). `npm run
+  test:e2e` builds the site, wipes/re-migrates a dedicated local D1
+  (`.wrangler-test/`), and serves on port 8799. Each test sets its own fake
+  `CF-Connecting-IP` (`fakeIp()` in `helpers.js`) so the shared rate limiter
+  doesn't trip between tests.
 
-Debugging: `npx playwright test --ui` for interactive mode, `npx
-playwright show-trace <path>` to inspect a failed run's trace (saved to
-`test-results/`).
+Debugging: `npx playwright test --ui`, or `npx playwright show-trace <path>`
+on a saved trace (`test-results/`).
 
 ### Deployment steps taken
 
 Merges to `main` and other branches auto-deploy.
 
-#### Prod
+**Prod**: created D1 via `npx wrangler d1 create personal-site-comments`
+(values into `wrangler.toml`); `npm run d1:migrate:prod`; connected repo as
+a Cloudflare Pages project (Compute → Workers and Pages → Create
+application → Pages → Continue with GitHub) with framework preset Jekyll,
+build command `node scripts/check-env.js && jekyll build`, output `_site`,
+env vars Secret `IP_HASH_SALT` + Text `RUBY_VERSION=3.2.10`; auto-deploy
+enabled only for `main`.
 
-1. Created a D1 DB via `npx wrangler d1 create personal-site-comments`,
-   pasted values into `wrangler.toml`.
-2. `npm run d1:migrate:prod` to apply the schema.
-3. Connected the repo as a Cloudflare Pages project (Compute → Workers and
-   Pages → Create application → Pages → Continue with GitHub;
-   [docs](https://developers.cloudflare.com/pages/get-started/git-integration/)):
-    - Framework preset: Jekyll
-    - Build command: `node scripts/check-env.js && jekyll build`
-    - Build output directory: `_site`
-    - Env vars: Secret `IP_HASH_SALT` = whatever; Text `RUBY_VERSION` =
-      `3.2.10` (match local)
-4. Enabled automatic deployments only for `main`.
-
-#### Dev
-
-1. Created dev DB via `npx wrangler d1 create personal-site-comments-dev`,
-   pasted values into `wrangler.toml` under `[[env.preview.d1_databases]]`.
-2. `npm run d1:migrate:dev` to apply the schema.
+**Dev**: created dev D1 via `npx wrangler d1 create
+personal-site-comments-dev` (values under `[[env.preview.d1_databases]]`);
+`npm run d1:migrate:dev`.
