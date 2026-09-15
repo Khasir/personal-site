@@ -3,6 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  globalTeardown: "./tests/e2e/global-teardown.js",
   // Comment/guestbook tests share one local D1 database, so keep them
   // sequential rather than racing each other against the same data.
   fullyParallel: false,

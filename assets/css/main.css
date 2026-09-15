@@ -408,6 +408,7 @@ button[data-comment-thread-close] {
 .field-optional { color: var(--color-muted); font-weight: normal; font-style: italic; }
 .field input[type="text"],
 .field input[type="email"],
+.field input[type="password"],
 .field textarea {
   width: 100%;
   font: inherit;
@@ -436,9 +437,25 @@ button[data-comment-form-cancel] {
   margin-left: 0.5rem;
 }
 
-.form-status { font-size: 0.9rem; font-style: italic; color: var(--color-muted); min-height: 1.2em; }
+.form-status { font-size: 1.0rem; font-style: italic; color: var(--color-muted); min-height: 1.2em; }
 .form-status[data-state="error"] { color: #a3311e; }
 .form-status[data-state="success"] { color: #2f6b3a; }
+
+/* Encrypted posts */
+
+.encrypted-post { margin-top: 1.5rem; }
+.encrypted-post form {
+  max-width: 320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.encrypted-post form[hidden] { display: none; }
+.encrypted-post-row { display: flex; flex-direction: row; align-items: center; gap: 0.5rem; width: 100%; }
+.encrypted-post-row .field { flex: 1; }
+.encrypted-post .field { margin-bottom: 0; width: 100%; }
 
 /* Guestbook */
 

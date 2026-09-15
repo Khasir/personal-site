@@ -553,4 +553,13 @@
       }
     })
     .catch(function () { /* comments are non-critical; fail silently */ });
+
+  // This initial fetch/renderAll() above normally runs moments after page
+  // load. On an encrypted post, `article` (.entry-content) is still empty
+  // at that point -- nothing has been unlocked yet -- so every comment
+  // fails to anchor and renderAll() silently no-ops. Nothing re-triggers it
+  // once the real text shows up, so existing comments would otherwise never
+  // appear. encrypted-post.js calls this once it reveals the decrypted
+  // content.
+  window.refreshCommentHighlights = renderAll;
 })();

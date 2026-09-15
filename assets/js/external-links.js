@@ -44,33 +44,45 @@
     if (tooltip) tooltip.hidden = true;
   }
 
-  document.querySelectorAll("a[href]").forEach(function (link) {
-    var href = link.getAttribute("href");
-    if (!href || href.charAt(0) === "#") return;
+  // Wires up every external link under `root` (default: the whole
+  // document). Exposed on window so content inserted after this script
+  // runs (e.g. a decrypted post body in encrypted-post.js) can be
+  // wired up too, which running at load time would fail at.
+  function wireExternalLinks(root) {
+    (root || document).querySelectorAll("a[href]").forEach(function (link) {
+      if (link.dataset.externalWired) return;
 
-    var url;
-    try {
-      url = new URL(href, window.location.href);
-    } catch (e) {
-      return; // unparseable href, leave it alone
-    }
+      var href = link.getAttribute("href");
+      if (!href || href.charAt(0) === "#") return;
 
-    // No hostname (mailto:, tel:, etc.) or same-site -- leave as-is.
-    if (!url.hostname || url.hostname === window.location.hostname) return;
+      var url;
+      try {
+        url = new URL(href, window.location.href);
+      } catch (e) {
+        return; // unparseable href, leave it alone
+      }
 
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.classList.add("external-link");
+      // No hostname (mailto:, tel:, etc.) or same-site -- leave as-is.
+      if (!url.hostname || url.hostname === window.location.hostname) return;
 
-    link.addEventListener("mouseenter", function (e) { show(link, e.clientX, e.clientY); });
-    link.addEventListener("mousemove", function (e) { if (tooltip && !tooltip.hidden) position(e.clientX, e.clientY); });
-    link.addEventListener("mouseleave", hide);
-    link.addEventListener("focus", function () {
-      var linkRect = link.getBoundingClientRect();
-      show(link, linkRect.left, linkRect.bottom);
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.classList.add("external-link");
+      link.dataset.externalWired = "true";
+
+      link.addEventListener("mouseenter", function (e) { show(link, e.clientX, e.clientY); });
+      link.addEventListener("mousemove", function (e) { if (tooltip && !tooltip.hidden) position(e.clientX, e.clientY); });
+      link.addEventListener("mouseleave", hide);
+      link.addEventListener("focus", function () {
+        var linkRect = link.getBoundingClientRect();
+        show(link, linkRect.left, linkRect.bottom);
+      });
+      link.addEventListener("blur", hide);
     });
-    link.addEventListener("blur", hide);
-  });
+  }
 
+  wireExternalLinks(document);
   window.addEventListener("scroll", hide, { passive: true });
+
+  window.wireExternalLinks = wireExternalLinks;
 })();

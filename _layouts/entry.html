@@ -22,9 +22,27 @@ layout: default
     </p>
   </header>
 
+  {% if page.encrypted %}
+  <div class="encrypted-post" data-encrypted-post
+       data-salt="{{ page.encrypted_salt }}"
+       data-iv="{{ page.encrypted_iv }}"
+       data-ciphertext="{{ page.encrypted_data }}">
+    <form data-encrypted-form>
+      <div class="encrypted-post-row">
+        <div class="field">
+          <input id="encrypted-post-password" type="text" placeholder="Please enter the password." data-encrypted-password autocomplete="off" required>
+        </div>
+        <button type="submit">Unlock</button>
+      </div>
+      <p class="form-status" data-encrypted-error data-state="error" hidden align="center">Incorrect password.<br />Please contact me if you'd like access.</p>
+    </form>
+    <div class="entry-content" data-encrypted-content hidden></div>
+  </div>
+  {% else %}
   <div class="entry-content">
     {{ content }}
   </div>
+  {% endif %}
 </article>
 
 {% if page.comments %}

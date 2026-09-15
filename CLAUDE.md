@@ -116,6 +116,85 @@ Within a post/note body:
 - **Expansion sections**: native `<details>`/`<summary>`; needs
   `markdown="1"` on `<details>` for markdown to render inside.
 
+### Password-protected ("encrypted") posts
+
+A post/note can be gated behind a shared passphrase — listed and linkable
+normally, but its real body unreadable without the passphrase. This is
+deliberately not real per-user access control (no accounts, no server-side
+check) — the goal is "mostly secure" casual gatekeeping among people the
+author knows personally, not resistance to a determined attacker.
+
+- **Why client-side encryption, not a server check**: this is a fully
+  static site with no live auth path, and the `content` submodule is a
+  *public* repo — a server-side password check would still leave the
+  plaintext sitting in that repo's git history. So the body is encrypted
+  (AES-256-GCM, key via PBKDF2-SHA256/600k iterations,
+  `scripts/lib/encrypted-post-crypto.js`) *before* it's ever committed,
+  using `scripts/encrypt-post.js` (`npm run encrypt-post -- <source.md>
+  <dest.md>`) run locally against a plaintext draft kept *outside*
+  `content/`. The passphrase lives in the local shell env
+  (`ENCRYPTED_POST_PASSWORD`) only — never in Cloudflare Pages config, and
+  never read by the build.
+- **Frontmatter written by the script**: `encrypted: true`,
+  `encrypted_salt`/`encrypted_iv`/`encrypted_data` (all base64). The
+  script keeps the source's public fields (`title`, `tags`, `link_preview`,
+  etc.) as-is and leaves the body empty — there's no placeholder body text.
+  `_layouts/entry.html` renders *only* the password form for
+  `page.encrypted` posts (no `{{ content }}` at all), so title/subtitle/
+  tags/`link_preview` are what the post shows before unlocking, nothing
+  more. `scripts/decrypt-post.js` reverses this (`npm run decrypt-post --
+  <encrypted.md> <dest.md>`) to get the plaintext back for editing — run
+  `encrypt-post.js` again afterward, which picks a fresh salt/iv.
+- **No images/footnotes/Liquid includes in encrypted posts** — the real
+  body never goes through kramdown/Liquid (that would mean the plaintext
+  had to exist in the repo first), so it only supports a small markdown
+  subset: paragraphs, `**bold**`, `*italic*`, `[text](url)` links,
+  hand-rolled in `assets/js/encrypted-post.js`'s `renderSubsetMarkdown()`.
+- **Unlock UI**: `_layouts/entry.html` renders a password form (input type
+  `text`, not `password` — deliberate, see below) plus a hidden
+  `.entry-content` container carrying the base64 salt/iv/ciphertext as data
+  attributes when `page.encrypted` is set; centered via flexbox on
+  `.encrypted-post form` in `assets/css/main.css`.
+  `assets/js/encrypted-post.js` (loaded unconditionally like the other
+  `assets/js/*.js` files, no-ops if `[data-encrypted-post]` isn't present)
+  derives the key via `crypto.subtle` and attempts AES-GCM decryption on
+  submit; GCM's auth tag makes a wrong password fail decryption outright
+  rather than producing garbage output. Fully static — no request is made
+  either way, so there's no rate limit to bypass; passphrase strength and
+  the PBKDF2 cost are the only real defenses.
+- **Input type is `text`, not `password`** — a deliberate choice so the
+  reader can see what they're typing. No real security cost here: this
+  isn't a login (no account, nothing transmitted over the network either
+  way — decryption is entirely local), so there's no server-side exposure
+  or credential-manager interaction to worry about either way. The only
+  tradeoff is the classic shoulder-surfing risk of unmasked input, which
+  is a physical-environment concern rather than a property of this site.
+- **Two things that only work on already-loaded DOM, so decrypted content
+  needs to opt back in**:
+  - Links: `external-links.js`'s own pass at load time never sees links
+    that show up later, so it exposes `window.wireExternalLinks(root)`
+    for exactly this; `encrypted-post.js` calls it on the revealed content.
+  - Comment highlights: `comments.js` fetches existing comments and calls
+    its internal `renderAll()` once, right after page load — before
+    anything is unlocked, `.entry-content` is still empty, so every
+    existing comment fails to anchor and (with nothing re-triggering it)
+    never gets a second chance to render once the real text appears, even
+    though the comment itself did save correctly. `comments.js` exposes
+    `window.refreshCommentHighlights()` (`= renderAll`) for
+    `encrypted-post.js` to call after revealing content.
+- **Feed**: `feed.xml` forces `excerpt_only` for `post.encrypted` so the
+  (now-empty) `<content>` block is skipped — only `<summary>` (via
+  `link_preview`/`_plugins/seo_description.rb`) appears. List pages
+  (`home.html`, `post-list.html`, `notes-list.html`) needed no changes —
+  they already only ever render `entry.link_preview`, never a raw excerpt.
+- **Known caveat**: comments are still on by default for encrypted posts.
+  Once a reader unlocks one client-side, `comments.js` anchors to whatever
+  is in `.entry-content` same as any other post — so a reader selecting
+  text from the decrypted body and posting a comment would quote part of
+  the real content into the public `comments` D1 table, visible to anyone,
+  password or not. Not yet addressed; likely fix is disabling comments by
+  default for `page.encrypted` posts unless overridden.
+
 ### Comments & guestbook architecture
 
 Both backed by the same `comments` D1 table (`functions/`), split by a
@@ -288,18 +367,32 @@ Then open the URL Wrangler prints (typically http://localhost:8788).
 Two layers, `npm test` runs both:
 
 - **Unit** (`tests/unit/`, Node's test runner) — validation/rate-limit/
-  hashing logic in `functions/_lib/comments.js`. `npm run test:unit`.
+  hashing logic in `functions/_lib/comments.js`, plus the encrypt/decrypt
+  round-trip in `scripts/lib/encrypted-post-crypto.js`
+  (`tests/unit/encrypted-post-crypto.test.js`, using Node's own
+  `crypto.webcrypto` — the same `SubtleCrypto` surface the browser uses).
+  `npm run test:unit`.
 - **E2E** (`tests/e2e/`, Playwright + Chromium) — everything that only
   breaks with a real browser's Range/CSS engine: nested `<mark>`s from
   overlapping comments, selections crossing block boundaries, popover
   dismissal, duplicate `<title>` tags. `tests/e2e/other-pages-comments.spec.js`
   covers homepage/`/posts/`/`/notes/` comment threads (`data-post-slug`
-  scoping, select-and-post-and-reload). `npm run test:e2e` builds the
-  site, wipes/re-migrates a dedicated local D1 (`--persist-to=.wrangler-test/`,
-  separate from your dev database), and serves it on port 8799
-  (`playwright.config.js`'s `webServer`). Each test sets its own fake
-  `CF-Connecting-IP` header so the shared rate limiter doesn't trip
-  between tests (`fakeIp()` in `tests/e2e/helpers.js`).
+  scoping, select-and-post-and-reload). `tests/e2e/encrypted-post.spec.js`
+  covers the password-unlock flow (title/preview visible but no plaintext
+  in the served HTML, wrong password errors, correct password decrypts
+  and renders the markdown subset, external links get wired up) plus a
+  regression case for the `window.refreshCommentHighlights()` fix (a
+  comment posted after unlocking must still render after a reload +
+  re-unlock) against a throwaway fixture post that
+  `tests/e2e/fixtures/setup-encrypted-fixture.js` writes into
+  `content/_posts/` right before the build step in `test:e2e:server` (the
+  content submodule is public, so this fixture is never committed —
+  `tests/e2e/global-teardown.js` deletes it once the suite finishes).
+  `npm run test:e2e` builds the site, wipes/re-migrates a dedicated local
+  D1 (`--persist-to=.wrangler-test/`, separate from your dev database),
+  and serves it on port 8799 (`playwright.config.js`'s `webServer`). Each
+  test sets its own fake `CF-Connecting-IP` header so the shared rate
+  limiter doesn't trip between tests (`fakeIp()` in `tests/e2e/helpers.js`).
 
 Debugging: `npx playwright test --ui` for interactive mode, `npx
 playwright show-trace <path>` to inspect a failed run's trace (saved to
