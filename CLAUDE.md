@@ -23,8 +23,8 @@ text `#000000`, links `#1155cc`; blockquotes background `#fff2cc`, border
 `#cbb99e`, text `#1b1b1a`.
 
 Header/footer share one nav (`_includes/nav.html`): `home / posts /
-guestbook`, diamond-separated; footer adds `rss` / `colophon`. A `rough
-notes` link exists behind a `show_notes` param nothing currently passes
+guestbook`, diamond-separated; footer adds `rss` / `colophon`, header adds
+the accessibility-mode toggle (below). A `rough notes` link exists behind a `show_notes` param nothing currently passes
 `true` (see commit `c0ca090`) — `/notes/` still works, just isn't linked. No
 copyright line, by design.
 
@@ -91,6 +91,39 @@ Within a post/note body:
 - **Quote attribution**: `> Quote.\n>\n> — Someone\n> {: .attribution}`
 - **Expansion sections**: native `<details>`/`<summary>`, needs
   `markdown="1"` for markdown inside.
+
+### Accessibility mode
+
+Header button ("accessibility", `_includes/nav.html`'s `show_a11y` param,
+passed only by `header.html`) toggles `<html
+data-a11y="on">`. `assets/css/accessible.css` is loaded after `main.css` on
+every page and is inert without that attribute — an overlay, not a
+replacement, so `main.css` isn't duplicated. Standard theme-toggle pattern.
+
+- **Mostly variables**: redefines the `:root` custom properties (same
+  cream bg, all-black text incl. muted/meta/form-status, darker link
+  accent, darker borders, system sans stack in `--font-serif`) and
+  `html { font-size }`. `main.css` sizes everything in rem (body included,
+  `1.1875rem` = 19px at the default root) so the type scale follows.
+  New font-sizes in `main.css` must stay in rem/em or they won't scale.
+- **Other overrides**: `text-transform: none` for the lowercase rules
+  (titles/dates show as authored), always-underlined links (`!important`,
+  since `main.css` drops underlines on some `:hover`s), 3px
+  `:focus-visible` outline, underlined comment highlights, no `details`
+  transition. New lowercase/hover-only/colour-only cues need a matching
+  override there.
+- **State**: `localStorage["a11y-mode"]` = `"on"`/`"off"` (explicit choice).
+  With none stored it follows `prefers-contrast: more`, live. The button
+  flips the effective state and stores it, so it overrides the OS setting
+  either way. A blocking inline script in `_includes/head.html` sets the
+  attribute before first paint (no flash); `assets/js/accessibility.js`
+  handles the click, `aria-pressed`, and the OS-change listener. Both
+  wrap storage in try/catch. Keep their initial-state logic in sync.
+- **`<title>`**: `_layouts/entry.html` stashes the authored title in
+  `<html data-original-title>` and lowercases it unless the mode is on;
+  `accessibility.js` re-applies the right casing on toggle.
+- **Header fit**: `.site-nav` wraps (`flex-wrap`) so the extra item can't
+  overflow narrow screens.
 
 ### Password-protected ("encrypted") posts
 
@@ -304,7 +337,11 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   test:e2e` builds the site, wipes/re-migrates a dedicated local D1
   (`.wrangler-test/`), and serves on port 8799. Each test sets its own fake
   `CF-Connecting-IP` (`fakeIp()` in `helpers.js`) so the shared rate limiter
-  doesn't trip between tests.
+  doesn't trip between tests. `accessibility.spec.js` covers the
+  accessibility-mode toggle: persistence, `prefers-contrast: more` emulation
+  + override, no flash (attribute set before `<body>` exists), broken
+  `localStorage`, computed-style changes, `<title>` casing, and no
+  horizontal overflow at 375px.
 
 Debugging: `npx playwright test --ui`, or `npx playwright show-trace <path>`
 on a saved trace (`test-results/`).

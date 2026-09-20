@@ -16,4 +16,8 @@
   <span class="nav-sep" aria-hidden="true">&#11045;</span>
   <a href="{{ '/colophon/' | relative_url }}"{% if page.url == '/colophon/' %} aria-current="page"{% endif %}>colophon</a>
   {% endif %}
+  {% if include.show_a11y %}
+  <span class="nav-sep" aria-hidden="true">&#11045;</span>
+  <button type="button" class="a11y-toggle" data-a11y-toggle aria-pressed="false">accessibility</button>
+  {% endif %}
 </nav>

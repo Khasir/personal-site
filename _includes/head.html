@@ -3,4 +3,19 @@
 {% seo title=true %}
 <link rel="preload" href="{{ '/assets/fonts/eb-garamond-normal.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/css/accessible.css' | relative_url }}">
+{% comment %}
+  Blocking on purpose: sets the accessibility-mode attribute before first
+  paint so there's no flash of the default styles. An explicit choice
+  ("on"/"off") wins; otherwise follow the OS's prefers-contrast setting.
+  Keep in sync with assets/js/accessibility.js.
+{% endcomment %}
+<script>
+(function () {
+  var saved = null;
+  try { saved = localStorage.getItem("a11y-mode"); } catch (e) {}
+  var on = saved ? saved === "on" : !!(window.matchMedia && matchMedia("(prefers-contrast: more)").matches);
+  if (on) document.documentElement.setAttribute("data-a11y", "on");
+})();
+</script>
 <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">

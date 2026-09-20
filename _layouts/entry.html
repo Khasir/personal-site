@@ -49,4 +49,12 @@ layout: default
 {% include comments.html %}
 {% endif %}
 
-<script>document.title = document.title.toLowerCase();</script>
+<script>
+  // Titles are lowercased, except in accessibility mode.
+  // The original is stashed so assets/js/accessibility.js can
+  // re-apply the right casing when the mode is toggled.
+  document.documentElement.dataset.originalTitle = document.title;
+  if (document.documentElement.getAttribute("data-a11y") !== "on") {
+    document.title = document.title.toLowerCase();
+  }
+</script>

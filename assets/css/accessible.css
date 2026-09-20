@@ -1,0 +1,63 @@
+/* ---------------------------------------------------------------------
+   Accessibility mode. Loaded after main.css and inert unless
+   <html data-a11y="on"> is set (see the inline script in
+   _includes/head.html and assets/js/accessibility.js). main.css is driven
+   by custom properties, so most of this is just redefining them.
+--------------------------------------------------------------------- */
+
+html[data-a11y="on"] {
+  /* Everything in main.css is sized in rem, so this scales the whole page. */
+  font-size: 112.5%;
+
+  /* Same cream background; all text black; the accent colour is for links only. */
+  --color-text: #000000;
+  --color-muted: #000000;
+  --color-accent: #0b3d91;
+  --color-border: #7a6a4d;
+
+  --color-blockquote-border: #7a6a4d;
+  --color-blockquote-text: #000000;
+
+  --color-highlight: #f6d98a;
+  --color-highlight-active: #eab84a;
+
+  /* Despite 'serif' (kept to minimize changes to main.css), this is the body font for the whole site. */
+  --font-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html[data-a11y="on"] body { line-height: 1.75; }
+
+/* Titles and dates show as written instead of forced lowercase. */
+html[data-a11y="on"] time,
+html[data-a11y="on"] .comment-time,
+html[data-a11y="on"] .entry-list a,
+html[data-a11y="on"] .entry-heading h1 {
+  text-transform: none;
+}
+
+/* Links are always underlined. */
+html[data-a11y="on"] a,
+html[data-a11y="on"] .a11y-toggle {
+  text-decoration: underline !important;
+  text-underline-offset: 0.15em;
+}
+html[data-a11y="on"] a:hover,
+html[data-a11y="on"] .a11y-toggle:hover {
+  text-decoration-thickness: 2px;
+}
+
+html[data-a11y="on"] :focus-visible {
+  outline: 3px solid var(--color-text);
+  outline-offset: 2px;
+}
+
+/* Comment highlights: underline as well as colour. */
+html[data-a11y="on"] mark.comment-highlight {
+  border-bottom: 2px solid var(--color-text);
+}
+
+/* Error/success are black like everything else, so give errors weight. */
+html[data-a11y="on"] .form-status[data-state] { color: var(--color-text); }
+html[data-a11y="on"] .form-status[data-state="error"] { font-weight: 600; }
+
+html[data-a11y="on"] details summary::before { transition: none; }
