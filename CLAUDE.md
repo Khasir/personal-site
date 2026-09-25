@@ -102,10 +102,16 @@ replacement, so `main.css` isn't duplicated. Standard theme-toggle pattern.
 
 - **Mostly variables**: redefines the `:root` custom properties (same
   cream bg, all-black text incl. muted/meta/form-status, darker link
-  accent, darker borders, system sans stack in `--font-serif`) and
+  accent, darker borders, self-hosted Aleo in `--font-serif`) and
   `html { font-size }`. `main.css` sizes everything in rem (body included,
   `1.1875rem` = 19px at the default root) so the type scale follows.
   New font-sizes in `main.css` must stay in rem/em or they won't scale.
+- **Font**: Aleo (slab serif), self-hosted like EB Garamond — variable
+  woff2, `assets/fonts/aleo-normal.woff2` / `aleo-italic.woff2`, declared in
+  `accessible.css` (not `main.css`) so it's only fetched when the mode is on;
+  no preload. Licensed under the SIL OFL, which allows this without changing
+  the site's `LICENSE`; keep `assets/fonts/aleo-OFL.txt` alongside the files.
+  (Atkinson Hyperlegible and the system sans stack were tried and rejected.)
 - **Other overrides**: `text-transform: none` for the lowercase rules
   (titles/dates show as authored), always-underlined links (`!important`,
   since `main.css` drops underlines on some `:hover`s), 3px
