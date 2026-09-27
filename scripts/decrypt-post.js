@@ -6,6 +6,7 @@
 //
 // See CLAUDE.md's "Password-protected posts" section for the full authoring workflow.
 import fs from "node:fs";
+import { parseArgs } from "node:util";
 import { load } from "js-yaml";
 import { decrypt } from "./lib/encrypted-post-crypto.js";
 
@@ -18,17 +19,23 @@ function splitFrontmatter(raw) {
 }
 
 async function main() {
-  const [, , sourcePath, destPath] = process.argv;
+  const { values, positionals } = parseArgs({
+    options: { password: { type: "string" } },
+    allowPositionals: true,
+  });
+  const [sourcePath, destPath] = positionals;
   if (!sourcePath || !destPath) {
-    console.error("Usage: npm run decrypt-post -- <encrypted.md> <dest.md>");
+    console.error("Usage: npm run decrypt-post -- <encrypted.md> <dest.md> [--password=<passphrase>]");
     process.exit(1);
   }
 
-  const password = process.env.ENCRYPTED_POST_PASSWORD;
+  // Env var wins; --password is only a fallback when it's unset.
+  const envPassword = process.env.ENCRYPTED_POST_PASSWORD;
+  const password = envPassword && envPassword.trim() !== "" ? envPassword : values.password;
   if (!password || password.trim() === "") {
     console.error(
-      "ENCRYPTED_POST_PASSWORD is not set. Export it in your local shell before " +
-        "running this script."
+      "No password given. Export ENCRYPTED_POST_PASSWORD in your local shell, or " +
+        "pass --password=<passphrase>."
     );
     process.exit(1);
   }
@@ -54,7 +61,7 @@ async function main() {
       ciphertext: data.encrypted_data,
     });
   } catch {
-    console.error("Decryption failed. Check ENCRYPTED_POST_PASSWORD is correct.");
+    console.error("Decryption failed. Check the password (ENCRYPTED_POST_PASSWORD or --password) is correct.");
     process.exit(1);
   }
 
@@ -69,7 +76,7 @@ async function main() {
 
   fs.writeFileSync(destPath, `---\n${cleanedFrontmatter}\n---\n${plaintext}\n`);
 
-  console.log(`Decrypted ${sourcePath} to ${destPath}`);
+  console.log(`Decrypted ${sourcePath} to ${destPath}\n`);
   console.log(
     `Reminder: ${destPath} now holds the real plaintext. Do not commit it, and delete/move it once you're done editing.`
   );

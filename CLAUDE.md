@@ -155,7 +155,9 @@ server-side check, no resistance to a determined attacker).
   run encrypt-post -- <source.md> <dest.md>`, against a plaintext draft kept
   outside `content/`. Passphrase lives only in local shell env
   (`ENCRYPTED_POST_PASSWORD`) — never in Cloudflare config or read by the
-  build. `npm run decrypt-post -- <encrypted.md> <dest.md>` reverses this for
+  build. Both scripts also accept `--password=<passphrase>` as a fallback
+  used only when the env var is unset/blank (env var wins); note it lands
+  in shell history. `npm run decrypt-post -- <encrypted.md> <dest.md>` reverses this for
   editing; re-run `encrypt-post` afterward (fresh salt/iv each time).
 - Script writes `encrypted: true` +
   `encrypted_salt`/`encrypted_iv`/`encrypted_data` (base64) to frontmatter,

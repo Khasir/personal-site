@@ -65,6 +65,7 @@ npm test
 1. Write the post.
 2. Set the link preview to "This post is password-protected."
 3. Run `ENCRYPTED_POST_PASSWORD="your phrase here" npm run encrypt-post -- <source.md> <dest.md>`.
+  - If that doesn't work, pass in `password="your phrase here"`.
 4. Delete the original post or just ensure it doesn't get committed.
 5. (Optional) Decrypt the post with `ENCRYPTED_POST_PASSWORD="your phrase here" npm run decrypt-post -- <source.md> <dest.md>`
 
