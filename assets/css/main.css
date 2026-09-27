@@ -52,7 +52,7 @@ html { color-scheme: light; }
 body {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.1875rem; /* 19px at the default 16px root */
+  font-size: 1.25rem; /* 20px at the default 16px root */
   line-height: 1.65;
   color: var(--color-text);
   background: var(--color-bg);
@@ -155,9 +155,9 @@ time, .comment-time { text-transform: lowercase; }
 
 .entry-list { list-style: none; padding: 0; }
 .entry-list li { padding: 1rem 0; border-bottom: 1px solid var(--color-border); }
-.entry-list a { font-weight: 600; font-size: 1.15rem; text-transform: lowercase; }
-.entry-list time { display: block; color: var(--color-muted); font-size: 1.0rem; font-style: italic; margin-top: 0.15rem; }
-.entry-summary { color: var(--color-muted); margin: 0.35rem 0 0; font-style: italic; font-size: 1.1rem; }
+.entry-list a { font-weight: 600; font-size: 1.25rem; text-transform: lowercase; }
+.entry-list time { display: block; color: var(--color-muted); font-size: 1.15rem; font-style: italic; margin-top: 0.15rem; }
+.entry-summary { color: var(--color-muted); margin: 0.35rem 0 0; font-style: italic; font-size: 1.25rem; }
 .see-all { display: inline-block; margin: 0.75rem 0 2rem; }
 .entry-list .entry-kind { display: inline; margin-right: 0.5rem; }
 
@@ -211,7 +211,7 @@ blockquote {
   background: var(--color-blockquote-bg);
   border-left: 4px solid var(--color-blockquote-border);
   color: var(--color-blockquote-text);
-  font-size: 1.1rem;
+  font-size: 1.25rem;
 }
 blockquote p:last-child { margin-bottom: 0; }
 
@@ -229,7 +229,7 @@ blockquote p.attribution { text-align: right; }
 .fig { margin: 1.5rem 0; }
 .fig img { max-width: 100%; display: block; height: auto; }
 .fig figcaption {
-  font-size: 1.0rem;
+  font-size: 1.15rem;
   /* font-style: italic; */
   color: var(--color-muted);
   margin-top: 0.4rem;
@@ -267,7 +267,7 @@ details summary {
   cursor: pointer;
   font-weight: 400;
   font-style: italic;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   list-style: none;
 }
 details summary::-webkit-details-marker { display: none; }
@@ -309,7 +309,7 @@ details p:last-child, details > *:not(summary):last-child { margin-bottom: 0; }
 .lightbox-caption {
   color: #fff;
   margin-top: 1rem;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   /* font-style: italic; */
   text-align: center;
 }
@@ -338,7 +338,7 @@ hr {
   margin-top: 3rem;
   padding-top: 1rem;
   border-top: 1px solid var(--color-border);
-  font-size: 1.0rem;
+  font-size: 1.15rem;
   color: var(--color-muted);
 }
 
@@ -353,7 +353,7 @@ sup.footnote-ref, sup[id^="fnref"] a {
   color: #fdf8ee;
   padding: 0.8rem 0.7rem 0.8rem 0.8rem;
   border-radius: 4px;
-  font-size: 1.0rem;
+  font-size: 1.1rem;
   font-family: var(--font-serif);
   line-height: 1.4;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
@@ -392,7 +392,7 @@ mark.comment-highlight.is-active {
   border: none;
   border-radius: 4px;
   padding: 0.4rem 0.75rem;
-  font-size: 1.0rem;
+  font-size: 1.15rem;
   cursor: pointer;
 }
 
@@ -414,7 +414,7 @@ mark.comment-highlight.is-active {
   margin: 0 0 0.75rem;
   padding-left: 0.75rem;
   border-left: 3px solid var(--color-blockquote-border);
-  font-size: 1.0rem;
+  font-size: 1.15rem;
   color: var(--color-muted);
 }
 
@@ -429,16 +429,16 @@ button[data-comment-thread-close] {
   border-color: var(--color-border);
   margin-left: 0.5rem;
 }
-.comment-author { font-weight: 600; font-size: 1.0rem; }
-.comment-time { color: var(--color-muted); font-style: italic; font-size: 0.9rem; margin-left: 0.4rem; }
-.comment-body { margin: 0.15rem 0 0; font-size: 1.0rem; }
+.comment-author { font-weight: 600; font-size: 1.15rem; }
+.comment-time { color: var(--color-muted); font-style: italic; font-size: 1.0rem; margin-left: 0.4rem; }
+.comment-body { margin: 0.15rem 0 0; font-size: 1.15rem; }
 
 .comments-hint { color: var(--color-muted); font-style: italic; font-size: 1.0rem; }
 
 /* Forms (comments + guestbook) */
 
 .field { margin-bottom: 0.75rem; }
-.field label { display: block; font-size: 1.0rem; margin-bottom: 0.25rem; }
+.field label { display: block; font-size: 1.15rem; margin-bottom: 0.25rem; }
 .field-optional { color: var(--color-muted); font-weight: normal; font-style: italic; }
 .field input[type="text"],
 .field input[type="email"],
@@ -471,7 +471,7 @@ button[data-comment-form-cancel] {
   margin-left: 0.5rem;
 }
 
-.form-status { font-size: 1.0rem; font-style: italic; color: var(--color-muted); min-height: 1.2em; }
+.form-status { font-size: 1.15rem; font-style: italic; color: var(--color-muted); min-height: 1.2em; }
 .form-status[data-state="error"] { color: #a3311e; }
 .form-status[data-state="success"] { color: #2f6b3a; }
 
