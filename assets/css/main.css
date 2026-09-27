@@ -101,7 +101,7 @@ time, .comment-time { text-transform: lowercase; }
 
 .site-title {
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.40rem;
   color: var(--color-text);
 }
 .site-title:hover, .site-title:focus { text-decoration: none; }
