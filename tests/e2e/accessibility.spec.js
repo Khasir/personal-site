@@ -34,12 +34,15 @@ test("clicking the toggle switches the mode on and off, and remembers it across 
 test("the mode is applied before the body exists (no flash of the default styles)", async ({ page }) => {
   await page.addInitScript(() => {
     try { localStorage.setItem("a11y-mode", "on"); } catch (e) { /* ignore */ }
+    // Init scripts run before <html> is parsed (documentElement is null
+    // here), so observe the document itself and look for the attribute.
     new MutationObserver((_, observer) => {
-      if (document.documentElement.hasAttribute("data-a11y")) {
+      const root = document.documentElement;
+      if (root && root.hasAttribute("data-a11y")) {
         window.__bodyExistedWhenApplied = !!document.body;
         observer.disconnect();
       }
-    }).observe(document.documentElement, { attributes: true });
+    }).observe(document, { attributes: true, childList: true, subtree: true });
   });
   await page.goto("/");
   expect(await htmlMode(page)).toBe("on");
