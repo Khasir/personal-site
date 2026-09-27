@@ -11,6 +11,8 @@ All comments and guestbook signatures are public. I store salted IP hashes to pr
 
 The [source code](https://github.com/Khasir/personal-site) for this site is available under the [GNU GPL v3](https://opensource.org/license/gpl-3.0)—you are free to share and reuse the code, given that you credit me and also make your project open source.
 
+[Accessibility icon](https://thenounproject.com/icon/accessibility-4682113/) by Zach Bogart from the <a href="https://thenounproject.com/browse/icons/term/accessibility/" target="_blank" title="Accessibility Icons">Noun Project</a> (CC BY 3.0). Modified from the original.
+
 All photos are my own unless otherwise indicated. Blog posts are written by myself without AI unless otherwise indicated.
 
 My blog posts, photos and notes are © Khasir and should not be reposted verbatim without my permission. Feel free to share my website with people you know, but if in doubt, please get in touch by leaving a comment somewhere.

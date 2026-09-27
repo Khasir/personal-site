@@ -1,7 +1,10 @@
 import { test, expect } from "@playwright/test";
 
 const POST = "/posts/hello-world/";
-const toggle = (page) => page.getByRole("button", { name: "accessibility" });
+// The header button is icon-only, the footer one is label-only; both
+// share the accessible name "accessibility" and stay in sync.
+const toggle = (page) => page.locator(".site-header").getByRole("button", { name: "accessibility" });
+const footerToggle = (page) => page.locator(".site-footer").getByRole("button", { name: "accessibility" });
 const htmlMode = (page) => page.evaluate(() => document.documentElement.getAttribute("data-a11y"));
 
 test("off by default, and the toggle button is exposed as an unpressed button", async ({ page }) => {
@@ -127,4 +130,22 @@ test("on a phone-width screen the header doesn't overflow and the toggle keeps i
     expect(overflow).toBeLessThanOrEqual(0);
     await expect(toggle(page)).toBeVisible();
   }
+});
+
+test("header toggle is icon-only, footer toggle is label-only, and the two stay in sync", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator(".site-header .a11y-icon")).toHaveCount(1);
+  await expect(page.locator(".site-footer .a11y-icon")).toHaveCount(0);
+  const width = async (locator) => (await locator.boundingBox()).width;
+  expect(await width(toggle(page).locator(".a11y-toggle-label"))).toBeLessThanOrEqual(1);
+  expect(await width(footerToggle(page).locator(".a11y-toggle-label"))).toBeGreaterThan(20);
+
+  await footerToggle(page).click();
+  expect(await htmlMode(page)).toBe("on");
+  await expect(toggle(page)).toHaveAttribute("aria-pressed", "true");
+  await expect(footerToggle(page)).toHaveAttribute("aria-pressed", "true");
+
+  await toggle(page).click();
+  expect(await htmlMode(page)).toBeNull();
+  await expect(footerToggle(page)).toHaveAttribute("aria-pressed", "false");
 });

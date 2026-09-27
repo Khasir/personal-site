@@ -119,6 +119,9 @@ time, .comment-time { text-transform: lowercase; }
 /* Accessibility-mode toggle (assets/js/accessibility.js):
    a button that reads as a nav link. */
 .a11y-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
   min-width: 24px;
   min-height: 24px;
   padding: 0;
@@ -130,6 +133,23 @@ time, .comment-time { text-transform: lowercase; }
 }
 .a11y-toggle:hover, .a11y-toggle:focus { text-decoration: underline; }
 .a11y-toggle[aria-pressed="true"] { font-weight: 600; }
+
+.a11y-icon { width: 1.2em; height: 1.2em; flex: none; }
+/* Off: outline ring + figure. On: filled disc with the figure knocked out. */
+.a11y-icon-disc { opacity: 0; }
+.a11y-toggle[aria-pressed="true"] .a11y-icon-disc { opacity: 1; }
+.a11y-toggle[aria-pressed="true"] .a11y-icon-figure { fill: var(--color-bg); }
+
+/* The header button is icon-only (the footer one shows the word too). The
+   label is visually hidden, not removed: it's still the accessible name. */
+.a11y-toggle--icon-only .a11y-toggle-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
 
 /* Entry lists */
 

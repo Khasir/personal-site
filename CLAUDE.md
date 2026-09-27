@@ -94,11 +94,13 @@ Within a post/note body:
 
 ### Accessibility mode
 
-Header button ("accessibility", `_includes/nav.html`'s `show_a11y` param,
-passed only by `header.html`) toggles `<html
-data-a11y="on">`. `assets/css/accessible.css` is loaded after `main.css` on
-every page and is inert without that attribute — an overlay, not a
-replacement, so `main.css` isn't duplicated. Standard theme-toggle pattern.
+Two buttons — header (icon only) and footer ("accessibility" label only) —
+via `_includes/nav.html`'s `show_a11y` param (`"icon"` from `header.html`,
+`"label"` from `footer.html`). Both are `[data-a11y-toggle]`, kept in sync,
+and toggle `<html data-a11y="on">`. `assets/css/accessible.css` is loaded
+after `main.css` on every page and is inert without that attribute — an
+overlay, not a replacement, so `main.css` isn't duplicated. Standard
+theme-toggle pattern.
 
 - **Mostly variables**: redefines the `:root` custom properties (same
   cream bg, all-black text incl. muted/meta/form-status, darker link
@@ -128,8 +130,15 @@ replacement, so `main.css` isn't duplicated. Standard theme-toggle pattern.
 - **`<title>`**: `_layouts/entry.html` stashes the authored title in
   `<html data-original-title>` and lowercases it unless the mode is on;
   `accessibility.js` re-applies the right casing on toggle.
-- **Header fit**: `.site-nav` wraps (`flex-wrap`) so the extra item can't
-  overflow narrow screens.
+- **Icon**: inline SVG ("Accessibility" by Zach Bogart, Noun Project;
+  credited on the colophon), `currentColor`, so it follows the link colour.
+  Off = outline ring + figure; on (`aria-pressed="true"`) = filled disc with
+  the figure knocked out. Only the header button has it; there the label is
+  visually hidden (`.a11y-toggle--icon-only`; still the accessible name, plus
+  a `title` tooltip) to keep the header short. The footer button is the word
+  alone, no icon.
+- **Header fit**: `.site-nav` also wraps (`flex-wrap`) so the extra item
+  can't overflow narrow screens.
 
 ### Password-protected ("encrypted") posts
 
