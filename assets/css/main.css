@@ -252,6 +252,31 @@ blockquote p.attribution { text-align: right; }
 
 .fig-link { cursor: zoom-in; display: block; }
 
+/* Galleries ({% gallery %}, _plugins/gallery.rb): a square-tile grid of
+   figure.html includes. Per-image captions only show in the lightbox. */
+
+.gallery { margin: 1.5rem 0; clear: both; }
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--gallery-cols, 3), minmax(0, 1fr));
+  gap: 0.5rem;
+}
+@media (max-width: 600px) {
+  .gallery-grid { grid-template-columns: repeat(var(--gallery-cols-narrow, 2), minmax(0, 1fr)); }
+}
+/* Beats .fig--left/.fig--right (and their mobile override) on specificity,
+   so align/width on a gallery's figures are ignored. */
+.gallery .fig { margin: 0; width: auto; float: none; }
+.gallery .fig figcaption { display: none; }
+.gallery .fig-link { aspect-ratio: 1; overflow: hidden; }
+.gallery .fig img { width: 100%; height: 100%; object-fit: cover; }
+.gallery > figcaption {
+  font-size: 1.15rem;
+  color: var(--color-muted);
+  margin-top: 0.4rem;
+  text-align: center;
+}
+
 /* Expansion sections (native <details>/<summary>) */
 
 details {
@@ -324,6 +349,30 @@ details p:last-child, details > *:not(summary):last-child { margin-bottom: 0; }
   line-height: 1;
   cursor: pointer;
 }
+.lightbox-prev, .lightbox-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 3rem;
+  line-height: 1;
+  padding: 1rem 0.5rem;
+  cursor: pointer;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+.lightbox-prev { left: 0.25rem; }
+.lightbox-next { right: 0.25rem; }
+.lightbox-counter {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  margin: 0;
+  color: #fff;
+  font-size: 1.15rem;
+}
+.lightbox-prev[hidden], .lightbox-next[hidden], .lightbox-counter[hidden] { display: none; }
 
 hr {
   margin: 2rem auto;

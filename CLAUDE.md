@@ -73,6 +73,21 @@ Within a post/note body:
   click for full-screen. `caption` is inline-markdown (footnotes merge into
   the post's numbering); the lightbox caption strips footnote markers
   (`_plugins/strip_footnotes.rb`); `alt` stays plain text.
+- **Galleries**: wrap `figure.html` includes in
+  `{% gallery caption="..." columns=3 %}` … `{% endgallery %}`
+  (`_plugins/gallery.rb`, a Liquid block tag). Square `object-fit: cover`
+  tiles, `columns` 1–6 (default 3, at most 2 under 600px — passed as
+  `--gallery-cols`/`--gallery-cols-narrow` since `min()` in `repeat()`
+  isn't reliable); figures' `align`/`width` are ignored inside. Per-image
+  captions are hidden in the grid and shown only in the lightbox (so keep
+  footnotes out of them); the optional gallery `caption` shows under the
+  grid, inline-markdown with footnotes like `figure.html`. The lightbox
+  (`assets/js/lightbox.js`) groups by the clicked link's `.gallery`:
+  prev/next buttons, ←/→ keys, horizontal swipe, "n / total" counter,
+  wraps around, preloads neighbours. Standalone figures stay single-image.
+  The gallery's output is plain HTML without `markdown="1"`, so only
+  include tags belong inside. Not available in encrypted posts (Liquid is
+  refused there).
 - **Footnotes**: standard kramdown (`text[^1]` / `[^1]: note`), with
   hover/focus preview.
 - **Comments**: on by default (`comments: false` to disable); no account
@@ -381,7 +396,13 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   accessibility-mode toggle: persistence, `prefers-contrast: more` emulation
   + override, no flash (attribute set before `<body>` exists), broken
   `localStorage`, computed-style changes, `<title>` casing, and no
-  horizontal overflow at 375px.
+  horizontal overflow at 375px. `gallery.spec.js` covers `{% gallery %}`
+  (square tiles, ignored `align`, hidden per-image captions, gallery
+  caption + footnote, lightbox prev/next/keys/wrap, standalone figures
+  unaffected, 2 columns at 375px) against another throwaway fixture post
+  (`tests/e2e/fixtures/setup-gallery-fixture.js`, inline SVG data URIs so
+  it needs nothing in `content/images/`), also removed by
+  `global-teardown.js`.
 
 Debugging: `npx playwright test --ui`, or `npx playwright show-trace <path>`
 on a saved trace (`test-results/`).
