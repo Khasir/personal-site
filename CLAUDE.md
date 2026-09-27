@@ -165,9 +165,17 @@ server-side check, no resistance to a determined attacker).
   empty. `_layouts/entry.html` renders *only* the password form for
   `page.encrypted` (no `{{ content }}`).
 - Real body never passes through kramdown/Liquid, so only a small hand-rolled
-  markdown subset is supported (paragraphs, bold, italic, links —
-  `renderSubsetMarkdown()` in `assets/js/encrypted-post.js`). No
-  images/footnotes/includes in encrypted posts.
+  markdown subset is supported (paragraphs, bold, italic, links, and
+  bullet `- `/`* `/`+ ` / numbered `1.`/`1)` lists, nested by deeper
+  indent (tab = 4 spaces), `<ol start>` kept from the first number;
+  a non-item line continues the item above, even after a blank line if
+  indented; a numbered item not starting at 1 can't interrupt a
+  paragraph — `renderSubsetMarkdown()` in `assets/js/encrypted-post.js`,
+  a line-by-line parser). No
+  images/footnotes/includes in encrypted posts. HTML comments
+  (`<!-- ... -->`, may span paragraphs) are stripped before rendering, but
+  they're still inside the ciphertext, so anyone with the passphrase can
+  read them (devtools, or `decrypt-post`).
 - **Unlock UI**: `_layouts/entry.html` renders a password form plus a hidden
   `.entry-content` container carrying the base64 salt/iv/ciphertext as data
   attributes when `page.encrypted` is set. Password input is `type="text"`
@@ -346,7 +354,8 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   comments, selections crossing block boundaries, popover dismissal.
   `other-pages-comments.spec.js` covers homepage/`/posts/`/`/notes/`
   threads; `encrypted-post.spec.js` covers the unlock flow (no plaintext in
-  served HTML, wrong/correct password, markdown subset, external links) plus
+  served HTML, wrong/correct password, markdown subset, HTML-comment
+  stripping, bullet/numbered/nested lists, external links) plus
   a regression case for `window.refreshCommentHighlights()`, against a
   throwaway fixture post (`tests/e2e/fixtures/setup-encrypted-fixture.js`
   writes it into `content/_posts/` before build; `global-teardown.js`

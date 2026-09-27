@@ -38,7 +38,7 @@ test.describe("encrypted post", () => {
     const content = page.locator("[data-encrypted-content]");
     await expect(content).toBeVisible();
     await expect(content).toContainText("the secret content");
-    await expect(content.locator("strong")).toHaveText("bold");
+    await expect(content.locator(":scope > p").first().locator("strong")).toHaveText("bold");
 
     // Regression: external-links.js only wires up links present at page
     // load, so a link inside content decrypted (and inserted) later needs
@@ -47,6 +47,56 @@ test.describe("encrypted post", () => {
     await expect(link).toHaveAttribute("href", "https://example.com");
     await expect(link).toHaveAttribute("target", "_blank");
     await expect(link).toHaveClass(/external-link/);
+  });
+
+  test("HTML comments in the decrypted body aren't rendered", async ({ page }) => {
+    await unlock(page);
+    const content = page.locator("[data-encrypted-content]");
+    await expect(content).toContainText("after the comments.");
+    await expect(content).not.toContainText("hidden note");
+    await expect(content).not.toContainText("<!--");
+    await expect(content).not.toContainText("spanning paragraphs");
+    // The comment-only paragraph leaves no empty <p> behind.
+    await expect(content.locator("p:empty")).toHaveCount(0);
+  });
+
+  test("bullet points in the decrypted body render as a list", async ({ page }) => {
+    await unlock(page);
+    const content = page.locator("[data-encrypted-content]");
+    // The list interrupts its lead-in line without a blank line between.
+    await expect(content.locator("p", { hasText: "a list:" })).toHaveCount(1);
+    const items = content.locator(":scope > ul > li");
+    await expect(items).toHaveCount(3);
+    await expect(items.nth(0)).toHaveText("first item");
+    await expect(items.nth(1).locator("strong")).toHaveText("item");
+    // An unmarked line right after an item continues that item.
+    await expect(items.nth(2)).toContainText("third item");
+    await expect(items.nth(2)).toContainText("continued");
+    await expect(content).not.toContainText("- first");
+  });
+
+  test("numbered and nested lists in the decrypted body render", async ({ page }) => {
+    await unlock(page);
+    const content = page.locator("[data-encrypted-content]");
+    const lists = content.locator(":scope > ol");
+    await expect(lists).toHaveCount(2);
+
+    const steps = lists.nth(0).locator(":scope > li");
+    await expect(steps).toHaveCount(3);
+    await expect(lists.nth(0)).not.toHaveAttribute("start");
+    // Deeper indent nests: a bullet list under step two, and a numbered
+    // list under that bullet.
+    const nested = steps.nth(1).locator(":scope > ul > li");
+    await expect(nested).toHaveCount(1);
+    await expect(nested.locator(":scope > ol > li")).toHaveText("deep step");
+    await expect(steps.nth(2)).toHaveText("step three");
+
+    // A numbered list keeps its first number.
+    await expect(lists.nth(1)).toHaveAttribute("start", "4");
+    await expect(lists.nth(1).locator(":scope > li")).toHaveCount(2);
+
+    // A numbered line not starting at 1 can't interrupt a paragraph.
+    await expect(content.locator(":scope > p", { hasText: "2024. not a list" })).toHaveCount(1);
   });
 
   test("a comment posted after unlocking is still shown after reloading and unlocking again", async ({ page }) => {
