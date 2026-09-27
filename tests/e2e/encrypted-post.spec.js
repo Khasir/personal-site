@@ -62,6 +62,18 @@ test.describe("encrypted post", () => {
     await expect(content.locator(".footnotes li")).toContainText("The footnote text.");
   });
 
+  test("hovering a footnote marker in the decrypted body shows its tooltip", async ({ page }) => {
+    // Regression: footnotes.js only wires up markers present at page load,
+    // so markers inserted after decrypting need window.wireFootnotes.
+    await unlock(page);
+    // Dispatched directly rather than hovered, as in design.spec.js -- the
+    // superscript marker is a tiny target.
+    await page.locator("[data-encrypted-content] a.footnote").dispatchEvent("mouseenter");
+    const tooltip = page.locator(".footnote-tooltip");
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toContainText("The footnote text.");
+  });
+
   test("HTML comments in the decrypted body aren't shown", async ({ page }) => {
     await unlock(page);
     const content = page.locator("[data-encrypted-content]");

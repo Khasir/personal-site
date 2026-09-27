@@ -197,11 +197,13 @@ server-side check, no resistance to a determined attacker).
   No network request either way, so no rate limit applies — passphrase
   strength and PBKDF2 cost are the real defenses.
 - **Decrypted content must opt back into load-time-only behavior**:
-  `external-links.js` exposes `window.wireExternalLinks(root)`, and
-  `comments.js` exposes `window.refreshCommentHighlights()`, both called by
-  `encrypted-post.js` after revealing content (otherwise links aren't wired
-  and existing comments never anchor, since `.entry-content` was empty at
-  initial render).
+  `external-links.js` exposes `window.wireExternalLinks(root)`,
+  `footnotes.js` exposes `window.wireFootnotes(root)`, and `comments.js`
+  exposes `window.refreshCommentHighlights()`, all called by
+  `encrypted-post.js` after revealing content (otherwise links and
+  footnote hover previews aren't wired and existing comments never anchor,
+  since `.entry-content` was empty at initial render). The `wire*`
+  functions skip already-wired elements (a `data-*-wired` flag).
 - `feed.xml` forces `excerpt_only` for `post.encrypted` (empty `<content>`,
   only `<summary>` from `link_preview`). List pages needed no changes.
 - **Known caveat**: comments stay on by default for encrypted posts, so a
@@ -366,7 +368,7 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   threads; `encrypted-post.spec.js` covers the unlock flow (no plaintext in
   served HTML, wrong/correct password, kramdown output — headings, smart
   quotes, code, attribution, nested lists, footnotes — hidden HTML
-  comments, external links) plus
+  comments, external links, footnote hover previews) plus
   a regression case for `window.refreshCommentHighlights()`, against a
   throwaway fixture post (`tests/e2e/fixtures/setup-encrypted-fixture.js`
   renders it through the real kramdown pipeline and writes it into

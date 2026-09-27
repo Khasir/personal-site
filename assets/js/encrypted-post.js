@@ -65,6 +65,7 @@
           output.hidden = false;
           form.hidden = true;
           if (window.wireExternalLinks) window.wireExternalLinks(output);
+          if (window.wireFootnotes) window.wireFootnotes(output);
           if (window.refreshCommentHighlights) window.refreshCommentHighlights();
         })
         .catch(function () {

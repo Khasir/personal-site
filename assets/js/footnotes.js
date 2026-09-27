@@ -52,8 +52,13 @@
     if (tooltip) tooltip.hidden = true;
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll("a.footnote").forEach(function (link) {
+  // Wires up every footnote marker under `root`.
+  // Exposed on window so content inserted after load can be wired up too (eg. decrypted posts).
+  function wireFootnotes(root) {
+    (root || document).querySelectorAll("a.footnote").forEach(function (link) {
+      if (link.dataset.footnoteWired) return;
+      link.dataset.footnoteWired = "true";
+
       link.addEventListener("mouseenter", function (e) { show(link, e.clientX, e.clientY); });
       link.addEventListener("mousemove", function (e) { if (tooltip && !tooltip.hidden) position(e.clientX, e.clientY); });
       link.addEventListener("mouseleave", hide);
@@ -63,7 +68,10 @@
       });
       link.addEventListener("blur", hide);
     });
-  });
+  }
 
+  document.addEventListener("DOMContentLoaded", function () { wireFootnotes(document); });
   window.addEventListener("scroll", hide, { passive: true });
+
+  window.wireFootnotes = wireFootnotes;
 })();
