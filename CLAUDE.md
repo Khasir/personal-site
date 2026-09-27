@@ -164,18 +164,27 @@ server-side check, no resistance to a determined attacker).
   keeps public fields (`title`, `tags`, `link_preview`) as-is, leaves body
   empty. `_layouts/entry.html` renders *only* the password form for
   `page.encrypted` (no `{{ content }}`).
-- Real body never passes through kramdown/Liquid, so only a small hand-rolled
-  markdown subset is supported (paragraphs, bold, italic, links, and
-  bullet `- `/`* `/`+ ` / numbered `1.`/`1)` lists, nested by deeper
-  indent (tab = 4 spaces), `<ol start>` kept from the first number;
-  a non-item line continues the item above, even after a blank line if
-  indented; a numbered item not starting at 1 can't interrupt a
-  paragraph — `renderSubsetMarkdown()` in `assets/js/encrypted-post.js`,
-  a line-by-line parser). No
-  images/footnotes/includes in encrypted posts. HTML comments
-  (`<!-- ... -->`, may span paragraphs) are stripped before rendering, but
-  they're still inside the ciphertext, so anyone with the passphrase can
-  read them (devtools, or `decrypt-post`).
+- **Full markdown, pre-rendered at encrypt time**: Jekyll only ever sees
+  the ciphertext, so `encrypt-post` renders the body itself, via
+  `scripts/render-markdown.rb` (Jekyll's own markdown converter with
+  `_config.yml` loaded, so output matches normal posts — GFM, smart quotes,
+  footnotes, `{: .attribution}`, rouge), called from Node through
+  `scripts/lib/render-markdown.js` (`bundle exec`, needs the local Ruby
+  setup; ~6s since it loads Jekyll). The encrypted plaintext is JSON
+  `{ v: 2, markdown, html }` (`scripts/lib/encrypted-post-payload.js`): the
+  browser inserts `html`; `decrypt-post` writes back `markdown`, so the
+  source round-trips exactly. A non-JSON plaintext is read as a v1 body
+  (raw markdown, from the old hand-rolled renderer), so decrypt +
+  re-encrypt migrates it; the browser only accepts v2.
+- **Liquid is refused**: `{% ... %}`/`{{ ... }}` (e.g. `figure.html`) would
+  never be processed, so `encrypt-post` exits listing the offending lines
+  (`findLiquid()`); write `&#123;` for a literal brace. So no figures/
+  lightbox; images in `content/images/` would be public anyway.
+- HTML comments pass through kramdown as real comments — not displayed,
+  but still in the ciphertext (and the DOM), so anyone with the passphrase
+  can read them. Raw HTML is inserted unsanitised, same as normal posts:
+  only someone with the passphrase *and* commit access could inject any,
+  and `innerHTML` doesn't run `<script>`.
 - **Unlock UI**: `_layouts/entry.html` renders a password form plus a hidden
   `.entry-content` container carrying the base64 salt/iv/ciphertext as data
   attributes when `page.encrypted` is set. Password input is `type="text"`
@@ -348,17 +357,20 @@ Open the URL Wrangler prints (typically http://localhost:8788).
 - **Unit** (`tests/unit/`, Node's test runner) — validation/rate-limit/
   hashing in `functions/_lib/comments.js`, plus the encrypt/decrypt
   round-trip in `scripts/lib/encrypted-post-crypto.js` (via Node's
-  `crypto.webcrypto`). `npm run test:unit`.
+  `crypto.webcrypto`) and the payload format/Liquid detection in
+  `scripts/lib/encrypted-post-payload.js`. `npm run test:unit`.
 - **E2E** (`tests/e2e/`, Playwright + Chromium) — things that only break
   with a real browser's Range/CSS engine: nested `<mark>`s from overlapping
   comments, selections crossing block boundaries, popover dismissal.
   `other-pages-comments.spec.js` covers homepage/`/posts/`/`/notes/`
   threads; `encrypted-post.spec.js` covers the unlock flow (no plaintext in
-  served HTML, wrong/correct password, markdown subset, HTML-comment
-  stripping, bullet/numbered/nested lists, external links) plus
+  served HTML, wrong/correct password, kramdown output — headings, smart
+  quotes, code, attribution, nested lists, footnotes — hidden HTML
+  comments, external links) plus
   a regression case for `window.refreshCommentHighlights()`, against a
   throwaway fixture post (`tests/e2e/fixtures/setup-encrypted-fixture.js`
-  writes it into `content/_posts/` before build; `global-teardown.js`
+  renders it through the real kramdown pipeline and writes it into
+  `content/_posts/` before build; `global-teardown.js`
   deletes it — never committed, since `content` is public). `npm run
   test:e2e` builds the site, wipes/re-migrates a dedicated local D1
   (`.wrangler-test/`), and serves on port 8799. Each test sets its own fake

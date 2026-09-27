@@ -5,10 +5,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { encrypt } from "../../../scripts/lib/encrypted-post-crypto.js";
-import { FIXTURE_PASSWORD, FIXTURE_PLAINTEXT, FIXTURE_PATH } from "./encrypted-fixture-constants.js";
+import { buildPayload } from "../../../scripts/lib/encrypted-post-payload.js";
+import { renderMarkdown } from "../../../scripts/lib/render-markdown.js";
+import { FIXTURE_PASSWORD, FIXTURE_MARKDOWN, FIXTURE_PATH } from "./encrypted-fixture-constants.js";
 
 async function main() {
-  const { salt, iv, ciphertext } = await encrypt(FIXTURE_PASSWORD, FIXTURE_PLAINTEXT);
+  const html = renderMarkdown(FIXTURE_MARKDOWN);
+  const { salt, iv, ciphertext } = await encrypt(FIXTURE_PASSWORD, buildPayload(FIXTURE_MARKDOWN, html));
   const contents = [
     "---",
     'title: "E2E Encrypted Fixture"',

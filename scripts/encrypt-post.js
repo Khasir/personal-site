@@ -1,6 +1,5 @@
-// Local-only authoring tool: encrypts a plaintext post/note body and writes
-// the result as a stub file (public frontmatter, empty body) ready to
-// commit into the content submodule.
+// Local-only tool: Take a plaintext post, and output encrypted markdown and HTML.
+// Writes the result into a stub file ready to commit into the content submodule.
 //
 // The real body never touches that repo -- run this against a source file
 // that lives outside `content/`, and delete/move the source once you're done.
@@ -9,6 +8,8 @@
 import fs from "node:fs";
 import { parseArgs } from "node:util";
 import { encrypt } from "./lib/encrypted-post-crypto.js";
+import { buildPayload, findLiquid } from "./lib/encrypted-post-payload.js";
+import { renderMarkdown } from "./lib/render-markdown.js";
 
 function splitFrontmatter(raw) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
@@ -42,8 +43,20 @@ async function main() {
 
   const raw = fs.readFileSync(sourcePath, "utf8");
   const { frontmatterText, body } = splitFrontmatter(raw);
+  const markdown = body.trim();
 
-  const { salt, iv, ciphertext } = await encrypt(password, body.trim());
+  const liquid = findLiquid(markdown);
+  if (liquid.length) {
+    console.error(
+      "Refusing to encrypt: Liquid ({% ... %} / {{ ... }}) isn't processed in encrypted posts. Found on:"
+    );
+    liquid.forEach(({ line, text }) => console.error(`  body line ${line}: ${text.trim()}`));
+    console.error("For literal braces, write &#123; instead of {.");
+    process.exit(1);
+  }
+
+  const html = renderMarkdown(markdown);
+  const { salt, iv, ciphertext } = await encrypt(password, buildPayload(markdown, html));
 
   const output =
     "---\n" +

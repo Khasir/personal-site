@@ -9,6 +9,7 @@ import fs from "node:fs";
 import { parseArgs } from "node:util";
 import { load } from "js-yaml";
 import { decrypt } from "./lib/encrypted-post-crypto.js";
+import { parsePayload } from "./lib/encrypted-post-payload.js";
 
 function splitFrontmatter(raw) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
@@ -53,13 +54,15 @@ async function main() {
     process.exit(1);
   }
 
-  let plaintext;
+  let markdown;
   try {
-    plaintext = await decrypt(password, {
+    const plaintext = await decrypt(password, {
       salt: data.encrypted_salt,
       iv: data.encrypted_iv,
       ciphertext: data.encrypted_data,
     });
+    // Only the markdown is written back. The HTML is for browsers.
+    markdown = parsePayload(plaintext).markdown;
   } catch {
     console.error("Decryption failed. Check the password (ENCRYPTED_POST_PASSWORD or --password) is correct.");
     process.exit(1);
@@ -74,7 +77,7 @@ async function main() {
     .replace(/^encrypted_data:.*$\n?/m, "")
     .replace(/\n+$/, "");
 
-  fs.writeFileSync(destPath, `---\n${cleanedFrontmatter}\n---\n${plaintext}\n`);
+  fs.writeFileSync(destPath, `---\n${cleanedFrontmatter}\n---\n${markdown}\n`);
 
   console.log(`Decrypted ${sourcePath} to ${destPath}\n`);
   console.log(
