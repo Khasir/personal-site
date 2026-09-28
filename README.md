@@ -26,6 +26,7 @@ Source code (+ related stuff) for Khasir's personal website. The following READM
 - Auto-generated pages for tags
 - Password-protected posts (but no images or footnotes in these posts)
 - Toggleable accessibility mode
+- Site works on mobile
 - Guestbook
 - RSS feed
 
