@@ -104,6 +104,11 @@ Within a post/note body:
 - **External links** auto-open in a new tab with an arrow
   (`assets/js/external-links.js`, by hostname).
 - **Quote attribution**: `> Quote.\n>\n> — Someone\n> {: .attribution}`
+- **Quote width**: blockquotes are centred by default (`margin: 1.5rem
+  auto`), which only shows once one is narrowed: put
+  `{: style="max-width: 30em"}` on the line *above* the quote (below it
+  risks being read as part of the last paragraph). Use `max-width` in `em`
+  so it still shrinks on phones and scales in accessibility mode.
 - **Expansion sections**: native `<details>`/`<summary>`, needs
   `markdown="1"` for markdown inside.
 
