@@ -8,7 +8,7 @@
 
   // Higher weight = more likely to show.
   var HINTS = [
-    { text: "", weight: 13 },
+    { text: "", weight: 43 },
     { text: "i love you, still", weight: 1 },
     { text: "Sometimes our selections may surprise us.", weight: 1 },
     { text: "Click and drag. Click and draaaaaaag.", weight: 1 },
