@@ -10,9 +10,9 @@ layout: default
     {% assign entries = site.notes | sort: "post_date" | reverse | where_exp: "n", "n.hidden != true" %}
     {% for entry in entries %}
     <li>
-      <a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
+      {% if entry.encrypted %}{% include lock-icon.html %} {% endif %}<a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
       <time datetime="{{ entry.post_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ entry.post_date | date: "%b %-d, %Y" }}</time>
-      {% if entry.link_preview %}<p class="entry-summary">{{ entry.link_preview }}</p>{% endif %}
+      {% if entry.link_preview and entry.encrypted != true %}<p class="entry-summary">{{ entry.link_preview }}</p>{% endif %}
     </li>
     {% endfor %}
   </ul>

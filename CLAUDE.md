@@ -225,7 +225,12 @@ server-side check, no resistance to a determined attacker).
   since `.entry-content` was empty at initial render). The `wire*`
   functions skip already-wired elements (a `data-*-wired` flag).
 - `feed.xml` forces `excerpt_only` for `post.encrypted` (empty `<content>`,
-  only `<summary>` from `link_preview`). List pages needed no changes.
+  only `<summary>` from `link_preview`). List views (homepage recent posts,
+  `/posts/`, `/notes/`, tag pages) hide `link_preview` for encrypted
+  entries and show a lock (`_includes/lock-icon.html`, inline SVG,
+  `currentColor`, `role="img"` + `aria-label="password-protected"`) before
+  the title link, outside the `<a>` so it isn't lowercased or underlined.
+  `link_preview` still feeds `og:description` and the feed summary.
 - **Known caveat**: comments stay on by default for encrypted posts, so a
   reader could quote decrypted text into the public `comments` table.
   Not yet addressed; likely fix is disabling comments by default for

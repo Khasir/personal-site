@@ -160,6 +160,9 @@ time, .comment-time { text-transform: lowercase; }
 .entry-summary { color: var(--color-muted); margin: 0.35rem 0 0; font-style: italic; font-size: 1.25rem; }
 .see-all { display: inline-block; margin: 0.75rem 0 2rem; }
 .entry-list .entry-kind { display: inline; margin-right: 0.5rem; }
+/* Lock beside an encrypted post's title (lock-icon.html) */
+.entry-lock { color: var(--color-text); }
+.entry-lock svg { width: 0.85em; height: 0.85em; vertical-align: -0.075em; }
 
 /* Entry (post/note) */
 
