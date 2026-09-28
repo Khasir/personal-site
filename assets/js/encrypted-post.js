@@ -64,6 +64,10 @@
           output.innerHTML = payloadHtml(text);
           output.hidden = false;
           form.hidden = true;
+          // Hidden only visually until unlock
+          document.querySelectorAll("[data-encrypted-subtitle]").forEach(function (el) {
+            el.hidden = false;
+          });
           if (window.wireExternalLinks) window.wireExternalLinks(output);
           if (window.wireFootnotes) window.wireFootnotes(output);
           if (window.refreshCommentHighlights) window.refreshCommentHighlights();

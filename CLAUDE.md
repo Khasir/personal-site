@@ -216,6 +216,11 @@ server-side check, no resistance to a determined attacker).
   decryption on submit; GCM's auth tag makes a wrong password fail outright.
   No network request either way, so no rate limit applies — passphrase
   strength and PBKDF2 cost are the real defenses.
+- **Subtitle hidden until unlock — visually only**: `.entry-subtitle` gets
+  `hidden` + `data-encrypted-subtitle` for `page.encrypted`, and
+  `encrypted-post.js` un-hides it on successful decrypt. It stays plaintext
+  in the frontmatter (public `content` repo) and page source, by choice;
+  moving it into the encrypted payload was considered and declined.
 - **Decrypted content must opt back into load-time-only behavior**:
   `external-links.js` exposes `window.wireExternalLinks(root)`,
   `footnotes.js` exposes `window.wireFootnotes(root)`, and `comments.js`
@@ -391,7 +396,7 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   comments, selections crossing block boundaries, popover dismissal.
   `other-pages-comments.spec.js` covers homepage/`/posts/`/`/notes/`
   threads; `encrypted-post.spec.js` covers the unlock flow (no plaintext in
-  served HTML, wrong/correct password, kramdown output — headings, smart
+  served HTML, wrong/correct password, subtitle hidden until unlock, kramdown output — headings, smart
   quotes, code, attribution, nested lists, footnotes — hidden HTML
   comments, external links, footnote hover previews) plus
   a regression case for `window.refreshCommentHighlights()`, against a

@@ -15,6 +15,7 @@ async function main() {
   const contents = [
     "---",
     'title: "E2E Encrypted Fixture"',
+    'subtitle: "the fixture subtitle"',
     "post_date: 2024-01-01",
     "hidden: true",
     'link_preview: "a throwaway post used by the e2e suite."',

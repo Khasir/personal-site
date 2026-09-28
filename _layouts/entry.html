@@ -7,7 +7,7 @@ layout: default
     <div class="entry-heading">
       <p class="entry-kind">{% if page.collection == 'notes' %}note{% else %}post{% endif %}</p>
       <h1>{{ page.title }}</h1>
-      {% if page.subtitle %}<p class="entry-subtitle">{{ page.subtitle }}</p>{% endif %}
+      {% if page.subtitle %}<p class="entry-subtitle"{% if page.encrypted %} data-encrypted-subtitle hidden{% endif %}>{{ page.subtitle }}</p>{% endif %}
     </div>
     <p class="entry-meta">
       <time datetime="{{ post_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ post_date | date: "%b %-d, %Y" }}</time>

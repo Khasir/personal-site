@@ -28,6 +28,16 @@ test.describe("encrypted post", () => {
     await page.locator("[data-encrypted-form] button[type=submit]").click();
     await expect(page.locator("[data-encrypted-error]")).toBeVisible();
     await expect(page.locator("[data-encrypted-content]")).toBeHidden();
+    await expect(page.locator(".entry-subtitle")).toBeHidden();
+  });
+
+  test("the subtitle is hidden until unlocked", async ({ page }) => {
+    await page.goto(FIXTURE_URL);
+    const subtitle = page.locator(".entry-subtitle");
+    await expect(subtitle).toBeHidden();
+    await unlock(page);
+    await expect(subtitle).toBeVisible();
+    await expect(subtitle).toHaveText("the fixture subtitle");
   });
 
   test("correct password reveals the decrypted content", async ({ page }) => {
