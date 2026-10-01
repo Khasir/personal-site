@@ -1,6 +1,6 @@
 ---
 layout: post-list
-title: posts
+title: Posts
 permalink: /posts/
 comments: true
 ---

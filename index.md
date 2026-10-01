@@ -1,6 +1,6 @@
 ---
 layout: home
-title: home
+title: Home
 permalink: /
 comments: true
 modified_date: 2026-09-13

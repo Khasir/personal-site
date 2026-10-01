@@ -46,6 +46,8 @@ html[data-a11y="on"] {
 html[data-a11y="on"] body { line-height: 1.75; }
 
 /* Titles and dates show as written instead of forced lowercase. */
+html[data-a11y="on"] .site-title,
+html[data-a11y="on"] h1,
 html[data-a11y="on"] time,
 html[data-a11y="on"] .comment-time,
 html[data-a11y="on"] .entry-list a,

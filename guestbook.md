@@ -1,6 +1,6 @@
 ---
 layout: guestbook
-title: guestbook
+title: Guestbook
 permalink: /guestbook/
 comments: true
 ---

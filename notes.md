@@ -1,6 +1,6 @@
 ---
 layout: notes-list
-title: rough notes
+title: Notes
 permalink: /notes/
 comments: true
 ---
