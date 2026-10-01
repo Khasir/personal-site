@@ -14,8 +14,8 @@ layout: default
     {% assign post_date = post.post_date | default: post.date %}
     <li>
       {% if post.encrypted %}{% include lock-icon.html %} {% endif %}<a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      <time datetime="{{ post_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ post_date | date: "%b %-d, %Y" }}</time>
       {% if post.link_preview and post.encrypted != true %}<p class="entry-summary">{{ post.link_preview }}</p>{% endif %}
+      <time datetime="{{ post_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ post_date | date: "%b %-d, %Y" }}</time>
     </li>
     {% endfor %}
   </ul>

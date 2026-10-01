@@ -155,9 +155,14 @@ time, .comment-time { text-transform: lowercase; }
 
 .entry-list { list-style: none; padding: 0; }
 .entry-list li { padding: 1rem 0; border-bottom: 1px solid var(--color-border); }
-.entry-list a { font-weight: 600; font-size: 1.25rem; text-transform: lowercase; }
-.entry-list time { display: block; color: var(--color-muted); font-size: 1.15rem; font-style: italic; margin-top: 0.15rem; }
-.entry-summary { color: var(--color-muted); margin: 0.35rem 0 0; font-style: italic; font-size: 1.25rem; }
+.entry-list a { font-weight: 700; font-size: 1.6rem; text-transform: lowercase; }
+.entry-list time { display: block; color: var(--color-muted); margin-top: 0.15rem; }
+.entry-summary {
+  color: var(--color-text);
+  margin: 0.15rem 0 0.45rem 0;
+  font-style: italic;
+  font-size: 1.3rem;
+}
 .see-all { display: inline-block; margin: 0.75rem 0 2rem; }
 .entry-list .entry-kind { display: inline; margin-right: 0.5rem; }
 /* Lock beside an encrypted post's title (lock-icon.html) */
@@ -177,15 +182,12 @@ time, .comment-time { text-transform: lowercase; }
 .entry-heading h1 { margin: 0; font-size: 2.1rem; text-transform: lowercase; }
 .entry-subtitle {
   font-style: italic;
-  font-size: 1.15rem;
-  color: var(--color-muted);
+  font-size: 1.5rem;
   margin: 0.4rem 0 0;
 }
 .entry-meta {
   color: var(--color-muted);
-  font-size: 1.0rem;
-  font-style: italic;
-  margin-top: 0.9rem;
+  margin-top: 0.4rem;
 }
 .entry-meta time { margin-right: 0.75rem; }
 .entry-tags .tag {
@@ -194,8 +196,6 @@ time, .comment-time { text-transform: lowercase; }
   padding: 0.1rem 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: 999px;
-  font-size: 0.9rem;
-  font-style: normal;
   color: inherit;
 }
 .entry-tags .tag:hover, .entry-tags .tag:focus { text-decoration: none; border-color: var(--color-button-preferred); }
@@ -235,7 +235,7 @@ blockquote p.attribution { text-align: right; }
 .fig figcaption {
   font-size: 1.15rem;
   /* font-style: italic; */
-  color: var(--color-muted);
+  color: var(--color-text);
   margin-top: 0.4rem;
 }
 
@@ -468,7 +468,7 @@ mark.comment-highlight.is-active {
   padding-left: 0.75rem;
   border-left: 3px solid var(--color-blockquote-border);
   font-size: 1.15rem;
-  color: var(--color-muted);
+  color: var(--color-text);
 }
 
 .comment-thread-popover ul { list-style: none; margin: 0; padding: 0; }
@@ -483,7 +483,7 @@ button[data-comment-thread-close] {
   margin-left: 0.5rem;
 }
 .comment-author { font-weight: 600; font-size: 1.15rem; }
-.comment-time { color: var(--color-muted); font-style: italic; font-size: 1.0rem; margin-left: 0.4rem; }
+.comment-time { color: var(--color-muted); font-size: 1.15rem; margin-left: 0.4rem; }
 .comment-body { margin: 0.15rem 0 0; font-size: 1.15rem; }
 
 .comments-hint { color: var(--color-muted); font-style: italic; font-size: 1.0rem; }
