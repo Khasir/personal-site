@@ -76,6 +76,19 @@ html[data-a11y="on"] mark.comment-highlight {
   border-bottom: 2px solid var(--color-text);
 }
 
+/* Reactions: "+☺" is always visible and sits in the reactions row instead 
+   of floating over the body. */
+html[data-a11y="on"] .reaction-add {
+  position: static;
+  margin-top: 0.4rem;
+  opacity: 1;
+}
+html[data-a11y="on"] .reaction-pill[aria-pressed="true"],
+html[data-a11y="on"] .reaction-option[aria-pressed="true"] {
+  border: 2px solid var(--color-text);
+  font-weight: 600;
+}
+
 /* Error/success are black like everything else, so give errors weight. */
 html[data-a11y="on"] .form-status[data-state] { color: var(--color-text); }
 html[data-a11y="on"] .form-status[data-state="error"] { font-weight: 600; }

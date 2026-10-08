@@ -6,6 +6,7 @@ import {
   isRateLimited,
   getClientIp
 } from "../_lib/comments.js";
+import { groupReactions } from "../_lib/reactions.js";
 
 // GET /api/comments?slug=<post-slug> -- list approved comments for a post.
 export async function onRequestGet({ request, env }) {
@@ -13,16 +14,30 @@ export async function onRequestGet({ request, env }) {
   const slug = url.searchParams.get("slug");
   if (!slug) return errorJson("Missing slug.", 400);
 
-  const { results } = await env.personal_site_comments.prepare(
-    `SELECT id, author_name, body, quote, prefix, suffix, created_at
-     FROM comments
-     WHERE kind = 'comment' AND post_slug = ? AND approved = 1
-     ORDER BY created_at ASC`
-  )
-    .bind(slug)
-    .all();
+  const db = env.personal_site_comments;
+  const [{ results }, { results: reactionRows }] = await Promise.all([
+    db
+      .prepare(
+        `SELECT id, author_name, body, quote, prefix, suffix, created_at
+         FROM comments
+         WHERE kind = 'comment' AND post_slug = ? AND approved = 1
+         ORDER BY created_at ASC`
+      )
+      .bind(slug)
+      .all(),
+    db
+      .prepare(
+        `SELECT r.comment_id, r.emoji, r.count
+         FROM comment_reactions r
+         JOIN comments c ON c.id = r.comment_id
+         WHERE c.kind = 'comment' AND c.post_slug = ? AND c.approved = 1 AND r.count > 0`
+      )
+      .bind(slug)
+      .all()
+  ]);
 
-  return json(results ?? []);
+  const reactions = groupReactions(reactionRows ?? []);
+  return json((results ?? []).map((c) => ({ ...c, reactions: reactions[c.id] ?? {} })));
 }
 
 // POST /api/comments -- create a new comment anchored to a text selection.
@@ -76,7 +91,8 @@ export async function onRequestPost({ request, env }) {
       quote: parsed.value.quote,
       prefix: parsed.value.prefix,
       suffix: parsed.value.suffix,
-      created_at: createdAt
+      created_at: createdAt,
+      reactions: {}
     },
     201
   );

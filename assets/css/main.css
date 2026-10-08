@@ -490,6 +490,70 @@ button[data-comment-thread-close] {
 .comment-time { color: var(--color-muted); font-size: 1.15rem; margin-left: 0.4rem; }
 .comment-body { margin: 0.15rem 0 0; font-size: 1.15rem; }
 
+/* Emoji reactions (inside the thread popover) */
+
+.comment-reactions {
+  position: relative; /* "+☺" is placed against this container's top edge */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.3rem;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.reaction-pill,
+.reaction-add,
+.reaction-option {
+  padding: 0.05rem 0.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+}
+.reaction-pill[aria-pressed="true"],
+.reaction-option[aria-pressed="true"] {
+  background: var(--color-highlight);
+  border-color: var(--color-border);
+}
+.reaction-pill:hover,
+.reaction-add:hover,
+.reaction-option:hover { background: var(--color-highlight); }
+.reaction-option { padding: 0.05rem 0.4rem; font-size: 1.15rem; }
+/* Margins live on the pills/picker, not the container, so a comment with no
+   reactions and a closed picker takes up no extra space. */
+.reaction-pill { margin-top: 0.4rem; }
+.reaction-picker {
+  display: flex;
+  flex-wrap: wrap; /* seven options can overflow a phone-width popover, esp. in accessibility mode */
+  flex-basis: 100%;
+  gap: 0.15rem;
+  margin-top: 0.4rem;
+}
+.reaction-picker[hidden] { display: none; }
+
+/* The "+☺" button floats over the bottom-right of the comment body.
+   Only displays when the comment is hovered or focused.
+   But on mobile or in accessibility mode, it's always visible. */
+.reaction-add {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  background: var(--color-card-bg);
+  opacity: 0;
+}
+.reaction-add:hover { background: var(--color-highlight); }
+.comment-thread-popover li:hover .reaction-add,
+.comment-thread-popover li:focus-within .reaction-add,
+.comment-reactions.is-picking .reaction-add { opacity: 1; }
+@media (hover: none) {
+  .reaction-add {
+    position: static;
+    margin-top: 0.4rem;
+    opacity: 1;
+  }
+}
+
 .comments-hint { color: var(--color-muted); font-style: italic; font-size: 1.0rem; }
 
 /* Forms (comments + guestbook) */

@@ -349,14 +349,223 @@
       var body = document.createElement("p");
       body.className = "comment-body";
       body.textContent = c.body;
+      var reactionsEl = document.createElement("div");
+      reactionsEl.className = "comment-reactions";
+      reactionsEl.dataset.reactionsFor = c.id;
+      renderReactions(reactionsEl, c);
       li.appendChild(author);
       li.appendChild(time);
       li.appendChild(body);
+      li.appendChild(reactionsEl);
       threadList.appendChild(li);
     });
     threadPopover.hidden = false;
     positionAt(threadPopover, mark.getBoundingClientRect());
   }
+
+  // --- emoji reactions ----------------------------------------------------
+  //
+  // Counts live on the server, and which ones this browser has added lives in localStorage,
+  // so it can show them as pressed and take them back.
+  // There's no account to dedupe against, so this is best-effort.
+  // Keep REACTIONS in sync with functions/_lib/reactions.js.
+
+  var REACTIONS = [
+    { emoji: "👍", label: "thumbs up" },
+    { emoji: "💖", label: "heart" },
+    { emoji: "😆", label: "laughing" },
+    { emoji: "😢", label: "sad" },
+    { emoji: "👀", label: "eyes" },
+    { emoji: "🎉", label: "party popper" },
+    { emoji: "🎨", label: "artist palette" }
+  ];
+  var MAX_DISPLAY_COUNT = 99;
+  var REACTED_STORAGE_KEY = "comment-reactions";
+  var reactionsInFlight = Object.create(null); // "<commentId>|<emoji>" while a request is out
+
+  function loadReacted() {
+    try {
+      var stored = JSON.parse(localStorage.getItem(REACTED_STORAGE_KEY));
+      if (stored && typeof stored === "object" && !Array.isArray(stored)) return stored;
+    } catch (e) { /* unavailable or corrupt: start fresh */ }
+    return {};
+  }
+
+  var reacted = loadReacted(); // comment id -> [emoji, ...] this browser has added
+
+  function saveReacted() {
+    try { localStorage.setItem(REACTED_STORAGE_KEY, JSON.stringify(reacted)); } catch (e) { /* in-memory only */ }
+  }
+
+  function hasReacted(commentId, emoji) {
+    return Array.isArray(reacted[commentId]) && reacted[commentId].indexOf(emoji) !== -1;
+  }
+
+  function setReacted(commentId, emoji, on) {
+    var list = (Array.isArray(reacted[commentId]) ? reacted[commentId] : []).filter(function (e) { return e !== emoji; });
+    if (on) list.push(emoji);
+    if (list.length) reacted[commentId] = list;
+    else delete reacted[commentId];
+    saveReacted();
+  }
+
+  function formatReactionCount(n) {
+    return n > MAX_DISPLAY_COUNT ? MAX_DISPLAY_COUNT + "+" : String(n);
+  }
+
+  function reactionButton(className, emoji, text, ariaLabel, pressed) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = className;
+    btn.dataset.emoji = emoji;
+    btn.textContent = text;
+    btn.setAttribute("aria-label", ariaLabel);
+    btn.setAttribute("aria-pressed", pressed ? "true" : "false");
+    return btn;
+  }
+
+  // (Re)builds the pills, the "+☺" button and the picker for one comment.
+  // Preserves whether the picker was open, since this also runs after every
+  // optimistic update.
+  function renderReactions(el, c) {
+    var pickerOpen = el.classList.contains("is-picking");
+    var counts = c.reactions || {};
+    el.textContent = "";
+
+    // First in DOM order so that, where it sits in the flow (accessibility
+    // mode), keyboard order matches its visual place before the pills.
+    var add = document.createElement("button");
+    add.type = "button";
+    add.className = "reaction-add";
+    add.textContent = "+😀";
+    add.setAttribute("aria-label", "Add a reaction");
+    add.setAttribute("aria-haspopup", "true");
+    add.setAttribute("aria-expanded", pickerOpen ? "true" : "false");
+    el.appendChild(add);
+
+    REACTIONS.forEach(function (r) {
+      var n = counts[r.emoji];
+      if (!(n > 0)) return;
+      var mine = hasReacted(c.id, r.emoji);
+      el.appendChild(reactionButton(
+        "reaction-pill",
+        r.emoji,
+        r.emoji + " " + formatReactionCount(n),
+        r.label + ", " + n + (n === 1 ? " reaction" : " reactions") + (mine ? ", including yours" : ""),
+        mine
+      ));
+    });
+
+    var picker = document.createElement("span");
+    picker.className = "reaction-picker";
+    picker.setAttribute("role", "group");
+    picker.setAttribute("aria-label", "Choose a reaction");
+    picker.hidden = !pickerOpen;
+    REACTIONS.forEach(function (r) {
+      picker.appendChild(reactionButton("reaction-option", r.emoji, r.emoji, r.label, hasReacted(c.id, r.emoji)));
+    });
+    el.appendChild(picker);
+  }
+
+  function setPickerOpen(el, open) {
+    el.classList.toggle("is-picking", open);
+    el.querySelector(".reaction-picker").hidden = !open;
+    el.querySelector(".reaction-add").setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  function refreshReactions(commentId) {
+    var el = threadList.querySelector('[data-reactions-for="' + commentId + '"]');
+    if (!el || !commentsById[commentId]) return;
+
+    // Rebuilding drops keyboard focus, so remember what had it and re-find it.
+    var active = el.contains(document.activeElement) ? document.activeElement : null;
+    var selector = active && (active.dataset.emoji
+      ? "." + active.className.split(" ")[0] + '[data-emoji="' + active.dataset.emoji + '"]'
+      : ".reaction-add");
+    renderReactions(el, commentsById[commentId]);
+    if (selector) (el.querySelector(selector) || el.querySelector(".reaction-add")).focus();
+  }
+
+  function adjustCount(c, emoji, delta) {
+    c.reactions = c.reactions || {};
+    c.reactions[emoji] = Math.max((c.reactions[emoji] || 0) + delta, 0);
+    if (!c.reactions[emoji]) delete c.reactions[emoji];
+  }
+
+  // Adds the reaction if this browser hasn't yet, otherwise takes it back.
+  // Updates optimistically, then trusts the server's count (or rolls back).
+  function toggleReaction(c, emoji) {
+    var key = c.id + "|" + emoji;
+    if (reactionsInFlight[key]) return;
+    reactionsInFlight[key] = true;
+
+    var adding = !hasReacted(c.id, emoji);
+    setReacted(c.id, emoji, adding);
+    adjustCount(c, emoji, adding ? 1 : -1);
+    refreshReactions(c.id);
+
+    fetch(apiBase + "/api/reactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ comment_id: c.id, emoji: emoji, action: adding ? "add" : "remove" })
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error("request failed");
+        return res.json();
+      })
+      .then(function (result) {
+        if (typeof result.count === "number") {
+          c.reactions = c.reactions || {};
+          if (result.count > 0) c.reactions[emoji] = result.count;
+          else delete c.reactions[emoji];
+        }
+      })
+      .catch(function () {
+        setReacted(c.id, emoji, !adding);
+        adjustCount(c, emoji, adding ? -1 : 1);
+      })
+      .then(function () {
+        delete reactionsInFlight[key];
+        refreshReactions(c.id);
+      });
+  }
+
+  threadList.addEventListener("click", function (e) {
+    var control = e.target.closest(".reaction-pill, .reaction-option, .reaction-add");
+    if (!control) return;
+    // Re-rendering detaches the clicked button, which would make the
+    // document-level click handler below think the click was outside the
+    // thread popover and close it.
+    e.stopPropagation();
+
+    var el = control.closest(".comment-reactions");
+    var c = commentsById[el.dataset.reactionsFor];
+    if (!c) return;
+
+    if (control.classList.contains("reaction-add")) {
+      setPickerOpen(el, !el.classList.contains("is-picking"));
+      return;
+    }
+
+    var emoji = control.dataset.emoji;
+    var fromPicker = control.classList.contains("reaction-option");
+    if (fromPicker) setPickerOpen(el, false);
+    toggleReaction(c, emoji);
+
+    // The picker just closed, so its button is hidden; focus "+☺" instead
+    // (refreshReactions keeps focus on a clicked pill, or falls back to it
+    // when that pill disappeared).
+    if (fromPicker) el.querySelector(".reaction-add").focus();
+  });
+
+  threadList.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    var el = e.target.closest(".comment-reactions.is-picking");
+    if (!el) return;
+    e.stopPropagation();
+    setPickerOpen(el, false);
+    el.querySelector(".reaction-add").focus();
+  });
 
   function formatTime(iso) {
     var d = new Date(iso);

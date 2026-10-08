@@ -259,6 +259,50 @@ Both backed by the same `comments` D1 table (`functions/`), split by a
   Hypothes.is-style), falling back to bare quote search. No match = dropped
   from inline view (stays in DB).
 
+### Emoji reactions
+
+Comments (not guestbook entries) can be reacted to with a fixed set: 👍 💖
+😆 😢 👀 🎉 🎨 (`REACTION_EMOJIS` in `functions/_lib/reactions.js`, duplicated as
+`REACTIONS` in `assets/js/comments.js` — keep in sync, emoji must match
+exactly). Shown in the thread popover, under each comment; encrypted posts
+get them too.
+
+- **Plain counter, no dedupe**: `comment_reactions (comment_id, emoji, count)`
+  (`migrations/0004_comment_reactions.sql`, FK on `comments` with `ON DELETE
+  CASCADE`, `count >= 0`). Each browser remembers what *it* added in
+  `localStorage["comment-reactions"]` (`{ commentId: [emoji, ...] }`, try/catch
+  wrapped; in-memory only if storage is blocked), which is what makes a pill
+  show as pressed and lets a second click take it back. Deliberately
+  best-effort, chosen over per-IP rows: `curl` can inflate or decrement
+  counts, and there's no reaction rate limit. `remove` clamps at 0.
+- **API**: `POST /api/reactions` `{ comment_id, emoji, action: "add"|"remove" }`
+  → `{ comment_id, emoji, count }`; 400 for bad input, 404 for an unknown
+  comment or a guestbook entry. `GET /api/comments` includes
+  `reactions: { "👍": 3, ... }` per comment (fixed emoji order, zeros omitted).
+  The notifier digest ignores reactions.
+- **UI** (`renderReactions()` in `comments.js`): a pill per emoji with a
+  count, plus a `+☺` button that opens an inline picker. `+☺` is absolutely positioned at
+  the bottom-right of the comment body (`bottom: 100%` against the
+  `position: relative` `.comment-reactions`, whose top edge is the body's
+  bottom, so it stays put when pills or the picker appear; a comment with no
+  reactions has no blank row), `opacity: 0` until the `<li>` is hovered or has focus (still
+  tabbable, nothing shifts), always visible on `(hover: none)` and in
+  accessibility mode (both of which move it into the row; see below). Opening the picker adds a full-width row below the
+  comment (and its pills), growing the `<li>`. Updates are optimistic, replaced
+  by the server's count, and rolled back on failure; in-flight toggles for the
+  same comment+emoji are ignored. Counts ≥ 100 display as `99+` (display
+  only; `aria-label` keeps the real number). Clicks on reaction controls
+  `stopPropagation()` because re-rendering detaches the target, which the
+  document-level handler would otherwise read as an outside click and close
+  the thread. Escape closes the picker only.
+- Touch devices (`(hover: none)`) and accessibility mode: `+☺` is
+  `position: static` in the reactions row, before any pills (it's first in DOM
+  order, so tab order matches), because the always-visible floating version
+  would constantly cover comment text; this reserves a row under every
+  comment. (Keyed on `hover`, not viewport width: a narrow desktop window
+  still has hover.) Pressed state adds a heavier
+  border + bold (not colour alone).
+
 ### Comment notification digest
 
 A separate Cloudflare Worker (`workers/comment-notifier/`, since Pages
@@ -387,7 +431,8 @@ Open the URL Wrangler prints (typically http://localhost:8788).
 `npm test` runs both layers:
 
 - **Unit** (`tests/unit/`, Node's test runner) — validation/rate-limit/
-  hashing in `functions/_lib/comments.js`, plus the encrypt/decrypt
+  hashing in `functions/_lib/comments.js`, request validation/grouping in
+  `functions/_lib/reactions.js`, plus the encrypt/decrypt
   round-trip in `scripts/lib/encrypted-post-crypto.js` (via Node's
   `crypto.webcrypto`) and the payload format/Liquid detection in
   `scripts/lib/encrypted-post-payload.js`. `npm run test:unit`.
@@ -395,7 +440,11 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   with a real browser's Range/CSS engine: nested `<mark>`s from overlapping
   comments, selections crossing block boundaries, popover dismissal.
   `other-pages-comments.spec.js` covers homepage/`/posts/`/`/notes/`
-  threads; `encrypted-post.spec.js` covers the unlock flow (no plaintext in
+  threads; `reactions.spec.js` covers the reaction picker/pills (hover and
+  keyboard reveal, add/remove, persistence, others' counts, blocked
+  `localStorage`, rollback on failure, `99+` via a mocked
+  `/api/comments` response) and the `/api/reactions` endpoint (counter
+  clamp, validation, 404 for guestbook entries); `encrypted-post.spec.js` covers the unlock flow (no plaintext in
   served HTML, wrong/correct password, subtitle hidden until unlock, kramdown output — headings, smart
   quotes, code, attribution, nested lists, footnotes — hidden HTML
   comments, external links, footnote hover previews) plus
