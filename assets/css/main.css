@@ -421,6 +421,21 @@ sup.footnote-ref, sup[id^="fnref"] a {
 .hover-tooltip p { margin: 0; }
 .footnote-tooltip .reversefootnote { display: none; }
 
+/* Internal-link previews (assets/js/page-previews.js) */
+.page-preview-tooltip { width: 20rem; }
+.page-preview-title { font-weight: 700; font-size: 1.2rem; text-transform: lowercase; }
+.page-preview-tooltip .entry-lock { color: inherit; } /* dark tooltip, not the page's black */
+.page-preview-subtitle { font-style: italic; margin-top: 0.15rem; }
+/* One line, cut off and faded rather than wrapped. Less than a full line shows. */
+.page-preview-excerpt {
+  margin-top: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  color: #d8cfbd;
+  -webkit-mask-image: linear-gradient(to right, #000 75%, transparent 100%);
+  mask-image: linear-gradient(to right, #000 75%, transparent 100%);
+}
+
 /* Comments */
 
 mark.comment-highlight {

@@ -35,6 +35,56 @@ test("hovering a footnote marker shows a tooltip with the note's text", async ({
   await expect(tooltip).toContainText("kramdown handles the numbering");
 });
 
+test.describe("internal link previews", () => {
+  // Injects links into the homepage's intro copy (so the test doesn't depend
+  // on what any post links to) and wires them the way encrypted-post.js does.
+  async function addLinks(page, hrefs) {
+    await page.goto("/");
+    await page.evaluate((list) => {
+      const container = document.querySelector(".entry-content");
+      list.forEach((href, i) => {
+        const a = document.createElement("a");
+        a.href = href;
+        a.id = "preview-link-" + i;
+        a.textContent = "link " + i;
+        container.appendChild(a);
+      });
+      window.wirePagePreviews(container);
+    }, hrefs);
+  }
+
+  test("hovering a link to a post shows its title, subtitle and a one-line faded excerpt", async ({ page }) => {
+    await addLinks(page, ["/posts/hello-world/"]);
+
+    const target = await (await page.request.get("/posts/hello-world/")).text();
+    const title = target.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)[1].trim();
+
+    await page.locator("#preview-link-0").dispatchEvent("mouseenter");
+    const tooltip = page.locator(".page-preview-tooltip");
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip.locator(".page-preview-title")).toContainText(title);
+    await expect(tooltip.locator(".page-preview-excerpt")).not.toBeEmpty();
+
+    // Excerpt is a single nowrap line, faded out by a mask.
+    const excerpt = tooltip.locator(".page-preview-excerpt");
+    await expect(excerpt).toHaveCSS("white-space", "nowrap");
+    await expect(excerpt).toHaveCSS("overflow", "hidden");
+
+    await page.locator("#preview-link-0").dispatchEvent("mouseleave");
+    await expect(tooltip).toBeHidden();
+  });
+
+  test("links to list pages, images and feeds get no preview", async ({ page }) => {
+    await addLinks(page, ["/posts/", "/feed.xml", "/content/images/sample-center.svg"]);
+
+    for (const id of ["#preview-link-0", "#preview-link-1", "#preview-link-2"]) {
+      await page.locator(id).dispatchEvent("mouseenter");
+      await page.waitForTimeout(200);
+      await expect(page.locator(".page-preview-tooltip")).toHaveCount(0);
+    }
+  });
+});
+
 test("clicking an image opens the fullscreen lightbox", async ({ page }) => {
   await page.goto("/posts/hello-world/");
   await page.locator("a[data-lightbox]").first().click();

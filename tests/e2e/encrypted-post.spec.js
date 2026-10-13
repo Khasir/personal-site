@@ -22,6 +22,27 @@ test.describe("encrypted post", () => {
     await expect(page.locator("[data-encrypted-content]")).toBeHidden();
   });
 
+  test("link previews to it show a lock and neither subtitle nor excerpt", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate((href) => {
+      const container = document.querySelector(".entry-content");
+      const a = document.createElement("a");
+      a.href = href;
+      a.id = "preview-link";
+      a.textContent = "secret";
+      container.appendChild(a);
+      window.wirePagePreviews(container);
+    }, FIXTURE_URL);
+
+    await page.locator("#preview-link").dispatchEvent("mouseenter");
+    const tooltip = page.locator(".page-preview-tooltip");
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip.locator(".page-preview-title")).toContainText(/e2e encrypted fixture/i);
+    await expect(tooltip.locator(".page-preview-title .entry-lock")).toHaveCount(1);
+    await expect(tooltip.locator(".page-preview-subtitle")).toHaveCount(0);
+    await expect(tooltip.locator(".page-preview-excerpt")).toHaveCount(0);
+  });
+
   test("wrong password shows an error and reveals nothing", async ({ page }) => {
     await page.goto(FIXTURE_URL);
     await page.locator("[data-encrypted-password]").fill("wrong password");

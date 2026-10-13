@@ -51,7 +51,8 @@ html[data-a11y="on"] h1,
 html[data-a11y="on"] time,
 html[data-a11y="on"] .comment-time,
 html[data-a11y="on"] .entry-list a,
-html[data-a11y="on"] .entry-heading h1 {
+html[data-a11y="on"] .entry-heading h1,
+html[data-a11y="on"] .page-preview-title {
   text-transform: none;
 }
 

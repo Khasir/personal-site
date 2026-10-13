@@ -103,6 +103,21 @@ Within a post/note body:
   else the opening paragraph.
 - **External links** auto-open in a new tab with an arrow
   (`assets/js/external-links.js`, by hostname).
+- **Internal link previews**: hovering/focusing a link to another post or
+  note shows a tooltip with its title, subtitle and first paragraph
+  (`assets/js/page-previews.js`, reusing `.hover-tooltip`). The target is
+  `fetch`ed on first hover, parsed with `DOMParser`, and cached by pathname —
+  nothing is generated at build time. Only links inside `.entry-content`
+  are wired, and only to same-host, extensionless-or-`.html` paths other than
+  the current page (so no images/lightbox, footnotes, `feed.xml`). Pages
+  without `.entry-heading` (list/tag pages) yield no tooltip. The excerpt is
+  the first direct-child `<p>` (footnote `<sup>`s dropped), rendered as a
+  single `nowrap` line with a `mask-image` fade, so under one line shows
+  (`.page-preview-excerpt`). An encrypted target's subtitle is skipped if
+  it's still `hidden`, so the preview doesn't reveal it; its body is empty,
+  so no excerpt either. It gets the lock icon before its title: `entry.html` emits `<template data-lock-icon>` (built from `lock-icon.html`) on encrypted entries, and the preview clones it from the fetched page. Skipped for pointer listeners on `(hover: none)`
+  (focus still works). The title is lowercased via CSS, with an override in
+  `accessible.css`.
 - **Quote attribution**: `> Quote.\n>\n> — Someone\n> {: .attribution}`
 - **Quote width**: blockquotes are centred by default (`margin: 1.5rem
   auto`), which only shows once one is narrowed: put
@@ -223,7 +238,8 @@ server-side check, no resistance to a determined attacker).
   moving it into the encrypted payload was considered and declined.
 - **Decrypted content must opt back into load-time-only behavior**:
   `external-links.js` exposes `window.wireExternalLinks(root)`,
-  `footnotes.js` exposes `window.wireFootnotes(root)`, and `comments.js`
+  `footnotes.js` exposes `window.wireFootnotes(root)`,
+  `page-previews.js` exposes `window.wirePagePreviews(root)`, and `comments.js`
   exposes `window.refreshCommentHighlights()`, all called by
   `encrypted-post.js` after revealing content (otherwise links and
   footnote hover previews aren't wired and existing comments never anchor,
@@ -456,7 +472,10 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   test:e2e` builds the site, wipes/re-migrates a dedicated local D1
   (`.wrangler-test/`), and serves on port 8799. Each test sets its own fake
   `CF-Connecting-IP` (`fakeIp()` in `helpers.js`) so the shared rate limiter
-  doesn't trip between tests. `accessibility.spec.js` covers the
+  doesn't trip between tests. `design.spec.js` also covers internal link
+  previews (links injected into the homepage intro, since posts' links
+  aren't known; title/excerpt shown, nowrap excerpt, no preview for
+  list pages/images/feed). `accessibility.spec.js` covers the
   accessibility-mode toggle: persistence, `prefers-contrast: more` emulation
   + override, no flash (attribute set before `<body>` exists), broken
   `localStorage`, computed-style changes, `<title>` casing, and no

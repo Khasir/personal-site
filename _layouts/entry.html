@@ -23,6 +23,8 @@ layout: default
   </header>
 
   {% if page.encrypted %}
+  {%- comment -%} Read by assets/js/page-previews.js (from a fetched copy of this page) to show the lock in link previews. {%- endcomment -%}
+  <template data-lock-icon>{% include lock-icon.html %}</template>
   <div class="encrypted-post" data-encrypted-post
        data-salt="{{ page.encrypted_salt }}"
        data-iv="{{ page.encrypted_iv }}"

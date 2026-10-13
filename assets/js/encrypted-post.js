@@ -70,6 +70,7 @@
           });
           if (window.wireExternalLinks) window.wireExternalLinks(output);
           if (window.wireFootnotes) window.wireFootnotes(output);
+          if (window.wirePagePreviews) window.wirePagePreviews(output);
           if (window.refreshCommentHighlights) window.refreshCommentHighlights();
         })
         .catch(function () {
