@@ -55,7 +55,13 @@ npm run notifier:local
 
 ## Local testing
 
-How to test locally:
+Ensure Chromium is installed for Playwright:
+
+```sh
+npx playwright install chromium
+```
+
+Test locally:
 
 ```sh
 npm test
