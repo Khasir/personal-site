@@ -96,6 +96,8 @@ time, .comment-time { text-transform: lowercase; }
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
   margin-bottom: 1.5rem;
+  /* Anchors the accessibility menu (.a11y-menu). */
+  position: relative;
 }
 
 .site-header .wrap { border-bottom: 1px solid var(--color-border); }
@@ -119,7 +121,7 @@ time, .comment-time { text-transform: lowercase; }
 .site-nav a[aria-current="page"] { font-weight: 700; text-decoration: underline; }
 .nav-sep { color: var(--color-border); font-size: 0.7em; }
 
-/* Accessibility-mode toggle (assets/js/accessibility.js):
+/* Accessibility menu trigger (assets/js/accessibility.js):
    a button that reads as a nav link. */
 .a11y-toggle {
   display: inline-flex;
@@ -135,13 +137,37 @@ time, .comment-time { text-transform: lowercase; }
   cursor: pointer;
 }
 .a11y-toggle:hover, .a11y-toggle:focus { text-decoration: underline; }
-.a11y-toggle[aria-pressed="true"] { font-weight: 600; }
+html[data-a11y-font="on"] .a11y-toggle,
+html[data-a11y-size="on"] .a11y-toggle { font-weight: 600; }
 
 .a11y-icon { width: 1.2em; height: 1.2em; flex: none; }
-/* Off: outline ring + figure. On: filled disc with the figure knocked out. */
+/* Nothing on: outline ring + figure. Either option on: filled disc with the figure knocked out. */
 .a11y-icon-disc { opacity: 0; }
-.a11y-toggle[aria-pressed="true"] .a11y-icon-disc { opacity: 1; }
-.a11y-toggle[aria-pressed="true"] .a11y-icon-figure { fill: var(--color-bg); }
+html[data-a11y-font="on"] .a11y-icon-disc,
+html[data-a11y-size="on"] .a11y-icon-disc { opacity: 1; }
+html[data-a11y-font="on"] .a11y-icon-figure,
+html[data-a11y-size="on"] .a11y-icon-figure { fill: var(--color-bg); }
+
+/* The menu itself: positioned against the header/footer .wrap (kept inside
+   it, so it can't overflow a phone screen). Its look is in accessible.css. */
+.a11y-menu {
+  position: absolute;
+  z-index: 400;
+  width: min(17em, 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden; /* keeps a pressed item's fill inside the rounded corners */
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+.a11y-menu[hidden] { display: none; }
+/* Header: opens downward under the nav. */
+.a11y-menu--down { top: 100%; right: 0; }
+/* Footer: opens upward, so it never extends the page. */
+.a11y-menu--up { bottom: 100%; left: 50%; transform: translateX(-50%); }
 
 /* The header button is icon-only (the footer one shows the word too). The
    label is visually hidden, not removed: it's still the accessible name. */

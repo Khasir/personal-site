@@ -1,13 +1,17 @@
 /* ---------------------------------------------------------------------
-   Accessibility mode. Loaded after main.css and inert unless
-   <html data-a11y="on"> is set (see the inline script in
-   _includes/head.html and assets/js/accessibility.js). main.css is driven
-   by custom properties, so most of this is just redefining them.
+   Accessibility options. Loaded after main.css. Two independent options,
+   set on <html> (see the inline script in _includes/head.html and
+   assets/js/accessibility.js):
+     data-a11y-font="on"  readable font + the contrast/underline bundle
+     data-a11y-size="on"  larger root font size
+   Apart from the menu (.a11y-menu, below), this is inert without them.
+   main.css is driven by custom properties, so most of this is just
+   redefining them.
 --------------------------------------------------------------------- */
 
 /* Self-hosted Aleo (variable fonts: one file covers weights 100-900, another
    the italics; see assets/fonts/aleo-OFL.txt). Browsers only fetch these when
-   accessibility is on. */
+   the readable font or the menu is in use. */
 @font-face {
   font-family: "Aleo";
   font-style: normal;
@@ -23,10 +27,12 @@
   src: url("/assets/fonts/aleo-italic.woff2") format("woff2");
 }
 
-html[data-a11y="on"] {
+html[data-a11y-size="on"] {
   /* Everything in main.css is sized in rem, so this scales the whole page. */
   font-size: 112.5%;
+}
 
+html[data-a11y-font="on"] {
   /* Same cream background; all text black; the accent colour is for links only. */
   --color-text: #000000;
   --color-muted: #000000;
@@ -43,55 +49,98 @@ html[data-a11y="on"] {
   --font-serif: "Aleo", Georgia, "Times New Roman", serif;
 }
 
-html[data-a11y="on"] body { line-height: 1.75; }
+html[data-a11y-font="on"] body { line-height: 1.75; }
 
 /* Titles and dates show as written instead of forced lowercase. */
-html[data-a11y="on"] .site-title,
-html[data-a11y="on"] h1,
-html[data-a11y="on"] time,
-html[data-a11y="on"] .comment-time,
-html[data-a11y="on"] .entry-list a,
-html[data-a11y="on"] .entry-heading h1,
-html[data-a11y="on"] .page-preview-title {
+html[data-a11y-font="on"] .site-title,
+html[data-a11y-font="on"] h1,
+html[data-a11y-font="on"] time,
+html[data-a11y-font="on"] .comment-time,
+html[data-a11y-font="on"] .entry-list a,
+html[data-a11y-font="on"] .entry-heading h1,
+html[data-a11y-font="on"] .page-preview-title {
   text-transform: none;
 }
 
 /* Links are always underlined. */
-html[data-a11y="on"] a,
-html[data-a11y="on"] .a11y-toggle {
+html[data-a11y-font="on"] a,
+html[data-a11y-font="on"] .a11y-toggle {
   text-decoration: underline !important;
   text-underline-offset: 0.15em;
 }
-html[data-a11y="on"] a:hover,
-html[data-a11y="on"] .a11y-toggle:hover {
+html[data-a11y-font="on"] a:hover,
+html[data-a11y-font="on"] .a11y-toggle:hover {
   text-decoration-thickness: 2px;
 }
 
-html[data-a11y="on"] :focus-visible {
+html[data-a11y-font="on"] :focus-visible {
   outline: 3px solid var(--color-text);
   outline-offset: 2px;
 }
 
 /* Comment highlights: underline as well as colour. */
-html[data-a11y="on"] mark.comment-highlight {
+html[data-a11y-font="on"] mark.comment-highlight {
   border-bottom: 2px solid var(--color-text);
 }
 
-/* Reactions: "+☺" is always visible and sits in the reactions row instead 
+/* Reactions: "+☺" is always visible and sits in the reactions row instead
    of floating over the body. */
-html[data-a11y="on"] .reaction-add {
+html[data-a11y-font="on"] .reaction-add {
   position: static;
   margin-top: 0.4rem;
   opacity: 1;
 }
-html[data-a11y="on"] .reaction-pill[aria-pressed="true"],
-html[data-a11y="on"] .reaction-option[aria-pressed="true"] {
+html[data-a11y-font="on"] .reaction-pill[aria-pressed="true"],
+html[data-a11y-font="on"] .reaction-option[aria-pressed="true"] {
   border: 2px solid var(--color-text);
   font-weight: 600;
 }
 
 /* Error/success are black like everything else, so give errors weight. */
-html[data-a11y="on"] .form-status[data-state] { color: var(--color-text); }
-html[data-a11y="on"] .form-status[data-state="error"] { font-weight: 600; }
+html[data-a11y-font="on"] .form-status[data-state] { color: var(--color-text); }
+html[data-a11y-font="on"] .form-status[data-state="error"] { font-weight: 600; }
 
-html[data-a11y="on"] details summary::before { transition: none; }
+html[data-a11y-font="on"] details summary::before { transition: none; }
+
+/* ---------------------------------------------------------------------
+   The accessibility menu is always readable for anyone who opens it.
+   Not scoped to an option; it redefines the variables locally instead.
+--------------------------------------------------------------------- */
+.a11y-menu {
+  --color-text: #000000;
+  --color-accent: #0b3d91;
+  --color-border: #7a6a4d;
+  --font-serif: "Aleo", Georgia, "Times New Roman", serif;
+  font-family: var(--font-serif);
+  color: var(--color-text);
+  line-height: 1.75;
+  /* 18px, like the larger size. The root is already scaled when that's on. */
+  font-size: 1.125rem;
+}
+html[data-a11y-size="on"] .a11y-menu { font-size: 1rem; }
+
+/* Items are separated by a line, not boxed. */
+.a11y-menu button {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: transparent;
+  color: var(--color-accent);
+  border: none;
+  border-radius: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.a11y-menu button + button { border-top: 1px solid var(--color-border); }
+.a11y-menu button:hover { text-decoration-thickness: 2px; }
+/* On: fill, bold and a bar down the left edge (not colour alone). */
+.a11y-menu button[aria-pressed="true"] {
+  background: #f6d98a;
+  color: var(--color-text);
+  box-shadow: inset 4px 0 0 var(--color-text);
+  font-weight: 600;
+}
+.a11y-menu button:focus-visible {
+  outline: 3px solid var(--color-text);
+  outline-offset: -3px; /* inside the item, so the menu's overflow doesn't clip it */
+}

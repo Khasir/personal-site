@@ -107,11 +107,11 @@ test.describe("layout", () => {
   });
 });
 
-test.describe("accessibility mode", () => {
+test.describe("readable-font accessibility option", () => {
   test("+☺ sits below the body text, to the left of any pills", async ({ page }) => {
-    await page.addInitScript(() => localStorage.setItem("a11y-mode", "on"));
+    await page.addInitScript(() => localStorage.setItem("a11y-font", "on"));
     const { item } = await openFreshThread(page);
-    await expect(page.locator("html")).toHaveAttribute("data-a11y", "on");
+    await expect(page.locator("html")).toHaveAttribute("data-a11y-font", "on");
 
     const add = item.locator(".reaction-add");
     await expect(add).toHaveCSS("opacity", "1");

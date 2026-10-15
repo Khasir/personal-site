@@ -13,8 +13,13 @@
   {% comment %}
     Icon: "Accessibility" by Zach Bogart (see colophon). Filled with currentColor so it follows the link colour.
   {% endcomment %}
-  {% comment %} show_a11y="icon": icon only (label stays as the accessible name); anything else: the label only. {% endcomment %}
-  <button type="button" class="a11y-toggle{% if include.show_a11y == "icon" %} a11y-toggle--icon-only{% endif %}" data-a11y-toggle aria-pressed="false"{% if include.show_a11y == "icon" %} title="accessibility"{% endif %}>
+  {% comment %}
+    show_a11y="icon": icon only (label stays as the accessible name); anything else: the label only.
+    The button opens a menu of two options (assets/js/accessibility.js); the header's opens downward, the footer's upward.
+  {% endcomment %}
+  {% assign a11y_menu_id = "a11y-menu-footer" %}
+  {% if include.show_a11y == "icon" %}{% assign a11y_menu_id = "a11y-menu-header" %}{% endif %}
+  <button type="button" class="a11y-toggle{% if include.show_a11y == "icon" %} a11y-toggle--icon-only{% endif %}" data-a11y-toggle aria-haspopup="true" aria-expanded="false" aria-controls="{{ a11y_menu_id }}"{% if include.show_a11y == "icon" %} title="accessibility"{% endif %}>
     {% if include.show_a11y == "icon" %}
     <svg class="a11y-icon" aria-hidden="true" focusable="false" viewBox="5 5 90 90" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd">
       <circle class="a11y-icon-disc" cx="50" cy="50" r="45"/>
@@ -26,6 +31,10 @@
     {% endif %}
     <span class="a11y-toggle-label">accessibility</span>
   </button>
+  <div class="a11y-menu a11y-menu--{% if include.show_a11y == "icon" %}down{% else %}up{% endif %}" id="{{ a11y_menu_id }}" hidden>
+    <button type="button" data-a11y-option="font" aria-pressed="false">More readable font</button>
+    <button type="button" data-a11y-option="size" aria-pressed="false">Larger font size</button>
+  </div>
   {% endif %}
   {% if include.show_rss %}
   <span class="nav-sep" aria-hidden="true">&#11045;</span>

@@ -24,7 +24,7 @@ text `#000000`, links `#1155cc`; blockquotes background `#fff2cc`, border
 
 Header/footer share one nav (`_includes/nav.html`): `home / posts /
 guestbook`, diamond-separated; footer adds `rss` / `colophon`, header adds
-the accessibility-mode toggle (below). A `rough notes` link exists behind a `show_notes` param nothing currently passes
+the accessibility menu (below). A `rough notes` link exists behind a `show_notes` param nothing currently passes
 `true` (see commit `c0ca090`) — `/notes/` still works, just isn't linked. No
 copyright line, by design.
 
@@ -123,55 +123,84 @@ Within a post/note body:
   auto`), which only shows once one is narrowed: put
   `{: style="max-width: 30em"}` on the line *above* the quote (below it
   risks being read as part of the last paragraph). Use `max-width` in `em`
-  so it still shrinks on phones and scales in accessibility mode.
+  so it still shrinks on phones and scales with the larger-size option.
 - **Expansion sections**: native `<details>`/`<summary>`, needs
   `markdown="1"` for markdown inside.
 
-### Accessibility mode
+### Accessibility menu
 
-Two buttons — header (icon only) and footer ("accessibility" label only) —
-via `_includes/nav.html`'s `show_a11y` param (`"icon"` from `header.html`,
-`"label"` from `footer.html`). Both are `[data-a11y-toggle]`, kept in sync,
-and toggle `<html data-a11y="on">`. `assets/css/accessible.css` is loaded
-after `main.css` on every page and is inert without that attribute — an
-overlay, not a replacement, so `main.css` isn't duplicated. Standard
-theme-toggle pattern.
+The "accessibility" button — header (icon only) and footer ("accessibility"
+label only), via `_includes/nav.html`'s `show_a11y` param (`"icon"` from
+`header.html`, `"label"` from `footer.html`) — opens a small menu with two
+independent toggle buttons, **More readable font** and **Larger font size**
+(`[data-a11y-option="font|size"]`, `aria-pressed`). The trigger
+(`[data-a11y-toggle]`) is a disclosure button (`aria-haspopup`,
+`aria-expanded`, `aria-controls`), not a toggle. Each include renders its own
+menu (`#a11y-menu-header` / `#a11y-menu-footer`); the two are kept in sync and
+only one is open at a time. Clicking an option keeps the menu open; outside
+click or Escape closes it (Escape returns focus to the trigger). Disclosure
+pattern rather than `role="menu"`, so no arrow-key handling is needed.
+`assets/css/accessible.css` is loaded after `main.css` on every page and is
+inert without the attributes below (except the menu's own look) — an overlay,
+not a replacement, so `main.css` isn't duplicated.
 
-- **Mostly variables**: redefines the `:root` custom properties (same
-  cream bg, all-black text incl. muted/meta/form-status, darker link
-  accent, darker borders, self-hosted Aleo in `--font-serif`) and
-  `html { font-size }`. `main.css` sizes everything in rem (body included,
-  `1.1875rem` = 19px at the default root) so the type scale follows.
-  New font-sizes in `main.css` must stay in rem/em or they won't scale.
+Each option is an attribute on `<html>`:
+
+- **Font** — `data-a11y-font="on"` (storage key `a11y-font`): redefines the
+  `:root` custom properties (same cream bg, all-black text incl.
+  muted/meta/form-status, darker link accent, darker borders, self-hosted
+  Aleo in `--font-serif`), line-height 1.75, plus the rest of the
+  "readable" bundle: `text-transform: none` for the lowercase rules
+  (titles/dates show as authored, and the `<title>`), always-underlined
+  links (`!important`, since `main.css` drops underlines on some
+  `:hover`s), 3px `:focus-visible` outline, underlined comment highlights,
+  always-visible reaction `+☺` in the row, no `details` transition. New
+  lowercase/hover-only/colour-only cues need a matching override there.
+- **Size** — `data-a11y-size="on"` (storage key `a11y-size`): only
+  `html { font-size: 112.5% }`. `main.css` sizes everything in rem (body
+  included, `1.1875rem` = 19px at the default root) so the type scale
+  follows. New font-sizes in `main.css` must stay in rem/em or they won't
+  scale.
+- **The menu itself always looks accessible** (`.a11y-menu` in
+  `accessible.css`, *not* scoped to an option): Aleo, 18px, black text,
+  darker accent/border, underlined buttons, 3px focus ring — it redefines
+  the variables locally. Items are separated by a line (no box per item); pressed =
+  fill + bold + a bar down the left edge, not colour alone. Its size is `1.125rem`, dropped to `1rem` when the size option is
+  on (the root is already scaled). Positioned in `main.css` against the
+  header/footer `.wrap` (`position: relative`; `width: min(17em, 100%)`, so
+  it can't overflow a phone): header opens downward, right-aligned; footer
+  opens upward, centred (so it never lengthens the page). `z-index: 400`
+  like the comment popovers.
 - **Font**: Aleo (slab serif), self-hosted like EB Garamond — variable
   woff2, `assets/fonts/aleo-normal.woff2` / `aleo-italic.woff2`, declared in
-  `accessible.css` (not `main.css`) so it's only fetched when the mode is on;
-  no preload. Licensed under the SIL OFL, which allows this without changing
-  the site's `LICENSE`; keep `assets/fonts/aleo-OFL.txt` alongside the files.
-  (Atkinson Hyperlegible and the system sans stack were tried and rejected.)
-- **Other overrides**: `text-transform: none` for the lowercase rules
-  (titles/dates show as authored), always-underlined links (`!important`,
-  since `main.css` drops underlines on some `:hover`s), 3px
-  `:focus-visible` outline, underlined comment highlights, no `details`
-  transition. New lowercase/hover-only/colour-only cues need a matching
-  override there.
-- **State**: `localStorage["a11y-mode"]` = `"on"`/`"off"` (explicit choice).
-  With none stored it follows `prefers-contrast: more`, live. The button
-  flips the effective state and stores it, so it overrides the OS setting
-  either way. A blocking inline script in `_includes/head.html` sets the
-  attribute before first paint (no flash); `assets/js/accessibility.js`
-  handles the click, `aria-pressed`, and the OS-change listener. Both
-  wrap storage in try/catch. Keep their initial-state logic in sync.
+  `accessible.css` (not `main.css`) so it's only fetched when the font
+  option is on or the menu is first opened (`display: none` doesn't
+  fetch); no preload. Licensed under the SIL OFL, which allows this without
+  changing the site's `LICENSE`; keep `assets/fonts/aleo-OFL.txt` alongside
+  the files. (Atkinson Hyperlegible and the system sans stack were tried and
+  rejected.)
+- **State**: per option, `localStorage["a11y-font"|"a11y-size"]` =
+  `"on"`/`"off"` (explicit choice). Resolution order per option: its own key
+  → the legacy single-switch `a11y-mode` (so returning visitors who had the
+  old mode keep it: `"on"` = both options) → `prefers-contrast: more`
+  (both on), live. The first click on an option migrates: writes both new
+  keys from the legacy value, removes `a11y-mode`, then applies the click —
+  after that the legacy fallback is inert. A blocking inline script in
+  `_includes/head.html` sets the attributes before first paint (no flash);
+  `assets/js/accessibility.js` handles the menu, option clicks,
+  `aria-pressed`, migration, and the OS-change listener (never migrates).
+  Both wrap storage in try/catch. Keep their initial-state logic in sync.
 - **`<title>`**: `_layouts/entry.html` stashes the authored title in
-  `<html data-original-title>` and lowercases it unless the mode is on;
-  `accessibility.js` re-applies the right casing on toggle.
+  `<html data-original-title>` and lowercases it unless the **font**
+  option is on; `accessibility.js` re-applies the right casing on toggle.
 - **Icon**: inline SVG ("Accessibility" by Zach Bogart, Noun Project;
   credited on the colophon), `currentColor`, so it follows the link colour.
-  Off = outline ring + figure; on (`aria-pressed="true"`) = filled disc with
-  the figure knocked out. Only the header button has it; there the label is
-  visually hidden (`.a11y-toggle--icon-only`; still the accessible name, plus
-  a `title` tooltip) to keep the header short. The footer button is the word
-  alone, no icon.
+  Neither option on = outline ring + figure; **either** on = filled disc
+  with the figure knocked out (and bold label), driven by CSS from the
+  `<html>` attributes (no JS, no flash). Only the header button has it;
+  there the label is visually hidden (`.a11y-toggle--icon-only`; still the
+  accessible name, plus a `title` tooltip) to keep the header short. The
+  footer button is the word alone, no icon.
 - **Header fit**: `.site-nav` also wraps (`flex-wrap`) so the extra item
   can't overflow narrow screens.
 
@@ -302,8 +331,8 @@ get them too.
   `position: relative` `.comment-reactions`, whose top edge is the body's
   bottom, so it stays put when pills or the picker appear; a comment with no
   reactions has no blank row), `opacity: 0` until the `<li>` is hovered or has focus (still
-  tabbable, nothing shifts), always visible on `(hover: none)` and in
-  accessibility mode (both of which move it into the row; see below). Opening the picker adds a full-width row below the
+  tabbable, nothing shifts), always visible on `(hover: none)` and with the
+  readable-font option (both of which move it into the row; see below). Opening the picker adds a full-width row below the
   comment (and its pills), growing the `<li>`. Updates are optimistic, replaced
   by the server's count, and rolled back on failure; in-flight toggles for the
   same comment+emoji are ignored. Counts ≥ 100 display as `99+` (display
@@ -311,7 +340,7 @@ get them too.
   `stopPropagation()` because re-rendering detaches the target, which the
   document-level handler would otherwise read as an outside click and close
   the thread. Escape closes the picker only.
-- Touch devices (`(hover: none)`) and accessibility mode: `+☺` is
+- Touch devices (`(hover: none)`) and the readable-font option: `+☺` is
   `position: static` in the reactions row, before any pills (it's first in DOM
   order, so tab order matches), because the always-visible floating version
   would constantly cover comment text; this reserves a row under every
@@ -476,10 +505,13 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   previews (links injected into the homepage intro, since posts' links
   aren't known; title/excerpt shown, nowrap excerpt, no preview for
   list pages/images/feed). `accessibility.spec.js` covers the
-  accessibility-mode toggle: persistence, `prefers-contrast: more` emulation
-  + override, no flash (attribute set before `<body>` exists), broken
-  `localStorage`, computed-style changes, `<title>` casing, and no
-  horizontal overflow at 375px. `gallery.spec.js` covers `{% gallery %}`
+  accessibility menu: open/close (outside click, Escape + focus return, one
+  menu at a time), the two options independently (font vs size computed
+  styles), persistence, legacy `a11y-mode` fallback + migrate-on-click,
+  `prefers-contrast: more` emulation + per-option override, no flash
+  (attributes set before `<body>` exists), broken `localStorage`, the
+  menu's always-accessible look, `<title>` casing (font option only), and
+  no horizontal overflow / menus kept on screen at 375px. `gallery.spec.js` covers `{% gallery %}`
   (square tiles, ignored `align`, hidden per-image captions, gallery
   caption + footnote, lightbox prev/next/keys/wrap, standalone figures
   unaffected, 2 columns at 375px) against another throwaway fixture post

@@ -52,11 +52,11 @@ layout: default
 {% endif %}
 
 <script>
-  // Titles are lowercased, except in accessibility mode.
+  // Titles are lowercased, except with the "more readable font" option on.
   // The original is stashed so assets/js/accessibility.js can
-  // re-apply the right casing when the mode is toggled.
+  // re-apply the right casing when the option is toggled.
   document.documentElement.dataset.originalTitle = document.title;
-  if (document.documentElement.getAttribute("data-a11y") !== "on") {
+  if (document.documentElement.getAttribute("data-a11y-font") !== "on") {
     document.title = document.title.toLowerCase();
   }
 </script>
