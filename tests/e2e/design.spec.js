@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test("every page has exactly one <title> tag", async ({ page }) => {
   // Regression: jekyll-seo-tag's {% seo %} already renders a <title>; a
   // manually-added one in head.html briefly created a duplicate.
-  for (const url of ["/", "/posts/", "/notes/", "/guestbook/", "/posts/hello-world/"]) {
+  for (const url of ["/", "/posts/", "/notes/", "/interviews/", "/guestbook/", "/posts/hello-world/"]) {
     await page.goto(url);
     await expect(page.locator("title")).toHaveCount(1);
   }

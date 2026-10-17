@@ -5,7 +5,7 @@ layout: default
 <article class="entry" data-post-slug="{{ page.slug | default: page.url }}">
   <header class="entry-header">
     <div class="entry-heading">
-      <p class="entry-kind">{% if page.collection == 'notes' %}note{% else %}post{% endif %}</p>
+      <p class="entry-kind">{% include entry-kind.html collection=page.collection %}</p>
       <h1>{{ page.title }}</h1>
       {% if page.subtitle %}<p class="entry-subtitle"{% if page.encrypted %} data-encrypted-subtitle hidden{% endif %}>{{ page.subtitle }}</p>{% endif %}
     </div>

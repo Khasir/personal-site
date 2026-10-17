@@ -21,7 +21,7 @@ highlighter: rouge
 
 permalink: /posts/:title/
 
-# posts/notes source files live in the personal-site-content submodule, mounted at ./content
+# posts/notes/interviews source files live in the personal-site-content submodule, mounted at ./content
 collections_dir: content
 
 collections:
@@ -31,6 +31,9 @@ collections:
   notes:
     output: true
     permalink: /notes/:title/
+  interviews:
+    output: true
+    permalink: /interviews/:title/
 
 defaults:
   - scope:
@@ -45,6 +48,15 @@ defaults:
     values:
       layout: entry
       comments: true
+  - scope:
+      path: ""
+      type: interviews
+    values:
+      layout: entry
+      comments: true
+      # Override per interview with `feed: { excerpt_only: false }`
+      feed:
+        excerpt_only: true
   - scope:
       path: ""
       type: pages

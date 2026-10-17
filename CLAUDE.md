@@ -23,7 +23,7 @@ text `#000000`, links `#1155cc`; blockquotes background `#fff2cc`, border
 `#cbb99e`, text `#1b1b1a`.
 
 Header/footer share one nav (`_includes/nav.html`): `home / posts /
-guestbook`, diamond-separated; footer adds `rss` / `colophon`, header adds
+interviews / guestbook`, diamond-separated; footer adds `rss` / `colophon`, header adds
 the accessibility menu (below). A `rough notes` link exists behind a `show_notes` param nothing currently passes
 `true` (see commit `c0ca090`) — `/notes/` still works, just isn't linked. No
 copyright line, by design.
@@ -36,7 +36,7 @@ accept submissions at request time.
 
 ### Content model
 
-Posts, notes, and images live in a separate
+Posts, notes, interviews, and images live in a separate
 [personal-site-content](https://github.com/Khasir/personal-site-content)
 repo, mounted as a git submodule at `./content` (`collections_dir: content`
 in `_config.yml`). Clone with `--recurse-submodules`, or `git submodule
@@ -45,6 +45,7 @@ pick up content changes.
 
 - `content/_posts/*.md` — posts, permalink `/posts/:title/`
 - `content/_notes/*.md` — rougher notes, permalink `/notes/:title/`
+- `content/_interviews/*.md` — interviews, permalink `/interviews/:title/`
 - `content/images/` — images referenced from posts/notes
 
 Shared frontmatter:
@@ -60,12 +61,12 @@ tags: [optional, list]
 ```
 
 `post_date` drives sort order (`_posts` falls back to the filename date;
-`_notes` has no fallback — set it explicitly). `hidden: true` excludes a
-post/note from `/posts/`, `/notes/`, and the homepage's recent list, but it's
-still reachable by direct link. `tags` drives an auto-generated
+`_notes` and `_interviews` have no fallback — set it explicitly). `hidden: true` excludes a
+post/note/interview from `/posts/`, `/notes/`, `/interviews/`, the interviews
+feed, and the homepage's recent list, but it's still reachable by direct link. `tags` drives an auto-generated
 `/tags/:tag-slug/` page per tag (`_plugins/tag_pages.rb`, template
-`_layouts/tag.html` loaded via `read_yaml`), newest-first across both
-collections; each tag in `entry.html`'s meta line links there.
+`_layouts/tag.html` loaded via `read_yaml`), newest-first across all
+three collections; each tag in `entry.html`'s meta line links there.
 
 Within a post/note body:
 
@@ -126,6 +127,40 @@ Within a post/note body:
   so it still shrinks on phones and scales with the larger-size option.
 - **Expansion sections**: native `<details>`/`<summary>`, needs
   `markdown="1"` for markdown inside.
+
+### Interviews section
+
+A third collection alongside posts and notes (`interviews` in `_config.yml`,
+`layout: entry`, comments on by default, same frontmatter as above — set
+`post_date`). Renders through the same `entry` layout, so footnotes,
+figures/galleries, encryption, comments, reactions and link previews all work.
+
+- **List page**: `/interviews/` (`interviews.md` → `_layouts/interviews-list.html`,
+  a copy of `notes-list.html`). Linked from the header and footer nav
+  (`_includes/nav.html`, between `posts` and `guestbook`). **Not** on the
+  homepage — `home.html` only lists posts. Comments are off on the list page
+  (unlike `/notes/`); the intro copy is whatever's in `interviews.md`'s body.
+- **Own feed**: `/interviews/feed.xml` (`interviews-feed.xml`, hand-written
+  Atom, same shape as `feed.xml`). Dated from `post_date` (the posts feed
+  uses `date`, which for a collection without filename dates would just be
+  build time); skips `hidden`; excerpt-only by default (same three
+  checks as `feed.xml`: the entry's `feed.excerpt_only`, then `encrypted`,
+  then `site.feed.excerpt_only`; the first is set to `true` for every
+  interview by the `interviews` entry in `_config.yml`'s `defaults`, and
+  `feed: { excerpt_only: false }` in an interview's frontmatter sends its full
+  content instead), so only the summary (`link_preview`, else the first
+  paragraph) is sent; `site.feed.posts_limit`
+  (default 10) most recent, shared with `feed.xml`. Linked only from the
+  interviews page (`rss feed for interviews`, `.see-all`) and an
+  autodiscovery `<link rel="alternate">` in `<head>` on that page and on
+  interview entries (`_includes/head.html`) — deliberately **not** in the
+  footer, whose `rss` stays the posts feed. Interviews aren't in `/feed.xml`.
+- **Labels**: the `post`/`note`/`interview` kind label comes from
+  `_includes/entry-kind.html` (used by `entry.html` and `tag.html`); add a
+  case there for any further collection. `_plugins/seo_description.rb` and
+  `_plugins/tag_pages.rb` also list the collection.
+- **Comment threads** key on `page.slug`, so an interview and a post/note with
+  the same slug would share a thread (already true of posts vs notes).
 
 ### Accessibility menu
 
@@ -517,7 +552,15 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   unaffected, 2 columns at 375px) against another throwaway fixture post
   (`tests/e2e/fixtures/setup-gallery-fixture.js`, inline SVG data URIs so
   it needs nothing in `content/images/`), also removed by
-  `global-teardown.js`.
+  `global-teardown.js`. `interviews.spec.js` covers the interviews
+  section (nav links in header + footer, feed not in the footer, list page
+  shows non-hidden entries + feed link + `<head>` autodiscovery, not on the
+  homepage/`/posts/`, entry page with `interview` label, hidden entry still
+  reachable, tag page, `/interviews/feed.xml` summary-only entries and its absence from
+  `/feed.xml`) against two throwaway fixtures
+  (`tests/e2e/fixtures/setup-interview-fixture.js`, written to
+  `content/_interviews/` — one visible, one `hidden`), removed by
+  `global-teardown.js` (which also removes the directory if empty).
 
 Debugging: `npx playwright test --ui`, or `npx playwright show-trace <path>`
 on a saved trace (`test-results/`).

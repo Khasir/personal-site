@@ -12,6 +12,6 @@ module Jekyll
   end
 end
 
-Jekyll::Hooks.register [:posts, :notes], :pre_render do |doc|
+Jekyll::Hooks.register [:posts, :notes, :interviews], :pre_render do |doc|
   Jekyll::SeoDescription.apply(doc)
 end
