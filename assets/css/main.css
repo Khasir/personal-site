@@ -193,7 +193,15 @@ html[data-a11y-size="on"] .a11y-icon-figure { fill: var(--color-bg); }
   font-size: 1.3rem;
 }
 .see-all { display: inline-block; margin: 0.75rem 0 2rem; }
-.entry-list .entry-kind { display: inline; margin-right: 0.5rem; }
+.entry-list .entry-kind {
+  display: inline; 
+  margin-right: 0.5rem; 
+  letter-spacing: normal;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  font-style: normal;
+}
 /* Lock beside an encrypted post's title (lock-icon.html) */
 .entry-lock { color: var(--color-text); }
 .entry-lock svg { width: 0.85em; height: 0.85em; vertical-align: -0.075em; }
@@ -202,9 +210,9 @@ html[data-a11y-size="on"] .a11y-icon-figure { fill: var(--color-bg); }
 
 .entry-header { margin-bottom: 2.5rem; }
 .entry-kind {
-  letter-spacing: 0.06em;
+  letter-spacing: 1em;
   font-style: italic;
-  font-size: 1.0rem;
+  font-size: 1.1rem;
   color: var(--color-muted);
   margin: 0 0 0.25rem;
 }
@@ -226,6 +234,7 @@ html[data-a11y-size="on"] .a11y-icon-figure { fill: var(--color-bg); }
   border: 1px solid var(--color-border);
   border-radius: 999px;
   color: inherit;
+  font-size: 1.1rem
 }
 .entry-tags .tag:hover, .entry-tags .tag:focus { text-decoration: none; border-color: var(--color-button-preferred); }
 
