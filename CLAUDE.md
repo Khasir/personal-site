@@ -89,6 +89,40 @@ Within a post/note body:
   The gallery's output is plain HTML without `markdown="1"`, so only
   include tags belong inside. Not available in encrypted posts (Liquid is
   refused there).
+- **Floating notes**: `{% floating title="..." text="..." %}` paragraphs
+  `{% endfloating %}` (`_plugins/floating.rb`, a Liquid block tag modelled on
+  `gallery`; `text` optional, both inline markdown, no footnotes, no
+  unescaped `"` in the value). A single newline between each tag and the
+  paragraphs around it is enough (the output starts/ends with a block-level
+  `<div>`, which ends a kramdown paragraph); paragraphs *inside* need normal
+  blank lines. Output is `div.floating-section[markdown=1] > aside.floating-note
+  > div.floating-inner > p.floating-title (+ p.floating-text)`, then the
+  paragraphs. Layout (`main.css`, "Floating notes"): `.floating-section` is
+  `position: relative` with **no padding/border/overflow/flow-root**, so
+  the first/last paragraph margins collapse through it and it spans exactly
+  first-paragraph top to last-paragraph bottom (margins excluded) — keep it
+  that way. **Under 1150px** (px on purpose: media queries ignore the size
+  option, and 1150 fits the 11rem note at both root sizes) `.floating-note`
+  is `position: sticky; top: 0` with the page background, first in flow, so
+  it sits under the header, pins to the top of the screen once the header
+  scrolls away, and is pushed off by the section's end; full text, wrapping.
+  **From 1150px up** `.floating-note` is an absolutely-positioned full-height
+  track in the left margin (`right: 100%`) and `.floating-inner` is sticky
+  inside it, so it can't leave the section: top-aligned with the first
+  paragraph at the start, bottom-aligned with the last at the end. Centring
+  needs the note's own height, which CSS can't give a sticky offset, so
+  `assets/js/floating.js` (`ResizeObserver`, also `window.wireFloating(root)`)
+  publishes `--floating-h` + `data-floating-measured` and the CSS uses
+  `top: calc(50vh - var(--floating-h) / 2)`; without JS it falls back to
+  `top: 50vh; transform: translateY(-50%)` (bottom stops half a note short).
+  Title is larger than body text, otherwise plain.
+  Not available in encrypted posts (Liquid refused). Caveats: the note's text
+  is inside `.entry-content`, so it's selectable/commentable and counts in
+  comment text offsets (put the note in a post before adding comments near it
+  if possible); `page-previews.js`/SEO description take the first
+  direct-child `<p>` of `.entry-content`, so a post that *opens* with a
+  floating section gets no excerpt (use `link_preview`); feed readers show
+  the note as an ordinary block above the section.
 - **Footnotes**: standard kramdown (`text[^1]` / `[^1]: note`), with
   hover/focus preview.
 - **Comments**: on by default (`comments: false` to disable); no account
@@ -552,7 +586,14 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   unaffected, 2 columns at 375px) against another throwaway fixture post
   (`tests/e2e/fixtures/setup-gallery-fixture.js`, inline SVG data URIs so
   it needs nothing in `content/images/`), also removed by
-  `global-teardown.js`. `interviews.spec.js` covers the interviews
+  `global-teardown.js`. `floating.spec.js` covers `{% floating %}` against
+  another throwaway fixture post
+  (`tests/e2e/fixtures/setup-floating-fixture.js`, two sections, single-newline
+  authoring, removed by `global-teardown.js`): surrounding paragraphs intact, inline
+  markdown, title/text sizes, desktop margin position, top/centre/bottom
+  alignment via `getBoundingClientRect` while scrolling, hand-over between
+  sections, the no-JS fallback, size+font options, the 1150px threshold, and
+  the sticky bar at 375px. `interviews.spec.js` covers the interviews
   section (nav links in header + footer, feed not in the footer, list page
   shows non-hidden entries + feed link + `<head>` autodiscovery, not on the
   homepage/`/posts/`, entry page with `interview` label, hidden entry still

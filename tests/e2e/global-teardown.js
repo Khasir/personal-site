@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import { FIXTURE_PATH } from "./fixtures/encrypted-fixture-constants.js";
 import { GALLERY_FIXTURE_PATH } from "./fixtures/gallery-fixture-constants.js";
+import { FLOATING_FIXTURE_PATH } from "./fixtures/floating-fixture-constants.js";
 import {
   HIDDEN_INTERVIEW_FIXTURE,
   INTERVIEW_FIXTURE,
@@ -10,6 +11,7 @@ import {
 export default async function globalTeardown() {
   fs.rmSync(FIXTURE_PATH, { force: true });
   fs.rmSync(GALLERY_FIXTURE_PATH, { force: true });
+  fs.rmSync(FLOATING_FIXTURE_PATH, { force: true });
   fs.rmSync(INTERVIEW_FIXTURE.path, { force: true });
   fs.rmSync(HIDDEN_INTERVIEW_FIXTURE.path, { force: true });
   // Remove the directory too if the fixtures were all that was in it (it may

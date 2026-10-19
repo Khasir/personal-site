@@ -319,6 +319,47 @@ blockquote p.attribution { text-align: right; }
   text-align: center;
 }
 
+/* Floating notes: title (+ optional text) 
+   .floating-section must stay free of padding, border, overflow and flow-root
+   to align visually with its paragraphs. */
+
+.floating-section { position: relative; }
+
+/* Narrow screens: a bar at the top of the screen, pushed off when the section ends. */
+.floating-note {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+.entry-content .floating-title { margin: 0; font-size: 1.5rem; line-height: 1.3; }
+.entry-content .floating-text { margin: 0.25rem 0 0; }
+
+/* Roomy screens: a full-height track in the left margin, holding a sticky note. */
+@media (min-width: 1150px) {
+  .floating-note {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    width: 11rem;
+    margin: 0 1.5rem 0 0;
+    padding: 0;
+    background: none;
+    border-bottom: 0;
+  }
+  /* Without JS: top edge at mid-screen, shifted up by half its own height. */
+  .floating-inner { position: sticky; top: 50vh; transform: translateY(-50%); }
+  /* With JS: the exact height is known. */
+  .floating-inner[data-floating-measured] {
+    top: calc(50vh - var(--floating-h) / 2);
+    transform: none;
+  }
+}
+
 /* Expansion sections (native <details>/<summary>) */
 
 details {
