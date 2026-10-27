@@ -17,8 +17,7 @@ permalink: /interviews/feed.xml
   </author>
 
   {% comment %}
-    Unlike feed.xml (posts, dated from the filename), interviews take their
-    date from `post_date`, same as notes -- `date` would just be the build time.
+    Interviews take their date from `post_date`, same as notes -- `date` would just be the build time.
   {% endcomment %}
   {% assign interviews = site.interviews | where_exp: "i", "i.hidden != true" | where_exp: "i", "i.draft != true" | sort: "post_date" | reverse %}
   {% assign posts_limit = site.feed.posts_limit | default: 10 %}

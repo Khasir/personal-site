@@ -59,16 +59,30 @@ xsl: false
     {% assign posts = posts | where_exp: "post", "post.draft != true" %}
   {% endunless %}
   {% assign posts = posts | where_exp: "post", "post.hidden != true" %}
-  {% assign posts = posts | sort: "date" | reverse %}
+  {% comment %}
+    Dated from `post_date` / `modified_date` frontmatter, falling back to the
+    filename date (`date`) when `post_date` is absent. Liquid can't sort by a
+    computed value, so sort "yyyymmddhhmmss|index" keys and map back.
+  {% endcomment %}
+  {% assign sort_keys = "" | split: "" %}
+  {% for post in posts %}
+    {% assign effective_date = post.post_date | default: post.date %}
+    {% assign sort_key = effective_date | date: "%Y%m%d%H%M%S" | append: "|" | append: forloop.index0 %}
+    {% assign sort_keys = sort_keys | push: sort_key %}
+  {% endfor %}
+  {% assign sort_keys = sort_keys | sort | reverse %}
   {% assign posts_limit = site.feed.posts_limit | default: 10 %}
-  {% for post in posts limit: posts_limit %}
+  {% for sort_key in sort_keys limit: posts_limit %}
+    {% assign post_index = sort_key | split: "|" | last | plus: 0 %}
+    {% assign post = posts[post_index] %}
     <entry{% if post.lang %}{{" "}}xml:lang="{{ post.lang }}"{% endif %}>
       {% assign post_title = post.title | smartify | strip_html | normalize_whitespace | xml_escape %}
 
       <title type="html">{{ post_title }}</title>
       <link href="{{ post.url | absolute_url }}" rel="alternate" type="text/html" title="{{ post_title }}" />
-      <published>{{ post.date | date_to_xmlschema }}</published>
-      <updated>{{ post.last_modified_at | default: post.date | date_to_xmlschema }}</updated>
+      {% assign post_published = post.post_date | default: post.date %}
+      <published>{{ post_published | date_to_xmlschema }}</published>
+      <updated>{{ post.modified_date | default: post_published | date_to_xmlschema }}</updated>
       <id>{{ post.id | absolute_url | xml_escape }}</id>
       {% assign excerpt_only = post.feed.excerpt_only | default: post.encrypted | default: site.feed.excerpt_only %}
       {% unless excerpt_only %}

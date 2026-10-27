@@ -195,6 +195,11 @@ figures/galleries, encryption, comments, reactions and link previews all work.
   `_includes/entry-kind.html` (used by `entry.html` and `tag.html`); add a
   case there for any further collection. `_plugins/seo_description.rb` and
   `_plugins/tag_pages.rb` also list the collection.
+- **Feed dates**: both feeds use `post_date` for `<published>` and
+  `modified_date` for `<updated>` (falling back to `post_date`). `feed.xml`
+  falls back to the filename `date` when `post_date` is absent, and sorts by
+  that effective date via `yyyymmddhhmmss|index` keys (Liquid can't sort by a
+  computed value).
 - **Comment threads** key on `page.slug`, so an interview and a post/note with
   the same slug would share a thread (already true of posts vs notes).
 
