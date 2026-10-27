@@ -645,6 +645,47 @@ button[data-comment-thread-close] {
   }
 }
 
+/* Comment navigator (comments.js): bottom-right on small screens, in the right
+   margin beside the content column from 1150px up (same breakpoint as floating notes). */
+.comment-nav {
+  position: fixed;
+  z-index: 450; /* above the comment popovers (400), below tooltips (500) and the lightbox */
+  right: 1rem;
+  bottom: 1rem;
+  width: 160px;
+  font-weight: bold;
+  text-align: left;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 0.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+.comment-nav[hidden] { display: none; }
+.comment-nav-label { margin: 0.3rem  0.5rem 0.3rem; font-size: 1.25rem; line-height: 1.4; white-space: nowrap; text-align: center; }
+.comment-nav-label[data-comment-nav-label] { margin: 0.3rem 0.5rem 1.0rem; font-size: 1rem; font-weight: normal; }
+.comment-nav-buttons { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem; margin-left: 0.5rem; margin-right: 0.5rem; }
+.comment-nav-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.comment-nav-buttons button:hover { background: var(--color-highlight); }
+@media (min-width: 1150px) {
+  .comment-nav {
+    right: auto;
+    left: calc(50% + var(--content-width) / 2 + 1rem);
+  }
+}
+
 .comments-hint { color: var(--color-muted); font-style: italic; font-size: 1.0rem; }
 
 /* Forms (comments + guestbook) */

@@ -237,7 +237,10 @@
       if (!testRange || rangeSpansMultipleBlocks(testRange)) return;
       anchored.push({ comment: c, start: pos.start, end: pos.end });
     });
-    if (!anchored.length) return;
+    if (!anchored.length) {
+      buildThreads([]);
+      return;
+    }
 
     var bounds = [];
     anchored.forEach(function (a) { bounds.push(a.start, a.end); });
@@ -278,7 +281,75 @@
         (marksByCommentId[a.comment.id] = marksByCommentId[a.comment.id] || []).push(mark);
       });
     }
+
+    buildThreads(anchored);
   }
+
+  // --- comment navigator ------------------------------------------------
+  //
+  // Steps through threads rather than individual comments. Each thread is
+  // represented by the first highlight of its oldest comment.
+
+  var nav = root.querySelector("[data-comment-nav]");
+  var navLabel = root.querySelector("[data-comment-nav-label]");
+  var navPrev = root.querySelector("[data-comment-nav-prev]");
+  var navNext = root.querySelector("[data-comment-nav-next]");
+  var threads = []; // [{ mark, commentIds }]
+  var currentThreadIndex = -1;
+
+  // Put nav right before the article to make it easier to tab-navigate to it.
+  article.parentNode.insertBefore(nav, article);
+
+  function updateNav() {
+    // Entry pages only
+    nav.hidden = threads.length === 0 || !document.querySelector(".entry-heading");
+    navLabel.textContent = (currentThreadIndex === -1 ? "–" : currentThreadIndex + 1) + " of " + threads.length;
+  }
+
+  function buildThreads(anchored) {
+    var byAnchor = Object.create(null);
+    anchored.forEach(function (a) {
+      var key = a.start + ":" + a.end;
+      (byAnchor[key] = byAnchor[key] || { start: a.start, comments: [] }).comments.push(a.comment);
+    });
+    threads = Object.keys(byAnchor)
+      .map(function (key) { return byAnchor[key]; })
+      .sort(function (a, b) { return a.start - b.start; })
+      .map(function (group) {
+        var oldest = group.comments.slice().sort(function (a, b) {
+          return new Date(a.created_at) - new Date(b.created_at);
+        })[0];
+        return {
+          mark: marksByCommentId[oldest.id][0],
+          commentIds: group.comments.map(function (c) { return String(c.id); })
+        };
+      });
+    currentThreadIndex = -1;
+    updateNav();
+  }
+
+  function goToThread(index) {
+    var thread = threads[(index + threads.length) % threads.length];
+    // Instant, not smooth: showThreadFor() positions the popover from the
+    // mark's rect, which would be stale mid-scroll.
+    thread.mark.scrollIntoView({ block: "center", behavior: "instant" });
+    showThreadFor(thread.mark);
+  }
+
+  function stepThread(delta) {
+    if (!threads.length) return;
+    if (currentThreadIndex === -1) goToThread(delta > 0 ? 0 : threads.length - 1);
+    else goToThread(currentThreadIndex + delta);
+  }
+
+  [[navPrev, -1], [navNext, 1]].forEach(function (pair) {
+    pair[0].addEventListener("click", function (e) {
+      // Same reason as the reaction controls: don't let the document-level
+      // click handler read this as an outside click and close the thread.
+      e.stopPropagation();
+      stepThread(pair[1]);
+    });
+  });
 
   // Highlights every segment belonging to the given comment as one group;
   // pass null to clear. No-ops if the group is already the one showing.
@@ -322,6 +393,8 @@
 
   function hideThread() {
     threadPopover.hidden = true;
+    currentThreadIndex = -1;
+    updateNav();
   }
 
   function hideAll() {
@@ -332,6 +405,10 @@
 
   function showThreadFor(mark) {
     currentThreadMark = mark;
+
+    var primaryId = mark.dataset.primaryCommentId;
+    currentThreadIndex = threads.findIndex(function (t) { return t.commentIds.indexOf(primaryId) !== -1; });
+    updateNav();
 
     var ids = (mark.dataset.commentIds || "").split(",").filter(Boolean);
     var comments = ids.map(function (id) { return commentsById[id]; }).filter(Boolean);

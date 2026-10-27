@@ -1,6 +1,22 @@
 <aside class="comments" data-comments data-api-base="{{ site.comments_api_base }}" data-post-slug="{{ page.slug | default: page.url }}">
   <p class="comments-hint" align="center"></p>
 
+  <!-- comments.js moves this to just before .entry-content so keyboard users reach it before the body's links. -->
+  <nav class="comment-nav" data-comment-nav aria-label="Comment navigator" hidden>
+    <div class="comment-nav-text" aria-live="polite" aria-atomic="true">
+      <p class="comment-nav-label">Comments</p>
+      <p class="comment-nav-label" data-comment-nav-label>– of 0</p>
+    </div>
+    <div class="comment-nav-buttons">
+      <button type="button" data-comment-nav-prev aria-label="Previous comment">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3 10.5 8 5.5l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" data-comment-nav-next aria-label="Next comment">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3 5.5 8 10.5l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </nav>
+
   <div class="comment-popover" data-comment-popover hidden>
     <button type="button" class="comment-popover-trigger" data-comment-trigger>Comment</button>
   </div>

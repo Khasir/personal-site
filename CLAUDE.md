@@ -373,6 +373,31 @@ Both backed by the same `comments` D1 table (`functions/`), split by a
   Hypothes.is-style), falling back to bare quote search. No match = dropped
   from inline view (stays in DB).
 
+### Comment navigator
+
+A small box that steps through a page's comment threads (`data-comment-nav`
+in `_includes/comments.html`, logic in `comments.js`, styles in `main.css`
+"Comment navigator"). Hidden unless at least one comment anchored, and only
+on entry pages (`.entry-heading` present; not the homepage or list pages,
+whose comments still work). Fixed 160px wide. `Comments` on line 1 and
+`N of M` on line 2 (`– of M` while idle); line 3 is
+up/down caret buttons (wrap around; Up from idle opens the last thread).
+
+- **Thread** = comments with identical anchor offsets, in document order;
+  represented by the first `<mark>` of the oldest comment. `buildThreads()`
+  runs at the end of `renderAll()`; `showThreadFor()` sets N (so clicking a
+  highlight updates it), `hideThread()` resets it.
+- Navigating `scrollIntoView({block: "center", behavior: "instant"})`s that
+  mark, then opens the popover (instant, because the popover is positioned
+  from the mark's rect).
+- **Position**: `position: fixed`; bottom-right under 1150px, in the right
+  margin (`left: 50% + content-width/2 + 1rem`) from 1150px up.
+- **Tab order**: being fixed, its DOM place is free, so `comments.js` moves
+  it to just before `.entry-content` (after the heading/meta line, before
+  body links); it stays outside `.entry-content` so comment offsets are
+  unaffected. Button clicks `stopPropagation()` so the document handler
+  doesn't close the thread. Tested in `tests/e2e/comment-navigator.spec.js`.
+
 ### Emoji reactions
 
 Comments (not guestbook entries) can be reacted to with a fixed set: 👍 💖
