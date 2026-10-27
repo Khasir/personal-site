@@ -5,13 +5,10 @@ const FEED_URL = "/interviews/feed.xml";
 const feedAutodiscovery = (page) => page.locator(`head link[rel="alternate"][href="${FEED_URL}"]`);
 
 test.describe("interviews: navigation", () => {
-  test("header and footer link to interviews, after posts", async ({ page }) => {
+  test("header and footer don't link to interviews (unlisted, like notes)", async ({ page }) => {
     await page.goto("/");
     for (const nav of [page.locator(".site-header .site-nav"), page.locator(".site-footer .site-nav")]) {
-      const link = nav.locator('a[href="/interviews/"]');
-      await expect(link).toHaveText("interviews");
-      const labels = await nav.locator(":scope > a").allInnerTexts();
-      expect(labels.indexOf("interviews")).toBe(labels.indexOf("posts") + 1);
+      await expect(nav.locator('a[href="/interviews/"]')).toHaveCount(0);
     }
   });
 
@@ -22,11 +19,9 @@ test.describe("interviews: navigation", () => {
     await expect(page.locator('.site-footer a[href="/feed.xml"]')).toHaveText("rss");
   });
 
-  test("the interviews link is marked current on its own page only", async ({ page }) => {
-    await page.goto("/interviews/");
-    await expect(page.locator('.site-header .site-nav a[href="/interviews/"]')).toHaveAttribute("aria-current", "page");
-    await page.goto("/posts/");
-    await expect(page.locator('.site-header .site-nav a[href="/interviews/"]')).not.toHaveAttribute("aria-current", "page");
+  test("the interviews page itself is still reachable", async ({ page }) => {
+    const response = await page.goto("/interviews/");
+    expect(response.status()).toBe(200);
   });
 });
 

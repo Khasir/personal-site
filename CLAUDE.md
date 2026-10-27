@@ -23,9 +23,10 @@ text `#000000`, links `#1155cc`; blockquotes background `#fff2cc`, border
 `#cbb99e`, text `#1b1b1a`.
 
 Header/footer share one nav (`_includes/nav.html`): `home / posts /
-interviews / guestbook`, diamond-separated; footer adds `rss` / `colophon`, header adds
-the accessibility menu (below). A `rough notes` link exists behind a `show_notes` param nothing currently passes
-`true` (see commit `c0ca090`) — `/notes/` still works, just isn't linked. No
+guestbook`, diamond-separated; footer adds `rss` / `colophon`, header adds
+the accessibility menu (below). `rough notes` and `interviews` links exist behind `show_notes` /
+`show_interviews` params nothing currently passes `true` (see commit `c0ca090`
+for notes) — `/notes/` and `/interviews/` still work, just aren't linked. No
 copyright line, by design.
 
 ## Site architecture
@@ -170,8 +171,9 @@ A third collection alongside posts and notes (`interviews` in `_config.yml`,
 figures/galleries, encryption, comments, reactions and link previews all work.
 
 - **List page**: `/interviews/` (`interviews.md` → `_layouts/interviews-list.html`,
-  a copy of `notes-list.html`). Linked from the header and footer nav
-  (`_includes/nav.html`, between `posts` and `guestbook`). **Not** on the
+  a copy of `notes-list.html`). **Not** linked from the header/footer nav
+  (`_includes/nav.html` has it behind `show_interviews`, which nothing
+  passes, same as notes) — reachable by direct link and from tag pages. **Not** on the
   homepage — `home.html` only lists posts. Comments are off on the list page
   (unlike `/notes/`); the intro copy is whatever's in `interviews.md`'s body.
 - **Own feed**: `/interviews/feed.xml` (`interviews-feed.xml`, hand-written
@@ -625,7 +627,7 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   alignment via `getBoundingClientRect` while scrolling, hand-over between
   sections, the no-JS fallback, size+font options, the 1150px threshold, and
   the sticky bar at 375px. `interviews.spec.js` covers the interviews
-  section (nav links in header + footer, feed not in the footer, list page
+  section (no nav links in header/footer, feed not in the footer, list page
   shows non-hidden entries + feed link + `<head>` autodiscovery, not on the
   homepage/`/posts/`, entry page with `interview` label, hidden entry still
   reachable, tag page, `/interviews/feed.xml` summary-only entries and its absence from
