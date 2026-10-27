@@ -124,6 +124,17 @@ test("desktop: sits in the right margin at the bottom of the screen", async ({ p
   expect(box.y + box.height).toBeGreaterThan(700);
 });
 
+test("mobile: opening a thread doesn't widen the page or move the nav", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 700 });
+  await seedComments(page, ["no account required"]);
+  const before = await nav(page).boundingBox();
+  await next(page).click();
+  await expect(thread(page)).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  expect(overflow).toBe(false);
+  expect((await nav(page).boundingBox()).x).toBe(before.x);
+});
+
 test("mobile: floats at the bottom right without overflowing", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 700 });
   await seedComments(page, ["no account required"]);

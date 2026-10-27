@@ -332,7 +332,9 @@
     var thread = threads[(index + threads.length) % threads.length];
     // Instant, not smooth: showThreadFor() positions the popover from the
     // mark's rect, which would be stale mid-scroll.
-    thread.mark.scrollIntoView({ block: "center", behavior: "instant" });
+    var rect = thread.mark.getBoundingClientRect();
+    // Put it a quarter of the way down the screen
+    window.scrollBy({ top: rect.top + rect.height / 2 - window.innerHeight * 0.25, behavior: "instant" });
     showThreadFor(thread.mark);
   }
 
@@ -377,6 +379,15 @@
     var y = anchorEdge === "bottom" ? rect.bottom : rect.top;
     el.style.top = window.scrollY + y + "px";
     el.style.left = window.scrollX + rect.left + rect.width / 2 + "px";
+  }
+
+  // Clamp thread popover and form dialog so they don't extend the page to the right
+  function clampIntoViewport(el) {
+    var margin = parseFloat(getComputedStyle(document.documentElement).fontSize); // 1rem in px
+    var min = window.scrollX + margin;
+    var max = window.scrollX + document.documentElement.clientWidth - el.offsetWidth - margin;
+    var left = parseFloat(el.style.left) || 0;
+    el.style.left = Math.max(min, Math.min(left, max)) + "px";
   }
 
   function hidePopover() {
@@ -438,6 +449,7 @@
     });
     threadPopover.hidden = false;
     positionAt(threadPopover, mark.getBoundingClientRect());
+    clampIntoViewport(threadPopover);
   }
 
   // --- emoji reactions ----------------------------------------------------
@@ -664,6 +676,7 @@
     hidePopover();
     hideThread();
     formDialog.hidden = false;
+    clampIntoViewport(formDialog);
     form.querySelector("#comment-name").focus();
   }
 

@@ -387,9 +387,9 @@ up/down caret buttons (wrap around; Up from idle opens the last thread).
   represented by the first `<mark>` of the oldest comment. `buildThreads()`
   runs at the end of `renderAll()`; `showThreadFor()` sets N (so clicking a
   highlight updates it), `hideThread()` resets it.
-- Navigating `scrollIntoView({block: "center", behavior: "instant"})`s that
-  mark, then opens the popover (instant, because the popover is positioned
-  from the mark's rect).
+- Navigating scrolls (`scrollBy`, `behavior: "instant"`) so that mark's
+  vertical centre sits 25% down the viewport, then opens the popover
+  (instant, because the popover is positioned from the mark's rect).
 - **Position**: `position: fixed`; bottom-right under 1150px, in the right
   margin (`left: 50% + content-width/2 + 1rem`) from 1150px up.
 - **Tab order**: being fixed, its DOM place is free, so `comments.js` moves
