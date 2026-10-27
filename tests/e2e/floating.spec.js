@@ -78,13 +78,13 @@ test.describe("floating notes", () => {
     await expect(page.locator(".floating-section").nth(1).locator(".floating-title")).toHaveText("Second note");
     await expect(page.locator(".floating-section").nth(1).locator(".floating-text")).toHaveCount(0);
 
-    // Title larger than body text, text smaller.
+    // Title larger than body text; the text is plain body size.
     const sizes = await first.evaluate((el) => {
       const px = (sel) => parseFloat(getComputedStyle(el.querySelector(sel)).fontSize);
       return { title: px(".floating-title"), text: px(".floating-text"), body: parseFloat(getComputedStyle(el.querySelector(":scope > p")).fontSize) };
     });
     expect(sizes.title).toBeGreaterThan(sizes.body);
-    expect(sizes.text).toBeLessThan(sizes.body);
+    expect(sizes.text).toBe(sizes.body);
   });
 
   test("desktop: sits in the left margin, fully on screen", async ({ page }) => {

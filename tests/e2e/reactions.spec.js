@@ -1,10 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { selectText, uniqueTag, fakeIp } from "./helpers.js";
+import { selectText, uniqueTag, fakeIp, onlyMyComments } from "./helpers.js";
 
 const POST_URL = "/posts/hello-world/";
 
 test.beforeEach(async ({ page }) => {
   await page.setExtraHTTPHeaders({ "CF-Connecting-IP": fakeIp() });
+  await onlyMyComments(page);
 });
 
 // Posts a comment through the UI (same flow as comments.spec.js) and returns
@@ -121,6 +122,9 @@ test.describe("readable-font accessibility option", () => {
     expect(addBox.y).toBeGreaterThanOrEqual(bodyBox.y + bodyBox.height - 1);
 
     await react(item, "thumbs up");
+    // Wait for the re-render to settle
+    await expect(reactionsOf(item).locator(".reaction-pill")).toBeVisible();
+    await expect(add).toBeVisible();
     const pillBox = await reactionsOf(item).locator(".reaction-pill").boundingBox();
     const addAfter = await add.boundingBox();
     expect(addAfter.x + addAfter.width).toBeLessThanOrEqual(pillBox.x + 1);
@@ -144,6 +148,9 @@ test.describe("touch devices", () => {
 
     await add.click();
     await item.locator('.reaction-option[aria-label="thumbs up"]').click();
+    // Wait for the re-render to settle
+    await expect(reactionsOf(item).locator(".reaction-pill")).toBeVisible();
+    await expect(add).toBeVisible();
     const pillBox = await reactionsOf(item).locator(".reaction-pill").boundingBox();
     const addAfter = await add.boundingBox();
     expect(addAfter.x + addAfter.width).toBeLessThanOrEqual(pillBox.x + 1);
@@ -247,8 +254,8 @@ test.describe("count display", () => {
 
     const pills = page.locator('[data-reactions-for="canned-comment-id"] .reaction-pill');
     await expect(pills).toHaveText(["👍 99+", "💖 99", "😆 99+", "😢 1"]);
-    // The accessible name keeps the real number.
-    await expect(pills.first()).toHaveAttribute("aria-label", /250 reactions/);
+    // The accessible name keeps the real number (😆 is the third pill).
+    await expect(pills.nth(2)).toHaveAttribute("aria-label", /250 reactions/);
   });
 });
 

@@ -87,3 +87,26 @@ export function fakeIp() {
   const octet = () => Math.floor(Math.random() * 255) + 1;
   return `10.${octet()}.${octet()}.${octet()}`;
 }
+
+/** Makes the page show only the comments this test creates. Call it before the first
+ * goto(); the filter applies to every later load of the page, reloads included. */
+export async function onlyMyComments(page) {
+  const mine = new Set();
+  // A harmless callback still awaiting route.fetch() when the test ends throws "Test ended"
+  await page.route(/\/api\/comments(\?|$)/, async (route) => {
+    try {
+      const method = route.request().method();
+      if (method !== "GET" && method !== "POST") return await route.fallback();
+      const response = await route.fetch();
+      const body = await response.json();
+      if (method === "POST") {
+        // Recorded before the page sees the response, so the follow-up GET can't miss it.
+        if (body && body.id) mine.add(body.id);
+        return await route.fulfill({ response, json: body });
+      }
+      await route.fulfill({ response, json: body.filter((c) => mine.has(c.id)) });
+    } catch {
+      // Test ended mid-request.
+    }
+  });
+}

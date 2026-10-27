@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { selectText, selectAcross, uniqueTag, fakeIp } from "./helpers.js";
+import { selectText, selectAcross, uniqueTag, fakeIp, onlyMyComments } from "./helpers.js";
 
 const POST_URL = "/posts/hello-world/";
 
@@ -8,6 +8,7 @@ const POST_URL = "/posts/hello-world/";
 // helpers.js for why this is safe to do from a test.
 test.beforeEach(async ({ page }) => {
   await page.setExtraHTTPHeaders({ "CF-Connecting-IP": fakeIp() });
+  await onlyMyComments(page);
 });
 
 async function submitComment(page, { name, body }) {

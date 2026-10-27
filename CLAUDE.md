@@ -608,7 +608,13 @@ Open the URL Wrangler prints (typically http://localhost:8788).
   test:e2e` builds the site, wipes/re-migrates a dedicated local D1
   (`.wrangler-test/`), and serves on port 8799. Each test sets its own fake
   `CF-Connecting-IP` (`fakeIp()` in `helpers.js`) so the shared rate limiter
-  doesn't trip between tests. `design.spec.js` also covers internal link
+  doesn't trip between tests. All specs share one D1 and the `hello-world`
+  post, so comments from earlier specs (e.g. `comment-navigator.spec.js`,
+  which runs first) pile up and split highlights into segments;
+  `comments.spec.js` and `reactions.spec.js` call `onlyMyComments(page)`
+  (`helpers.js`) in `beforeEach` to filter `GET /api/comments` down to the
+  comments that test created. Use it in any new spec that asserts on marks
+  or the thread popover. `design.spec.js` also covers internal link
   previews (links injected into the homepage intro, since posts' links
   aren't known; title/excerpt shown, nowrap excerpt, no preview for
   list pages/images/feed). `accessibility.spec.js` covers the
