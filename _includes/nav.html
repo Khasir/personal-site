@@ -2,6 +2,10 @@
   <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>home</a>
   <span class="nav-sep" aria-hidden="true">&#11045;</span>
   <a href="{{ '/posts/' | relative_url }}"{% if page.url == '/posts/' %} aria-current="page"{% endif %}>posts</a>
+  {% if include.show_interviews %}
+  <span class="nav-sep" aria-hidden="true">&#11045;</span>
+  <a href="{{ '/interviews/' | relative_url }}"{% if page.url == '/interviews/' %} aria-current="page"{% endif %}>interviews</a>
+  {% endif %}
   {% if include.show_notes %}
   <span class="nav-sep" aria-hidden="true">&#11045;</span>
   <a href="{{ '/notes/' | relative_url }}"{% if page.url == '/notes/' %} aria-current="page"{% endif %}>rough notes</a>

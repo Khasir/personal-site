@@ -1,6 +1,6 @@
 module Jekyll
   # Generates one page per tag at /tags/:tag/, listing every non-hidden
-  # post/note that carries that tag. Reads its front matter/body straight
+  # post/note/interview that carries that tag. Reads its front matter/body straight
   # from _layouts/tag.html via read_yaml (see https://jekyllrb.com/docs/plugins/generators/).
   class TagPage < Page
     def initialize(site, tag, slug, entries)
@@ -26,7 +26,7 @@ module Jekyll
     def generate(site)
       tagged = Hash.new { |h, k| h[k] = [] }
 
-      (site.posts.docs + site.collections["notes"].docs).each do |doc|
+      (site.posts.docs + site.collections["notes"].docs + site.collections["interviews"].docs).each do |doc|
         next if doc.data["hidden"]
 
         Array(doc.data["tags"]).each { |tag| tagged[tag] << doc }

@@ -237,7 +237,10 @@
       if (!testRange || rangeSpansMultipleBlocks(testRange)) return;
       anchored.push({ comment: c, start: pos.start, end: pos.end });
     });
-    if (!anchored.length) return;
+    if (!anchored.length) {
+      buildThreads([]);
+      return;
+    }
 
     var bounds = [];
     anchored.forEach(function (a) { bounds.push(a.start, a.end); });
@@ -278,7 +281,97 @@
         (marksByCommentId[a.comment.id] = marksByCommentId[a.comment.id] || []).push(mark);
       });
     }
+
+    buildThreads(anchored);
   }
+
+  // --- comment navigator ------------------------------------------------
+  //
+  // Steps through threads rather than individual comments. Each thread is
+  // represented by the first highlight of its oldest comment.
+
+  var nav = root.querySelector("[data-comment-nav]");
+  var navLabel = root.querySelector("[data-comment-nav-label]");
+  var navPrev = root.querySelector("[data-comment-nav-prev]");
+  var navNext = root.querySelector("[data-comment-nav-next]");
+  var threads = []; // [{ mark, commentIds }]
+  var currentThreadIndex = -1;
+
+  // Put nav right before the article to make it easier to tab-navigate to it.
+  article.parentNode.insertBefore(nav, article);
+
+  // Clicking "Comments" collapses the box and back. Remembered in localStorage.
+  var NAV_MINIMIZED_KEY = "comment-nav-minimized";
+  var navToggle = nav.querySelector("[data-comment-nav-toggle]"); // not root: nav has been moved out of it
+
+  function setNavMinimized(minimized) {
+    nav.classList.toggle("is-minimized", minimized);
+    navToggle.textContent = minimized ? "📜" : "Comments";
+    navToggle.setAttribute("aria-expanded", minimized ? "false" : "true");
+  }
+
+  try { setNavMinimized(localStorage.getItem(NAV_MINIMIZED_KEY) === "on"); } catch (e) { /* storage blocked: stay expanded */ }
+
+  navToggle.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var minimized = !nav.classList.contains("is-minimized");
+    setNavMinimized(minimized);
+    try { localStorage.setItem(NAV_MINIMIZED_KEY, minimized ? "on" : "off"); } catch (err) { /* this page only */ }
+  });
+
+  function updateNav() {
+    // Entry pages only
+    nav.hidden = threads.length === 0 || !document.querySelector(".entry-heading");
+    navLabel.textContent = (currentThreadIndex === -1 ? "–" : currentThreadIndex + 1) + " of " + threads.length;
+  }
+
+  function buildThreads(anchored) {
+    var byAnchor = Object.create(null);
+    anchored.forEach(function (a) {
+      var key = a.start + ":" + a.end;
+      (byAnchor[key] = byAnchor[key] || { start: a.start, comments: [] }).comments.push(a.comment);
+    });
+    threads = Object.keys(byAnchor)
+      .map(function (key) { return byAnchor[key]; })
+      .sort(function (a, b) { return a.start - b.start; })
+      .map(function (group) {
+        var oldest = group.comments.slice().sort(function (a, b) {
+          return new Date(a.created_at) - new Date(b.created_at);
+        })[0];
+        return {
+          mark: marksByCommentId[oldest.id][0],
+          commentIds: group.comments.map(function (c) { return String(c.id); })
+        };
+      });
+    currentThreadIndex = -1;
+    updateNav();
+  }
+
+  function goToThread(index) {
+    index = (index + threads.length) % threads.length;
+    var thread = threads[index];
+    // Instant, not smooth: showThreadFor() positions the popover from the
+    // mark's rect, which would be stale mid-scroll.
+    var rect = thread.mark.getBoundingClientRect();
+    // Put it a quarter of the way down the screen
+    window.scrollBy({ top: rect.top + rect.height / 2 - window.innerHeight * 0.25, behavior: "instant" });
+    showThreadFor(thread.mark, index);
+  }
+
+  function stepThread(delta) {
+    if (!threads.length) return;
+    if (currentThreadIndex === -1) goToThread(delta > 0 ? 0 : threads.length - 1);
+    else goToThread(currentThreadIndex + delta);
+  }
+
+  [[navPrev, -1], [navNext, 1]].forEach(function (pair) {
+    pair[0].addEventListener("click", function (e) {
+      // Same reason as the reaction controls: don't let the document-level
+      // click handler read this as an outside click and close the thread.
+      e.stopPropagation();
+      stepThread(pair[1]);
+    });
+  });
 
   // Highlights every segment belonging to the given comment as one group;
   // pass null to clear. No-ops if the group is already the one showing.
@@ -308,6 +401,15 @@
     el.style.left = window.scrollX + rect.left + rect.width / 2 + "px";
   }
 
+  // Clamp thread popover and form dialog so they don't extend the page to the right
+  function clampIntoViewport(el) {
+    var margin = parseFloat(getComputedStyle(document.documentElement).fontSize); // 1rem in px
+    var min = window.scrollX + margin;
+    var max = window.scrollX + document.documentElement.clientWidth - el.offsetWidth - margin;
+    var left = parseFloat(el.style.left) || 0;
+    el.style.left = Math.max(min, Math.min(left, max)) + "px";
+  }
+
   function hidePopover() {
     popover.hidden = true;
   }
@@ -322,6 +424,8 @@
 
   function hideThread() {
     threadPopover.hidden = true;
+    currentThreadIndex = -1;
+    updateNav();
   }
 
   function hideAll() {
@@ -330,8 +434,19 @@
     hideThread();
   }
 
-  function showThreadFor(mark) {
+  function showThreadFor(mark, threadIndex) {
     currentThreadMark = mark;
+
+    // The navigator passes its own index. Working it out from the mark isn't
+    // reliable there: where comments overlap, a thread's first mark can be
+    // "primary" to a newer comment from a different thread.
+    if (typeof threadIndex === "number") {
+      currentThreadIndex = threadIndex;
+    } else {
+      var primaryId = mark.dataset.primaryCommentId;
+      currentThreadIndex = threads.findIndex(function (t) { return t.commentIds.indexOf(primaryId) !== -1; });
+    }
+    updateNav();
 
     var ids = (mark.dataset.commentIds || "").split(",").filter(Boolean);
     var comments = ids.map(function (id) { return commentsById[id]; }).filter(Boolean);
@@ -361,6 +476,7 @@
     });
     threadPopover.hidden = false;
     positionAt(threadPopover, mark.getBoundingClientRect());
+    clampIntoViewport(threadPopover);
   }
 
   // --- emoji reactions ----------------------------------------------------
@@ -587,6 +703,7 @@
     hidePopover();
     hideThread();
     formDialog.hidden = false;
+    clampIntoViewport(formDialog);
     form.querySelector("#comment-name").focus();
   }
 

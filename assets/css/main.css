@@ -319,6 +319,47 @@ blockquote p.attribution { text-align: right; }
   text-align: center;
 }
 
+/* Floating notes: title (+ optional text) 
+   .floating-section must stay free of padding, border, overflow and flow-root
+   to align visually with its paragraphs. */
+
+.floating-section { position: relative; }
+
+/* Narrow screens: a bar at the top of the screen, pushed off when the section ends. */
+.floating-note {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+.entry-content .floating-title { margin: 0; font-size: 1.5rem; line-height: 1.3; }
+.entry-content .floating-text { margin: 0.25rem 0 0; }
+
+/* Roomy screens: a full-height track in the left margin, holding a sticky note. */
+@media (min-width: 1150px) {
+  .floating-note {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    width: 11rem;
+    margin: 0 1.5rem 0 0;
+    padding: 0;
+    background: none;
+    border-bottom: 0;
+  }
+  /* Without JS: top edge at mid-screen, shifted up by half its own height. */
+  .floating-inner { position: sticky; top: 50vh; transform: translateY(-50%); }
+  /* With JS: the exact height is known. */
+  .floating-inner[data-floating-measured] {
+    top: calc(50vh - var(--floating-h) / 2);
+    transform: none;
+  }
+}
+
 /* Expansion sections (native <details>/<summary>) */
 
 details {
@@ -601,6 +642,66 @@ button[data-comment-thread-close] {
     position: static;
     margin-top: 0.4rem;
     opacity: 1;
+  }
+}
+
+/* Comment navigator (comments.js): bottom-right on small screens, in the right
+   margin beside the content column from 1150px up (same breakpoint as floating notes). */
+.comment-nav {
+  position: fixed;
+  z-index: 450; /* above the comment popovers (400), below tooltips (500) and the lightbox */
+  right: 1rem;
+  bottom: 1rem;
+  width: 160px;
+  touch-action: manipulation; /* try preventing double-tap zoom from messing with nav */
+  user-select: none; /* try preventing rapid clicks from messing with nav */
+  font-weight: bold;
+  text-align: left;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 0.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+.comment-nav[hidden] { display: none; }
+.comment-nav-label { margin: 0.3rem  0.5rem 0.3rem; font-size: 1.25rem; line-height: 1.4; white-space: nowrap; text-align: center; }
+.comment-nav-label[data-comment-nav-label] { margin: 0.3rem 0.5rem 1.0rem; font-size: 1.1rem; font-weight: normal; }
+.comment-nav-toggle {
+  display: block;
+  width: calc(100% - 1rem);
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  border: none;
+  font-family: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+}
+.comment-nav-toggle:hover { text-decoration: underline; }
+/* Minimized: just the speech bubble. */
+.comment-nav.is-minimized { width: auto; background: transparent; box-shadow: none; border: none; padding: 0; margin: 0; }
+.comment-nav.is-minimized .comment-nav-toggle { width: auto; margin-bottom: 0.3rem; font-size: 1.75rem; background: var(--color-card-bg) }
+.comment-nav.is-minimized .comment-nav-text,
+.comment-nav.is-minimized .comment-nav-buttons { display: none; }
+.comment-nav-buttons { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem; margin-left: 0.5rem; margin-right: 0.5rem; }
+.comment-nav-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.comment-nav-buttons button:hover { background: var(--color-highlight); }
+@media (min-width: 1150px) {
+  .comment-nav {
+    right: auto;
+    left: calc(50% + var(--content-width) / 2 + 1rem);
   }
 }
 
