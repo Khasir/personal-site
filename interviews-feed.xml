@@ -1,0 +1,49 @@
+---
+layout: null
+sitemap: false
+permalink: /interviews/feed.xml
+---
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <generator uri="https://jekyllrb.com/" version="{{ jekyll.version }}">Jekyll</generator>
+  <link href="{{ page.url | absolute_url }}" rel="self" type="application/atom+xml" />
+  <link href="{{ '/interviews/' | absolute_url }}" rel="alternate" type="text/html" />
+  <updated>{{ site.time | date_to_xmlschema }}</updated>
+  <id>{{ page.url | absolute_url | xml_escape }}</id>
+  <title type="html">{{ site.title | append: " | Interviews" | smartify | xml_escape }}</title>
+  <subtitle>{{ site.description | xml_escape }}</subtitle>
+  <author>
+    <name>{{ site.author.name | default: site.author | xml_escape }}</name>
+  </author>
+
+  {% comment %}
+    Unlike feed.xml (posts, dated from the filename), interviews take their
+    date from `post_date`, same as notes -- `date` would just be the build time.
+  {% endcomment %}
+  {% assign interviews = site.interviews | where_exp: "i", "i.hidden != true" | where_exp: "i", "i.draft != true" | sort: "post_date" | reverse %}
+  {% assign posts_limit = site.feed.posts_limit | default: 10 %}
+  {% for interview in interviews limit: posts_limit %}
+    {% assign interview_title = interview.title | smartify | strip_html | normalize_whitespace | xml_escape %}
+    <entry>
+      <title type="html">{{ interview_title }}</title>
+      <link href="{{ interview.url | absolute_url }}" rel="alternate" type="text/html" title="{{ interview_title }}" />
+      <published>{{ interview.post_date | date_to_xmlschema }}</published>
+      <updated>{{ interview.modified_date | default: interview.post_date | date_to_xmlschema }}</updated>
+      <id>{{ interview.id | absolute_url | xml_escape }}</id>
+      {% assign excerpt_only = interview.feed.excerpt_only | default: interview.encrypted | default: site.feed.excerpt_only %}
+      {% unless excerpt_only %}
+        <content type="html" xml:base="{{ interview.url | absolute_url | xml_escape }}"><![CDATA[{{ interview.content | strip }}]]></content>
+      {% endunless %}
+      <author>
+        <name>{{ site.author.name | default: site.author | xml_escape }}</name>
+      </author>
+      {% for tag in interview.tags %}
+        <category term="{{ tag | xml_escape }}" />
+      {% endfor %}
+      {% assign summary = interview.link_preview | default: interview.excerpt %}
+      {% if summary and summary != empty %}
+        <summary type="html"><![CDATA[{{ summary | strip_html | normalize_whitespace }}]]></summary>
+      {% endif %}
+    </entry>
+  {% endfor %}
+</feed>

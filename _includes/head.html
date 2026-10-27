@@ -22,3 +22,6 @@
 })();
 </script>
 <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
+{% if page.url == '/interviews/' or page.collection == 'interviews' %}
+<link rel="alternate" type="application/rss+xml" title="{{ site.title }} | Interviews" href="{{ '/interviews/feed.xml' | relative_url }}">
+{% endif %}

@@ -1,0 +1,19 @@
+---
+layout: default
+---
+<section class="entry-list-page">
+  <h1>{{ page.title }}</h1>
+  <div class="entry-content">
+    {{ content }}
+  </div>
+  <ul class="entry-list">
+    {% assign entries = site.interviews | sort: "post_date" | reverse | where_exp: "i", "i.hidden != true" %}
+    {% for entry in entries %}
+    <li>
+      {% if entry.encrypted %}{% include lock-icon.html %} {% endif %}<a href="{{ entry.url | relative_url }}">{{ entry.title }}</a>
+      {% if entry.link_preview and entry.encrypted != true %}<p class="entry-summary">{{ entry.link_preview }}</p>{% endif %}
+      <time datetime="{{ entry.post_date | date_to_xmlschema }}"><abbr title="posted">p.</abbr> {{ entry.post_date | date: "%b %-d, %Y" }}</time>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
