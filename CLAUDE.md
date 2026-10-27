@@ -383,6 +383,12 @@ whose comments still work). Fixed 160px wide. `Comments` on line 1 and
 `N of M` on line 2 (`– of M` while idle); line 3 is
 up/down caret buttons (wrap around; Up from idle opens the last thread).
 
+- **Minimize**: the `Comments` label is a toggle button
+  (`data-comment-nav-toggle`, `aria-expanded`, fixed `aria-label`);
+  clicking it adds `.is-minimized` (only `📜` shows) and clicking again
+  restores it. Remembered in `localStorage["comment-nav-minimized"]`
+  (`"on"`/`"off"`, try/catch wrapped), read in `comments.js` at load; no
+  inline head script, since the nav is hidden until comments load anyway.
 - **Thread** = comments with identical anchor offsets, in document order;
   represented by the first `<mark>` of the oldest comment. `buildThreads()`
   runs at the end of `renderAll()`; `showThreadFor()` sets N (so clicking a

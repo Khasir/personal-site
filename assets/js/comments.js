@@ -300,6 +300,25 @@
   // Put nav right before the article to make it easier to tab-navigate to it.
   article.parentNode.insertBefore(nav, article);
 
+  // Clicking "Comments" collapses the box and back. Remembered in localStorage.
+  var NAV_MINIMIZED_KEY = "comment-nav-minimized";
+  var navToggle = nav.querySelector("[data-comment-nav-toggle]"); // not root: nav has been moved out of it
+
+  function setNavMinimized(minimized) {
+    nav.classList.toggle("is-minimized", minimized);
+    navToggle.textContent = minimized ? "📜" : "Comments";
+    navToggle.setAttribute("aria-expanded", minimized ? "false" : "true");
+  }
+
+  try { setNavMinimized(localStorage.getItem(NAV_MINIMIZED_KEY) === "on"); } catch (e) { /* storage blocked: stay expanded */ }
+
+  navToggle.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var minimized = !nav.classList.contains("is-minimized");
+    setNavMinimized(minimized);
+    try { localStorage.setItem(NAV_MINIMIZED_KEY, minimized ? "on" : "off"); } catch (err) { /* this page only */ }
+  });
+
   function updateNav() {
     // Entry pages only
     nav.hidden = threads.length === 0 || !document.querySelector(".entry-heading");
@@ -329,13 +348,14 @@
   }
 
   function goToThread(index) {
-    var thread = threads[(index + threads.length) % threads.length];
+    index = (index + threads.length) % threads.length;
+    var thread = threads[index];
     // Instant, not smooth: showThreadFor() positions the popover from the
     // mark's rect, which would be stale mid-scroll.
     var rect = thread.mark.getBoundingClientRect();
     // Put it a quarter of the way down the screen
     window.scrollBy({ top: rect.top + rect.height / 2 - window.innerHeight * 0.25, behavior: "instant" });
-    showThreadFor(thread.mark);
+    showThreadFor(thread.mark, index);
   }
 
   function stepThread(delta) {
@@ -414,11 +434,18 @@
     hideThread();
   }
 
-  function showThreadFor(mark) {
+  function showThreadFor(mark, threadIndex) {
     currentThreadMark = mark;
 
-    var primaryId = mark.dataset.primaryCommentId;
-    currentThreadIndex = threads.findIndex(function (t) { return t.commentIds.indexOf(primaryId) !== -1; });
+    // The navigator passes its own index. Working it out from the mark isn't
+    // reliable there: where comments overlap, a thread's first mark can be
+    // "primary" to a newer comment from a different thread.
+    if (typeof threadIndex === "number") {
+      currentThreadIndex = threadIndex;
+    } else {
+      var primaryId = mark.dataset.primaryCommentId;
+      currentThreadIndex = threads.findIndex(function (t) { return t.commentIds.indexOf(primaryId) !== -1; });
+    }
     updateNav();
 
     var ids = (mark.dataset.commentIds || "").split(",").filter(Boolean);

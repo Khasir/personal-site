@@ -653,6 +653,8 @@ button[data-comment-thread-close] {
   right: 1rem;
   bottom: 1rem;
   width: 160px;
+  touch-action: manipulation; /* try preventing double-tap zoom from messing with nav */
+  user-select: none; /* try preventing rapid clicks from messing with nav */
   font-weight: bold;
   text-align: left;
   background: var(--color-card-bg);
@@ -663,7 +665,24 @@ button[data-comment-thread-close] {
 }
 .comment-nav[hidden] { display: none; }
 .comment-nav-label { margin: 0.3rem  0.5rem 0.3rem; font-size: 1.25rem; line-height: 1.4; white-space: nowrap; text-align: center; }
-.comment-nav-label[data-comment-nav-label] { margin: 0.3rem 0.5rem 1.0rem; font-size: 1rem; font-weight: normal; }
+.comment-nav-label[data-comment-nav-label] { margin: 0.3rem 0.5rem 1.0rem; font-size: 1.1rem; font-weight: normal; }
+.comment-nav-toggle {
+  display: block;
+  width: calc(100% - 1rem);
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  border: none;
+  font-family: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+}
+.comment-nav-toggle:hover { text-decoration: underline; }
+/* Minimized: just the speech bubble. */
+.comment-nav.is-minimized { width: auto; background: transparent; box-shadow: none; border: none; padding: 0; margin: 0; }
+.comment-nav.is-minimized .comment-nav-toggle { width: auto; margin-bottom: 0.3rem; font-size: 1.75rem; background: var(--color-card-bg) }
+.comment-nav.is-minimized .comment-nav-text,
+.comment-nav.is-minimized .comment-nav-buttons { display: none; }
 .comment-nav-buttons { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem; margin-left: 0.5rem; margin-right: 0.5rem; }
 .comment-nav-buttons button {
   display: inline-flex;

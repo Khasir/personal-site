@@ -53,6 +53,39 @@ test("is a fixed 160px wide", async ({ page }) => {
   expect((await nav(page).boundingBox()).width).toBe(160);
 });
 
+test("clicking the Comments label minimizes it to a speech bubble and back", async ({ page }) => {
+  await seedComments(page, ["no account required"]);
+  const toggle = page.locator("[data-comment-nav-toggle]");
+  await toggle.click();
+  await expect(toggle).toHaveText("📜");
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(next(page)).toBeHidden();
+  await expect(label(page)).toBeHidden();
+
+  await page.reload(); // remembered
+  await expect(toggle).toHaveText("📜");
+  await expect(next(page)).toBeHidden();
+
+  await toggle.click();
+  await page.reload();
+  await expect(toggle).toHaveText("Comments"); // expanded state is remembered too
+  await expect(next(page)).toBeVisible();
+});
+
+test("steps in order when a newer thread's highlight overlaps an older one", async ({ page }) => {
+  // The older, inner thread's first mark is "primary" to the newer, outer
+  // comment; the label must still follow the navigator's own position.
+  await seedComments(page, ["account required", "no account required"]);
+  await next(page).click();
+  await expect(label(page)).toHaveText("1 of 2");
+  await next(page).click();
+  await expect(label(page)).toHaveText("2 of 2");
+  await next(page).click();
+  await expect(label(page)).toHaveText("1 of 2");
+  await prev(page).click();
+  await expect(label(page)).toHaveText("2 of 2");
+});
+
 test("appears once a comment exists and walks threads with wrap-around", async ({ page }) => {
   await seedComments(page, ["no account required", "kramdown handles the numbering"]);
 
