@@ -69,6 +69,24 @@ feed, and the homepage's recent list, but it's still reachable by direct link. `
 `_layouts/tag.html` loaded via `read_yaml`), newest-first across all
 three collections; each tag in `entry.html`'s meta line links there.
 
+**Audio ("Listen to this post")**: optional frontmatter `audio_file`
+(path relative to `content/`, e.g. `audio/foo.mp3`, served at
+`/content/audio/foo.mp3` as a static file like `content/images/`; a full
+`http(s)://` URL is used as-is) and `audio_description` (markdown, rendered
+with `markdownify` in the layout). `_layouts/entry.html` includes
+`_includes/audio-player.html` under the meta line: a native `<audio controls>`
+fallback that `assets/js/audio-player.js` (loaded only when `audio_file` is
+set; `window.wireAudioPlayer(root)`) hides in favour of play/pause, back/forward
+5s, a seek bar, time, a volume button (opens a small slider popover, same
+disclosure behaviour; one popover open at a time) and a download link. With a description, an info (circle)
+button toggles a speech bubble (`.audio-bubble`, disclosure pattern like the
+accessibility menu: Escape/outside click closes, focus returns). Skipped
+entirely for `encrypted` posts. Styles in `main.css` ("Audio player"), readable-font
+overrides in `accessible.css` (with the option on, a pressed `.audio-btn` gets a 2px
+outline via `:focus`/`:active`, since `:focus-visible` doesn't fire for mouse clicks). Tested in `tests/e2e/audio.spec.js` against
+throwaway fixtures (`fixtures/setup-audio-fixture.js` writes three posts and a
+generated silent WAV into `content/audio/`; `global-teardown.js` removes them).
+
 Within a post/note body:
 
 - **Images**: `{% include figure.html src="..." alt="..." caption="..." align="left|right|center" width="320px" %}` —

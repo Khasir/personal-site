@@ -8,7 +8,24 @@ import {
   INTERVIEW_FIXTURE_DIR,
 } from "./fixtures/interview-fixture-constants.js";
 
+import {
+  AUDIO_DESCRIBED_FIXTURE,
+  AUDIO_DIR,
+  AUDIO_FILE_PATH,
+  AUDIO_PLAIN_FIXTURE,
+  NO_AUDIO_FIXTURE,
+} from "./fixtures/audio-fixture-constants.js";
+
 export default async function globalTeardown() {
+  fs.rmSync(AUDIO_DESCRIBED_FIXTURE.path, { force: true });
+  fs.rmSync(AUDIO_PLAIN_FIXTURE.path, { force: true });
+  fs.rmSync(NO_AUDIO_FIXTURE.path, { force: true });
+  fs.rmSync(AUDIO_FILE_PATH, { force: true });
+  try {
+    fs.rmdirSync(AUDIO_DIR); // only if the fixture was all that was in it
+  } catch {
+    // Missing or holds real audio -- leave it.
+  }
   fs.rmSync(FIXTURE_PATH, { force: true });
   fs.rmSync(GALLERY_FIXTURE_PATH, { force: true });
   fs.rmSync(FLOATING_FIXTURE_PATH, { force: true });

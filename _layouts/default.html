@@ -19,6 +19,9 @@
 {% if page.comments %}
 <script src="{{ '/assets/js/comments.js' | relative_url }}" defer></script>
 {% endif %}
+{% if page.audio_file and page.encrypted != true %}
+<script src="{{ '/assets/js/audio-player.js' | relative_url }}" defer></script>
+{% endif %}
 {% if page.layout == 'guestbook' %}
 <script src="{{ '/assets/js/guestbook.js' | relative_url }}" defer></script>
 {% endif %}

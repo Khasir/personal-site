@@ -1,0 +1,45 @@
+{%- comment -%}
+  "Listen to this post" row (assets/js/audio-player.js). audio_file is relative
+  to content/ (e.g. audio/foo.mp3); a full http(s) URL is used as-is. Without
+  JS the native <audio controls> shows; the script swaps in the custom controls.
+{%- endcomment -%}
+{%- if page.audio_file contains '://' -%}
+  {%- assign audio_src = page.audio_file -%}
+{%- else -%}
+  {%- assign audio_src = '/content/' | append: page.audio_file | replace: '/content//', '/content/' | relative_url -%}
+{%- endif -%}
+<div class="audio-player" data-audio-player>
+  <span class="audio-label" id="audio-label">Listen to this post</span>
+  {%- if page.audio_description %}
+  <button type="button" class="audio-btn audio-info" data-audio-info aria-haspopup="true" aria-expanded="false" aria-controls="audio-bubble" title="About this recording" aria-label="About this recording">
+    <svg class="audio-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6" stroke-linecap="round"/><circle cx="12" cy="7.6" r="0.6" fill="currentColor"/></svg>
+  </button>
+  <div class="audio-bubble" id="audio-bubble" role="note" hidden>{{ page.audio_description | markdownify }}</div>
+  {%- endif %}
+  <audio class="audio-element" src="{{ audio_src }}" preload="none" controls aria-labelledby="audio-label"></audio>
+  <div class="audio-controls" hidden>
+    <button type="button" class="audio-btn audio-btn--play" data-audio-play title="Play" aria-label="Play" aria-pressed="false">
+      <svg class="audio-icon audio-icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z"/></svg>
+      <svg class="audio-icon audio-icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+    </button>
+    <button type="button" class="audio-btn" data-audio-back title="Back 5 seconds" aria-label="Back 5 seconds">
+      <svg class="audio-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11 6V2L5 7l6 5V8a5 5 0 1 1-5 5H4a7 7 0 1 0 7-7z"/></svg><span class="audio-skip"></span>
+    </button>
+    <button type="button" class="audio-btn" data-audio-forward title="Forward 5 seconds" aria-label="Forward 5 seconds">
+      <span class="audio-skip"></span><svg class="audio-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M13 6V2l6 5-6 5V8a5 5 0 1 0 5 5h2a7 7 0 1 1-7-7z"/></svg>
+    </button>
+    <input type="range" class="audio-seek" data-audio-seek min="0" max="0" step="1" value="0" aria-label="Seek">
+    <span class="audio-time" data-audio-time>0:00 / 0:00</span>
+    <span class="audio-volume">
+      <button type="button" class="audio-btn" data-audio-volume-toggle aria-haspopup="true" aria-expanded="false" aria-controls="audio-volume-pop" title="Volume" aria-label="Volume">
+        <svg class="audio-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>
+      </button>
+      <div class="audio-volume-pop" id="audio-volume-pop" hidden>
+        <input type="range" class="audio-volume-slider" data-audio-volume min="0" max="100" step="1" value="100" aria-label="Volume">
+      </div>
+    </span>
+    <a class="audio-btn audio-download" href="{{ audio_src }}" download title="Download" aria-label="Download audio">
+      <svg class="audio-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z"/></svg>
+    </a>
+  </div>
+</div>

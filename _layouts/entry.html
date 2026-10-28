@@ -20,6 +20,7 @@ layout: default
       </span>
       {% endif %}
     </p>
+    {% if page.audio_file and page.encrypted != true %}{% include audio-player.html %}{% endif %}
   </header>
 
   {% if page.encrypted %}

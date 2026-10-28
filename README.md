@@ -28,6 +28,7 @@ Source code (+ related stuff) for Khasir's personal website. The following READM
 - Toggleable accessibility mode
 - Site works on mobile
 - Comment navigator
+- Support for audio narrations of posts
 - Guestbook
 - RSS feed
 

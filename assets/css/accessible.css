@@ -96,6 +96,14 @@ html[data-a11y-font="on"] .reaction-option[aria-pressed="true"] {
   font-weight: 600;
 }
 
+/* Audio player: outline a button once it's pressed.
+   Not a border so the button doesn't change size. */
+html[data-a11y-font="on"] .audio-btn:focus,
+html[data-a11y-font="on"] .audio-btn:active {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+
 /* Error/success are black like everything else, so give errors weight. */
 html[data-a11y-font="on"] .form-status[data-state] { color: var(--color-text); }
 html[data-a11y-font="on"] .form-status[data-state="error"] { font-weight: 600; }
