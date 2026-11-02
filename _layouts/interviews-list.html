@@ -17,3 +17,7 @@ layout: default
     {% endfor %}
   </ul>
 </section>
+
+{% if page.comments %}
+{% include comments.html %}
+{% endif %}
