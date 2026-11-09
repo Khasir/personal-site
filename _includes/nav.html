@@ -10,8 +10,10 @@
   <span class="nav-sep" aria-hidden="true">&#11045;</span>
   <a href="{{ '/notes/' | relative_url }}"{% if page.url == '/notes/' %} aria-current="page"{% endif %}>rough notes</a>
   {% endif %}
+  {% if include.show_guestbook %}
   <span class="nav-sep" aria-hidden="true">&#11045;</span>
   <a href="{{ '/guestbook/' | relative_url }}"{% if page.url == '/guestbook/' %} aria-current="page"{% endif %}>guestbook</a>
+  {% endif %}
   {% if include.show_a11y %}
   <span class="nav-sep" aria-hidden="true">&#11045;</span>
   {% comment %}
