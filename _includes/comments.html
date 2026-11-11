@@ -1,5 +1,5 @@
 <aside class="comments" data-comments data-api-base="{{ site.comments_api_base }}" data-post-slug="{{ page.slug | default: page.url }}">
-  <p class="comments-hint" align="center"></p>
+  <p class="comments-hint" align="center"{% if page.comment_hints.size > 0 %} data-hints="{{ page.comment_hints | jsonify | escape }}"{% endif %}></p>
 
   <!-- comments.js moves this to just before .entry-content so keyboard users reach it before the body's links. -->
   <nav class="comment-nav" data-comment-nav aria-label="Comment navigator" hidden>

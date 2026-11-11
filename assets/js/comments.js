@@ -8,7 +8,7 @@
 
   // Higher weight = more likely to show.
   var HINTS = [
-    { text: "", weight: 43 },
+    { text: "", weight: 50 },
     { text: "i love you, still", weight: 1 },
     { text: "Sometimes our selections may surprise us.", weight: 1 },
     { text: "Click and drag. Click and draaaaaaag.", weight: 1 },
@@ -29,7 +29,19 @@
   }
 
   var hintEl = root.querySelector(".comments-hint");
-  if (hintEl) hintEl.textContent = pickWeighted(HINTS);
+  if (hintEl) {
+    // A page's `comment_hints` frontmatter (strings, equal weight) replaces the global pool.
+    var pageHints = [];
+    try {
+      var parsed = JSON.parse(hintEl.getAttribute("data-hints") || "[]");
+      if (Array.isArray(parsed)) {
+        pageHints = parsed
+          .filter(function (t) { return typeof t === "string"; })
+          .map(function (t) { return { text: t, weight: 1 }; });
+      }
+    } catch (e) { /* malformed attribute: fall back to the global pool */ }
+    hintEl.textContent = pickWeighted(pageHints.length ? pageHints : HINTS);
+  }
 
   var article = document.querySelector(".entry-content");
   if (!article) return;

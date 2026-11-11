@@ -149,6 +149,12 @@ Within a post/note body:
   page's intro copy (`.entry-content`) with the page URL as thread key.
   Standalone `layout: page` pages need `comments: true` explicitly;
   `assets/js/comments.js` no-ops if `.entry-content` isn't present.
+- **Comment hints**: the small line above the body (`.comments-hint`) shows a
+  weighted-random entry from `HINTS` in `comments.js`. Optional frontmatter
+  `comment_hints: ["...", "..."]` replaces that global pool for the page
+  (equal weights; `comments.html` emits it as a JSON `data-hints` attribute;
+  malformed/empty falls back to the global pool). Works on any layout that
+  includes `comments.html`. No tests.
 - **Titles/dates**: lowercased via CSS (and via inline script for
   `<title>`, kept out of jekyll-seo-tag's `og:title`/JSON-LD). Meta line
   reads `p. <date>` / `l.m. <date>` (posted/modified).
