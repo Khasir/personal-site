@@ -64,6 +64,20 @@ body {
   padding: 0 1.25rem;
 }
 
+/* Nowrap only applies to desktop */
+@media (min-width: 800px) {
+  .nowrap {
+    white-space: nowrap;
+  }
+  .nowrap-centre {
+    white-space: nowrap;
+    width: max-content;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
 a { color: var(--color-accent); text-decoration: none; }
 a:hover, a:focus { text-decoration: underline; }
 

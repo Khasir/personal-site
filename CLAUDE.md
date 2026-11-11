@@ -114,8 +114,8 @@ Within a post/note body:
   unescaped `"` in the value). A single newline between each tag and the
   paragraphs around it is enough (the output starts/ends with a block-level
   `<div>`, which ends a kramdown paragraph); paragraphs *inside* need normal
-  blank lines. Output is `div.floating-section[markdown=1] > aside.floating-note
-  > div.floating-inner > p.floating-title (+ p.floating-text)`, then the
+  blank lines. Output is `div.floating-section[markdown=1] > aside.floating-note >
+  div.floating-inner > p.floating-title (+ p.floating-text)`, then the
   paragraphs. Layout (`main.css`, "Floating notes"): `.floating-section` is
   `position: relative` with **no padding/border/overflow/flow-root**, so
   the first/last paragraph margins collapse through it and it spans exactly
@@ -180,6 +180,17 @@ Within a post/note body:
   so it still shrinks on phones and scales with the larger-size option.
 - **Expansion sections**: native `<details>`/`<summary>`, needs
   `markdown="1"` for markdown inside.
+- **No-wrap paragraphs (desktop only)**: put `{: .nowrap}` on the line
+  before or after a paragraph to keep it on one line, or `{: .nowrap-centre}` to also
+  centre it on the viewport, breaking out of the content column
+  (`width: max-content` + `left: 50%` / `translateX(-50%)`). Both live in
+  `main.css` inside `@media (min-width: 800px)`, so under 800px the paragraph
+  wraps normally (inline `style` can't hold media queries, hence classes). The
+  breakpoint is px, so it ignores the larger-size option: with that on, a long
+  line can overflow sooner. A line wider than the viewport causes horizontal
+  scroll, so keep these to lines that fit at 800px+ (or use an
+  `overflow-x: auto` wrapper instead). `.nowrap-centre` may overlap the
+  floating-note and comment-navigator margins on wide screens.
 
 ### Interviews section
 
